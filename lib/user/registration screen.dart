@@ -1,41 +1,57 @@
- import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 class RegistrationScreen extends StatefulWidget {
-  const RegistrationScreen({super.key});
+  const RegistrationScreen({Key? key}) : super(key: key);
 
   @override
   State<RegistrationScreen> createState() => _RegistrationScreenState();
 }
 
 class _RegistrationScreenState extends State<RegistrationScreen> {
-  TextEditingController fullNameController = TextEditingController();
-  TextEditingController addressController = TextEditingController();
-  TextEditingController passwordController = TextEditingController();
-  TextEditingController phoneNumberController = TextEditingController();
-  TextEditingController emailController = TextEditingController();
-  TextEditingController adharController = TextEditingController();
+  final TextEditingController fullNameController = TextEditingController();
+  final TextEditingController addressController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
+  final TextEditingController phoneNumberController = TextEditingController();
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController adharController = TextEditingController();
 
+  String? gender; // Variable to store selected gender
   bool _isPasswordVisible = false;
 
-  // Registration handler function to process form data
-  void registrationHandler() {
-    String fullName = fullNameController.text;
-    String address = addressController.text;
-    String password = passwordController.text;
-    String phoneNumber = phoneNumberController.text;
-    String email = emailController.text;
-    String adhar = adharController.text;
+  @override
+  void dispose() {
+    // Dispose controllers to prevent memory leaks
+    fullNameController.dispose();
+    addressController.dispose();
+    passwordController.dispose();
+    phoneNumberController.dispose();
+    emailController.dispose();
+    adharController.dispose();
+    super.dispose();
+  }
 
-    // Basic validation
-    if (fullName.isEmpty || address.isEmpty || password.isEmpty || phoneNumber.isEmpty || email.isEmpty || adhar.isEmpty) {
+  void registrationHandler() {
+    String fullName = fullNameController.text.trim();
+    String address = addressController.text.trim();
+    String password = passwordController.text;
+    String phoneNumber = phoneNumberController.text.trim();
+    String email = emailController.text.trim();
+    String adhar = adharController.text.trim();
+
+    if (fullName.isEmpty ||
+        address.isEmpty ||
+        password.isEmpty ||
+        phoneNumber.isEmpty ||
+        email.isEmpty ||
+        adhar.isEmpty ||
+        gender == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Please fill in all the fields')),
       );
       return;
     }
 
-    // Validate Email
     if (!RegExp(r"^[a-zA-Z0-9]+@[a-zA-Z0-9]+\.[a-zA-Z]+").hasMatch(email)) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Please enter a valid email address')),
@@ -43,7 +59,6 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
       return;
     }
 
-    // Validate Phone Number
     if (phoneNumber.length != 10 || !RegExp(r'^[0-9]+$').hasMatch(phoneNumber)) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Please enter a valid phone number (10 digits)')),
@@ -51,7 +66,6 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
       return;
     }
 
-    // Validate Aadhar Number
     if (adhar.length != 12 || !RegExp(r'^[0-9]+$').hasMatch(adhar)) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Please enter a valid Aadhar number (12 digits)')),
@@ -59,15 +73,15 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
       return;
     }
 
-    // Print or process the data here (e.g., send it to a backend or store it locally)
     print("Full Name: $fullName");
     print("Address: $address");
     print("Password: $password");
     print("Phone Number: $phoneNumber");
     print("Email: $email");
     print("Aadhar: $adhar");
+    print("Gender: $gender");
 
-    // You can add your registration logic here, like sending data to an API.
+    // Add further registration logic here
   }
 
   @override
@@ -80,11 +94,11 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
         padding: const EdgeInsets.all(16.0),
         child: ListView(
           children: [
-            // Image
             Image.asset(
-              'asset/download.png',
+              'asset/download.png', // Ensure this path matches your asset configuration
               width: 100,
               height: 200,
+              fit: BoxFit.contain,
             ),
             SizedBox(height: 16),
 
@@ -96,7 +110,6 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                 border: OutlineInputBorder(),
                 focusedBorder: OutlineInputBorder(
                   borderSide: BorderSide(color: Colors.green, width: 2.0),
-              
                 ),
               ),
             ),
@@ -116,7 +129,29 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
             ),
             SizedBox(height: 16),
 
-           
+            // Password
+            TextField(
+              controller: passwordController,
+              obscureText: !_isPasswordVisible,
+              decoration: InputDecoration(
+                labelText: 'Password',
+                border: OutlineInputBorder(),
+                suffixIcon: IconButton(
+                  icon: Icon(
+                    _isPasswordVisible ? Icons.visibility : Icons.visibility_off,
+                  ),
+                  onPressed: () {
+                    setState(() {
+                      _isPasswordVisible = !_isPasswordVisible;
+                    });
+                  },
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderSide: BorderSide(color: Colors.green, width: 2.0),
+                ),
+              ),
+            ),
+            SizedBox(height: 16),
 
             // Phone Number
             TextField(
@@ -160,30 +195,32 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                 ),
               ),
             ),
-            SizedBox(height: 20),
- // Password
-            TextField(
-              controller: passwordController,
-              obscureText: !_isPasswordVisible,
+            SizedBox(height: 16),
+
+            // Gender Selection
+            DropdownButtonFormField<String>(
+              value: gender,
+              onChanged: (String? newValue) {
+                setState(() {
+                  gender = newValue;
+                });
+              },
               decoration: InputDecoration(
-                labelText: 'Password',
+                labelText: 'Gender',
                 border: OutlineInputBorder(),
-                suffixIcon: IconButton(
-                  icon: Icon(
-                    _isPasswordVisible ? Icons.visibility : Icons.visibility_off,
-                  ),
-                  onPressed: () {
-                    setState(() {
-                      _isPasswordVisible = !_isPasswordVisible;
-                    });
-                  },
-                ),
                 focusedBorder: OutlineInputBorder(
                   borderSide: BorderSide(color: Colors.green, width: 2.0),
                 ),
               ),
+              items: ['Male', 'Female', 'Other']
+                  .map((genderOption) => DropdownMenuItem<String>(
+                        value: genderOption,
+                        child: Text(genderOption),
+                      ))
+                  .toList(),
             ),
-            SizedBox(height: 16),
+            SizedBox(height: 20),
+
             // Sign Up Button
             Center(
               child: ElevatedButton(
