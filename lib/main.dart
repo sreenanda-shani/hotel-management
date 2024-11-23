@@ -8,7 +8,7 @@ import 'package:project1/user/registration%20screen.dart';
 void main() {
   runApp(MaterialApp(
     debugShowCheckedModeBanner: false,
-    home: HomePage(),
+    home: LoginPage(),
   ));
 }
 

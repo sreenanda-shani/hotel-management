@@ -16,12 +16,11 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController adharController = TextEditingController();
 
-  String? gender; // Variable to store selected gender
+  String? gender;
   bool _isPasswordVisible = false;
 
   @override
   void dispose() {
-    // Dispose controllers to prevent memory leaks
     fullNameController.dispose();
     addressController.dispose();
     passwordController.dispose();
@@ -90,146 +89,164 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
       appBar: AppBar(
         title: Text("Registration"),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: ListView(
-          children: [
-            Image.asset(
-              'asset/download.png', // Ensure this path matches your asset configuration
-              width: 100,
-              height: 200,
-              fit: BoxFit.contain,
+      body: Stack(
+        children: [
+          // Background Image
+          Positioned.fill(
+            child: Image.asset(
+              'asset/img4.webp', // Replace with your image path
+              fit: BoxFit.cover,
             ),
-            SizedBox(height: 16),
-
-            // Full Name
-            TextField(
-              controller: fullNameController,
-              decoration: InputDecoration(
-                labelText: 'Full Name',
-                border: OutlineInputBorder(),
-                focusedBorder: OutlineInputBorder(
-                  borderSide: BorderSide(color: Colors.green, width: 2.0),
-                ),
-              ),
-            ),
-            SizedBox(height: 16),
-
-            // Address
-            TextField(
-              controller: addressController,
-              maxLines: 3,
-              decoration: InputDecoration(
-                labelText: 'Address',
-                border: OutlineInputBorder(),
-                focusedBorder: OutlineInputBorder(
-                  borderSide: BorderSide(color: Colors.green, width: 2.0),
-                ),
-              ),
-            ),
-            SizedBox(height: 16),
-
-            // Password
-            TextField(
-              controller: passwordController,
-              obscureText: !_isPasswordVisible,
-              decoration: InputDecoration(
-                labelText: 'Password',
-                border: OutlineInputBorder(),
-                suffixIcon: IconButton(
-                  icon: Icon(
-                    _isPasswordVisible ? Icons.visibility : Icons.visibility_off,
+          ),
+          // Foreground Content
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: ListView(
+              children: [
+                // Logo - Circular Shape
+                Center(
+                  child: ClipOval(
+                    child: Image.asset(
+                      'asset/download.png', // Ensure this path matches your asset configuration
+                      width: 100,
+                      height: 100, // Adjust width and height for a circle
+                      fit: BoxFit.cover, // Ensures the image covers the entire circle
+                    ),
                   ),
-                  onPressed: () {
+                ),
+                SizedBox(height: 16),
+
+                // Full Name
+                buildRoundedTextField(
+                  controller: fullNameController,
+                  label: 'Full Name',
+                ),
+                SizedBox(height: 16),
+
+                // Address
+                buildRoundedTextField(
+                  controller: addressController,
+                  label: 'Address',
+                  maxLines: 3,
+                ),
+                SizedBox(height: 16),
+
+                // Password
+                buildRoundedTextField(
+                  controller: passwordController,
+                  label: 'Password',
+                  obscureText: !_isPasswordVisible,
+                  suffixIcon: IconButton(
+                    icon: Icon(
+                      _isPasswordVisible ? Icons.visibility : Icons.visibility_off,
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        _isPasswordVisible = !_isPasswordVisible;
+                      });
+                    },
+                  ),
+                ),
+                SizedBox(height: 16),
+
+                // Phone Number
+                buildRoundedTextField(
+                  controller: phoneNumberController,
+                  label: 'Phone Number',
+                  keyboardType: TextInputType.phone,
+                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                ),
+                SizedBox(height: 16),
+
+                // Email
+                buildRoundedTextField(
+                  controller: emailController,
+                  label: 'Email',
+                  keyboardType: TextInputType.emailAddress,
+                ),
+                SizedBox(height: 16),
+
+                // Aadhar Number
+                buildRoundedTextField(
+                  controller: adharController,
+                  label: 'Aadhar Number',
+                  keyboardType: TextInputType.number,
+                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                ),
+                SizedBox(height: 16),
+
+                // Gender Selection
+                DropdownButtonFormField<String>(
+                  value: gender,
+                  onChanged: (String? newValue) {
                     setState(() {
-                      _isPasswordVisible = !_isPasswordVisible;
+                      gender = newValue;
                     });
                   },
+                  decoration: InputDecoration(
+                    labelText: 'Gender',
+                    labelStyle: TextStyle(color: Colors.white),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(30),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: Colors.green, width: 2.0),
+                      borderRadius: BorderRadius.circular(30),
+                    ),
+                  ),
+                  items: ['Male', 'Female', 'Other']
+                      .map((genderOption) => DropdownMenuItem<String>(
+                            value: genderOption,
+                            child: Text(genderOption),
+                          ))
+                      .toList(),
                 ),
-                focusedBorder: OutlineInputBorder(
-                  borderSide: BorderSide(color: Colors.green, width: 2.0),
-                ),
-              ),
-            ),
-            SizedBox(height: 16),
+                SizedBox(height: 20),
 
-            // Phone Number
-            TextField(
-              controller: phoneNumberController,
-              keyboardType: TextInputType.phone,
-              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-              decoration: InputDecoration(
-                labelText: 'Phone Number',
-                border: OutlineInputBorder(),
-                focusedBorder: OutlineInputBorder(
-                  borderSide: BorderSide(color: Colors.green, width: 2.0),
+                // Sign Up Button
+                Center(
+                  child: ElevatedButton(
+                    onPressed: registrationHandler,
+                    child: Text('Sign Up'),
+                  ),
                 ),
-              ),
+              ],
             ),
-            SizedBox(height: 16),
+          ),
+        ],
+      ),
+    );
+  }
 
-            // Email
-            TextField(
-              controller: emailController,
-              keyboardType: TextInputType.emailAddress,
-              decoration: InputDecoration(
-                labelText: 'Email',
-                border: OutlineInputBorder(),
-                focusedBorder: OutlineInputBorder(
-                  borderSide: BorderSide(color: Colors.green, width: 2.0),
-                ),
-              ),
-            ),
-            SizedBox(height: 16),
-
-            // Aadhar Number
-            TextField(
-              controller: adharController,
-              keyboardType: TextInputType.number,
-              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-              decoration: InputDecoration(
-                labelText: 'Aadhar Number',
-                border: OutlineInputBorder(),
-                focusedBorder: OutlineInputBorder(
-                  borderSide: BorderSide(color: Colors.green, width: 2.0),
-                ),
-              ),
-            ),
-            SizedBox(height: 16),
-
-            // Gender Selection
-            DropdownButtonFormField<String>(
-              value: gender,
-              onChanged: (String? newValue) {
-                setState(() {
-                  gender = newValue;
-                });
-              },
-              decoration: InputDecoration(
-                labelText: 'Gender',
-                border: OutlineInputBorder(),
-                focusedBorder: OutlineInputBorder(
-                  borderSide: BorderSide(color: Colors.green, width: 2.0),
-                ),
-              ),
-              items: ['Male', 'Female', 'Other']
-                  .map((genderOption) => DropdownMenuItem<String>(
-                        value: genderOption,
-                        child: Text(genderOption),
-                      ))
-                  .toList(),
-            ),
-            SizedBox(height: 20),
-
-            // Sign Up Button
-            Center(
-              child: ElevatedButton(
-                onPressed: registrationHandler,
-                child: Text('Sign Up'),
-              ),
-            ),
-          ],
+  Widget buildRoundedTextField({
+    required TextEditingController controller,
+    required String label,
+    int maxLines = 1,
+    bool obscureText = false,
+    TextInputType keyboardType = TextInputType.text,
+    List<TextInputFormatter>? inputFormatters,
+    Widget? suffixIcon,
+  }) {
+    return TextField(
+      controller: controller,
+      maxLines: maxLines,
+      obscureText: obscureText,
+      keyboardType: keyboardType,
+      inputFormatters: inputFormatters,
+      style: TextStyle(color: Colors.white), // Change text color
+      decoration: InputDecoration(
+        labelText: label,
+        labelStyle: TextStyle(color: Colors.white),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(30), // Rounded corners
         ),
+        focusedBorder: OutlineInputBorder(
+          borderSide: BorderSide(color: Colors.green, width: 2.0),
+          borderRadius: BorderRadius.circular(30),
+        ),
+        filled: true,
+        fillColor: Colors.black.withOpacity(0.6), // Semi-transparent background
+        suffixIcon: suffixIcon,
       ),
     );
   }

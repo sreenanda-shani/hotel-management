@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:project1/user/home_page.dart';
-import 'package:project1/user/registration%20screen.dart';  // Import the RegistrationPage
+import 'package:project1/user/registration%20screen.dart'; // Import the RegistrationPage
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -29,9 +28,9 @@ class _LoginPageState extends State<LoginPage> {
       return;
     }
 
-    Navigator.push(context,MaterialPageRoute(builder: (context) {
+    Navigator.push(context, MaterialPageRoute(builder: (context) {
       return HomePage();
-    },));
+    }));
 
     // Print or process the data here (e.g., send it to a backend or store it locally)
     print("Full Name: $fullName");
@@ -46,91 +45,134 @@ class _LoginPageState extends State<LoginPage> {
       appBar: AppBar(
         title: Text("Login"),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: ListView(
-          children: [
-            // Image
-            Image.asset(
-              'asset/download.png',
-              width: 100,
-              height: 200,
+      body: Stack(
+        children: [
+          // Background Image
+          Positioned.fill(
+            child: Image.asset(
+              'asset/img4.webp', // Replace with your image path
+              fit: BoxFit.cover,
             ),
-            SizedBox(height: 16),
-
-            // Full Name
-            TextField(
-              controller: fullNameController,
-              decoration: InputDecoration(
-                labelText: 'Full Name',
-                border: OutlineInputBorder(),
-                focusedBorder: OutlineInputBorder(
-                  borderSide: BorderSide(color: Colors.green, width: 2.0),
-                ),
-              ),
-            ),
-            SizedBox(height: 16),
-
-            // Password
-            TextField(
-              controller: passwordController,
-              obscureText: !_isPasswordVisible,
-              decoration: InputDecoration(
-                labelText: 'Password',
-                border: OutlineInputBorder(),
-                suffixIcon: IconButton(
-                  icon: Icon(
-                    _isPasswordVisible ? Icons.visibility : Icons.visibility_off,
-                  ),
-                  onPressed: () {
-                    setState(() {
-                      _isPasswordVisible = !_isPasswordVisible;
-                    });
-                  },
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderSide: BorderSide(color: Colors.green, width: 2.0),
-                ),
-              ),
-            ),
-            SizedBox(height: 20),
-
-            // Space between the login button and the registration link
-           
-            Center(
-              child: ElevatedButton(
-                onPressed: loginHandler,
-                child: Text('Sign In'),
-              ),
-            ),
-            // Register now text
-            Center(
-              child: GestureDetector(
-                onTap: () {
-                  // Navigate to the Registration Screen
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const RegistrationScreen(),
+          ),
+          // Foreground Content
+          Center(
+            child: SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    // Circular Logo
+                    ClipOval(
+                      child: Image.asset(
+                        'asset/download.png',
+                        width: 120,
+                        height: 120,
+                        fit: BoxFit.cover,
+                      ),
                     ),
-                  );
-                },
-                child: 
-                Padding(
-                  padding: const EdgeInsets.only(top: 12.0),
-                  child: 
-                  Text("Don't you have an account? Register now",
-                  style: TextStyle(
-                    color: const Color.fromARGB(255, 22, 150, 255),
-                    fontWeight: FontWeight.bold,
-                    //decoration: TextDecoration.underline,
-                  ),)
-                  
+                    SizedBox(height: 24),
+
+                    // Full Name Text Field (Oval-like shape)
+SizedBox(
+  width: 300, // Adjust the width as needed
+  child: TextField(
+    controller: fullNameController,
+    style: TextStyle(color: Colors.white),
+    decoration: InputDecoration(
+      labelText: 'Full Name',
+      labelStyle: TextStyle(color: Colors.white),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(50), // Oval shape
+      ),
+      filled: true, // To fill the background with color
+      fillColor: Colors.black.withOpacity(0.3), // Semi-transparent background
+      focusedBorder: OutlineInputBorder(
+        borderSide: BorderSide(color: Colors.green, width: 2.0),
+        borderRadius: BorderRadius.circular(50), // Oval shape
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderSide: BorderSide(color: Colors.white),
+        borderRadius: BorderRadius.circular(50), // Oval shape
+      ),
+    ),
+  ),
+),
+SizedBox(height: 16),
+
+// Password Text Field (Oval-like shape)
+SizedBox(
+  width: 300, // Adjust the width as needed
+  child: TextField(
+    controller: passwordController,
+    obscureText: !_isPasswordVisible,
+    style: TextStyle(color: Colors.white),
+    decoration: InputDecoration(
+      labelText: 'Password',
+      labelStyle: TextStyle(color: Colors.white),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(50), // Oval shape
+      ),
+      filled: true, // To fill the background with color
+      fillColor: Colors.black.withOpacity(0.3), // Semi-transparent background
+      suffixIcon: IconButton(
+        icon: Icon(
+          _isPasswordVisible ? Icons.visibility : Icons.visibility_off,
+          color: Colors.white,
+        ),
+        onPressed: () {
+          setState(() {
+            _isPasswordVisible = !_isPasswordVisible;
+          });
+        },
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderSide: BorderSide(color: Colors.green, width: 2.0),
+        borderRadius: BorderRadius.circular(50), // Oval shape
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderSide: BorderSide(color: Colors.white),
+        borderRadius: BorderRadius.circular(50), // Oval shape
+      ),
+    ),
+  ),
+),
+
+                    SizedBox(height: 24),
+
+                    // Sign In Button
+                    ElevatedButton(
+                      onPressed: loginHandler,
+                      child: Text('Sign In'),
+                    ),
+                    SizedBox(height: 12),
+
+                    // Register now text
+                    GestureDetector(
+                      onTap: () {
+                        // Navigate to the Registration Screen
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const RegistrationScreen(),
+                          ),
+                        );
+                      },
+                      child: Text(
+                        "Don't you have an account? Register now",
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
