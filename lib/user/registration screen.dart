@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:project1/user/login_page.dart';
 
-class HomePage extends StatelessWidget {
+class Registration extends StatelessWidget {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   final List<String> locations = ['Nearby', 'Bangalore', 'Chennai', 'Delhi'];
   final List<String> premiumHotels = ['₹999 + taxes', '₹1199 + taxes', '₹1499 + taxes'];

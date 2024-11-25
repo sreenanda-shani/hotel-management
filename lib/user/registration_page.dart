@@ -1,49 +1,47 @@
 import 'package:flutter/material.dart';
-import 'package:project1/user/registration_page.dart'; // Import Registration Page
-import 'package:project1/user/home_page.dart'; // Import HomePage after login
-import 'package:project1/user/forgot_password_page.dart'; // Import ForgotPassword Page
 
-class LoginPage extends StatefulWidget {
-  const LoginPage({super.key});
+class UserRegistrationPage extends StatefulWidget {
+  const UserRegistrationPage({super.key});
 
   @override
-  State<LoginPage> createState() => _LoginPageState();
+  State<UserRegistrationPage> createState() => _UserRegistrationPageState();
 }
 
-class _LoginPageState extends State<LoginPage> {
+class _UserRegistrationPageState extends State<UserRegistrationPage> {
   TextEditingController fullNameController = TextEditingController();
+  TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
 
   bool _isPasswordVisible = false;
 
-  // Login handler function to process form data
-  void loginHandler() {
+  // Registration handler function to process form data
+  void registerHandler() {
     String fullName = fullNameController.text;
+    String email = emailController.text;
     String password = passwordController.text;
 
     // Basic validation
-    if (fullName.isEmpty || password.isEmpty) {
+    if (fullName.isEmpty || email.isEmpty || password.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Please fill in all the fields')),
       );
       return;
     }
 
-    // Navigate to HomePage after successful login
-    Navigator.push(context, MaterialPageRoute(builder: (context) {
-      return HomePage(); // Navigate to HomePage (replace with actual widget)
-    }));
-
     // Print for debugging (optional)
     print("Full Name: $fullName");
+    print("Email: $email");
     print("Password: $password");
+
+    // Navigate to a success page (replace with your own)
+    Navigator.pop(context); // Go back to the Login Page after registration
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Login"),
+        title: const Text("User Registration"),
       ),
       body: Stack(
         children: [
@@ -82,6 +80,33 @@ class _LoginPageState extends State<LoginPage> {
                         style: const TextStyle(color: Colors.white),
                         decoration: InputDecoration(
                           labelText: 'Full Name',
+                          labelStyle: const TextStyle(color: Colors.white),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(50),
+                          ),
+                          filled: true,
+                          fillColor: Colors.black.withOpacity(0.3),
+                          focusedBorder: OutlineInputBorder(
+                            borderSide: const BorderSide(color: Colors.green, width: 2.0),
+                            borderRadius: BorderRadius.circular(50),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderSide: const BorderSide(color: Colors.white),
+                            borderRadius: BorderRadius.circular(50),
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+
+                    // Email Text Field
+                    SizedBox(
+                      width: 300,
+                      child: TextField(
+                        controller: emailController,
+                        style: const TextStyle(color: Colors.white),
+                        decoration: InputDecoration(
+                          labelText: 'Email',
                           labelStyle: const TextStyle(color: Colors.white),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(50),
@@ -142,45 +167,10 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                     const SizedBox(height: 24),
 
-                    // Sign In Button
+                    // Register Button
                     ElevatedButton(
-                      onPressed: loginHandler,
-                      child: const Text('Sign In'),
-                    ),
-                    const SizedBox(height: 12),
-
-                    // Register Navigation Text
-                    GestureDetector(
-                      onTap: () {
-                        Navigator.push(context, MaterialPageRoute(builder: (context) {
-                          return const UserRegistrationPage(); // Navigate to Registration Page
-                        }));
-                      },
-                      child: const Text(
-                        "Don't have an account? Register now",
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-
-                    const SizedBox(height: 12),
-
-                    // Forgot Password Option
-                    GestureDetector(
-                      onTap: () {
-                        Navigator.push(context, MaterialPageRoute(builder: (context) {
-                          return const ForgotPasswordPage(); // Navigate to Forgot Password Page
-                        }));
-                      },
-                      child: const Text(
-                        "Forgot Password?",
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
+                      onPressed: registerHandler,
+                      child: const Text('Register'),
                     ),
                   ],
                 ),

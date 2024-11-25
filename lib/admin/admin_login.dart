@@ -1,41 +1,38 @@
 import 'package:flutter/material.dart';
-import 'package:project1/user/registration_page.dart'; // Import Registration Page
-import 'package:project1/user/home_page.dart'; // Import HomePage after login
-import 'package:project1/user/forgot_password_page.dart'; // Import ForgotPassword Page
 
-class LoginPage extends StatefulWidget {
-  const LoginPage({super.key});
+class AdminLoginPage extends StatefulWidget {
+  const AdminLoginPage({super.key});
 
   @override
-  State<LoginPage> createState() => _LoginPageState();
+  State<AdminLoginPage> createState() => _AdminLoginPageState();
 }
 
-class _LoginPageState extends State<LoginPage> {
-  TextEditingController fullNameController = TextEditingController();
+class _AdminLoginPageState extends State<AdminLoginPage> {
+  TextEditingController adminIDController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
 
   bool _isPasswordVisible = false;
 
-  // Login handler function to process form data
+  // Admin login handler function to process form data
   void loginHandler() {
-    String fullName = fullNameController.text;
+    String adminID = adminIDController.text;
     String password = passwordController.text;
 
     // Basic validation
-    if (fullName.isEmpty || password.isEmpty) {
+    if (adminID.isEmpty || password.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Please fill in all the fields')),
       );
       return;
     }
 
-    // Navigate to HomePage after successful login
+    // Navigate to Admin Dashboard after successful login
     Navigator.push(context, MaterialPageRoute(builder: (context) {
-      return HomePage(); // Navigate to HomePage (replace with actual widget)
+      return const AdminLoginPage(); // Navigate to the Admin Dashboard
     }));
 
     // Print for debugging (optional)
-    print("Full Name: $fullName");
+    print("Admin ID: $adminID");
     print("Password: $password");
   }
 
@@ -43,7 +40,7 @@ class _LoginPageState extends State<LoginPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Login"),
+        title: const Text("Admin Login"),
       ),
       body: Stack(
         children: [
@@ -63,7 +60,7 @@ class _LoginPageState extends State<LoginPage> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    // Circular Logo
+                    // Circular Logo for Admin
                     ClipOval(
                       child: Image.asset(
                         'asset/download.png', // Replace with your logo path
@@ -74,14 +71,14 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                     const SizedBox(height: 24),
 
-                    // Full Name Text Field
+                    // Admin ID (or Email) Text Field
                     SizedBox(
                       width: 300,
                       child: TextField(
-                        controller: fullNameController,
+                        controller: adminIDController,
                         style: const TextStyle(color: Colors.white),
                         decoration: InputDecoration(
-                          labelText: 'Full Name',
+                          labelText: 'Admin ID or Email',
                           labelStyle: const TextStyle(color: Colors.white),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(50),
@@ -89,7 +86,8 @@ class _LoginPageState extends State<LoginPage> {
                           filled: true,
                           fillColor: Colors.black.withOpacity(0.3),
                           focusedBorder: OutlineInputBorder(
-                            borderSide: const BorderSide(color: Colors.green, width: 2.0),
+                            borderSide:
+                                const BorderSide(color: Colors.green, width: 2.0),
                             borderRadius: BorderRadius.circular(50),
                           ),
                           enabledBorder: OutlineInputBorder(
@@ -130,7 +128,8 @@ class _LoginPageState extends State<LoginPage> {
                             },
                           ),
                           focusedBorder: OutlineInputBorder(
-                            borderSide: const BorderSide(color: Colors.green, width: 2.0),
+                            borderSide:
+                                const BorderSide(color: Colors.green, width: 2.0),
                             borderRadius: BorderRadius.circular(50),
                           ),
                           enabledBorder: OutlineInputBorder(
@@ -146,41 +145,6 @@ class _LoginPageState extends State<LoginPage> {
                     ElevatedButton(
                       onPressed: loginHandler,
                       child: const Text('Sign In'),
-                    ),
-                    const SizedBox(height: 12),
-
-                    // Register Navigation Text
-                    GestureDetector(
-                      onTap: () {
-                        Navigator.push(context, MaterialPageRoute(builder: (context) {
-                          return const UserRegistrationPage(); // Navigate to Registration Page
-                        }));
-                      },
-                      child: const Text(
-                        "Don't have an account? Register now",
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-
-                    const SizedBox(height: 12),
-
-                    // Forgot Password Option
-                    GestureDetector(
-                      onTap: () {
-                        Navigator.push(context, MaterialPageRoute(builder: (context) {
-                          return const ForgotPasswordPage(); // Navigate to Forgot Password Page
-                        }));
-                      },
-                      child: const Text(
-                        "Forgot Password?",
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
                     ),
                   ],
                 ),
