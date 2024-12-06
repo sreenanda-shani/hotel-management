@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:project1/user/services/user_auth_service.dart';
 
 class UserRegistrationPage extends StatefulWidget {
   const UserRegistrationPage({super.key});
@@ -169,7 +170,10 @@ class _UserRegistrationPageState extends State<UserRegistrationPage> {
 
                     // Register Button
                     ElevatedButton(
-                      onPressed: registerHandler,
+                      onPressed: (){
+                        UserAuthService().userRegister(email: "hwdqhj@hjj.dhd", password: '', context: context);
+                      }
+                      ,
                       child: const Text('Register'),
                     ),
                   ],
