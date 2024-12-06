@@ -171,7 +171,7 @@ class _UserRegistrationPageState extends State<UserRegistrationPage> {
                     // Register Button
                     ElevatedButton(
                       onPressed: (){
-                        UserAuthService().userRegister(email: "hwdqhj@hjj.dhd", password: '', context: context);
+                        UserAuthService().userRegister(email: emailController.text, fullName: fullNameController.text, password: passwordController.text, context: context);
                       }
                       ,
                       child: const Text('Register'),
