@@ -5,6 +5,7 @@ import 'package:project1/firebase_options.dart';
 import 'package:project1/user/forgot_password_page.dart';
 import 'package:project1/user/home_page.dart';
 import 'package:project1/user/login_page.dart';
+import 'package:project1/user/profile.dart';
 import 'package:project1/user/registration%20screen.dart';
 import 'package:project1/user/registration_page.dart';
 
@@ -14,7 +15,7 @@ Future<void> main() async {
 );
   runApp(MaterialApp(
     debugShowCheckedModeBanner: false,
-    home: UserRegistrationPage(),
+    home: LoginPage()
   ));
 }
 

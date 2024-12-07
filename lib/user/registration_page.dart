@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:project1/user/home_page.dart';
+import 'package:project1/user/login_page.dart';
 import 'package:project1/user/services/user_auth_service.dart';
 
 class UserRegistrationPage extends StatefulWidget {
@@ -12,30 +14,61 @@ class _UserRegistrationPageState extends State<UserRegistrationPage> {
   TextEditingController fullNameController = TextEditingController();
   TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
+  TextEditingController aadharController = TextEditingController();
+  TextEditingController phoneController = TextEditingController();
+  TextEditingController addressController = TextEditingController();
+
+bool loading =false;
 
   bool _isPasswordVisible = false;
-
+  String? selectedGender = 'Male'; // Default gender is Male
   // Registration handler function to process form data
-  void registerHandler() {
+  Future<void> registerHandler() async {
+    setState(() {
+      loading=true;
+    });
+    
     String fullName = fullNameController.text;
     String email = emailController.text;
     String password = passwordController.text;
+    String aadhar = aadharController.text;
+    String phone = phoneController.text;
+    String address = addressController.text;
+    String gender = selectedGender!; // Get the selected gender value
 
     // Basic validation
-    if (fullName.isEmpty || email.isEmpty || password.isEmpty) {
+    if (fullName.isEmpty ||
+        email.isEmpty ||
+        password.isEmpty ||
+        aadhar.isEmpty ||
+        phone.isEmpty ||
+        address.isEmpty ||
+        gender.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Please fill in all the fields')),
       );
       return;
     }
 
-    // Print for debugging (optional)
-    print("Full Name: $fullName");
-    print("Email: $email");
-    print("Password: $password");
+    // Call the register function (assuming UserAuthService is defined elsewhere)
+    await UserAuthService().userRegister(
+      email: emailController.text,
+      fullName: fullNameController.text,
+      password: passwordController.text,
+      aadhar: aadharController.text,
+      phone: phoneController.text,
+      address: addressController.text,
+      gender: gender, // Pass the selected gender here
+      context: context,
+    );
+    setState(() {
+      loading=false;
+    });
 
     // Navigate to a success page (replace with your own)
-    Navigator.pop(context); // Go back to the Login Page after registration
+    Navigator.push(context, MaterialPageRoute(builder: (context) {
+      return  LoginPage();
+    },)); // Go back to the Login Page after registration
   }
 
   @override
@@ -74,106 +107,44 @@ class _UserRegistrationPageState extends State<UserRegistrationPage> {
                     const SizedBox(height: 24),
 
                     // Full Name Text Field
-                    SizedBox(
-                      width: 300,
-                      child: TextField(
-                        controller: fullNameController,
-                        style: const TextStyle(color: Colors.white),
-                        decoration: InputDecoration(
-                          labelText: 'Full Name',
-                          labelStyle: const TextStyle(color: Colors.white),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(50),
-                          ),
-                          filled: true,
-                          fillColor: Colors.black.withOpacity(0.3),
-                          focusedBorder: OutlineInputBorder(
-                            borderSide: const BorderSide(color: Colors.green, width: 2.0),
-                            borderRadius: BorderRadius.circular(50),
-                          ),
-                          enabledBorder: OutlineInputBorder(
-                            borderSide: const BorderSide(color: Colors.white),
-                            borderRadius: BorderRadius.circular(50),
-                          ),
-                        ),
-                      ),
-                    ),
+                    _buildTextField('Full Name', fullNameController),
+
                     const SizedBox(height: 16),
 
                     // Email Text Field
-                    SizedBox(
-                      width: 300,
-                      child: TextField(
-                        controller: emailController,
-                        style: const TextStyle(color: Colors.white),
-                        decoration: InputDecoration(
-                          labelText: 'Email',
-                          labelStyle: const TextStyle(color: Colors.white),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(50),
-                          ),
-                          filled: true,
-                          fillColor: Colors.black.withOpacity(0.3),
-                          focusedBorder: OutlineInputBorder(
-                            borderSide: const BorderSide(color: Colors.green, width: 2.0),
-                            borderRadius: BorderRadius.circular(50),
-                          ),
-                          enabledBorder: OutlineInputBorder(
-                            borderSide: const BorderSide(color: Colors.white),
-                            borderRadius: BorderRadius.circular(50),
-                          ),
-                        ),
-                      ),
-                    ),
+                    _buildTextField('Email', emailController),
+
                     const SizedBox(height: 16),
 
                     // Password Text Field
-                    SizedBox(
-                      width: 300,
-                      child: TextField(
-                        controller: passwordController,
-                        obscureText: !_isPasswordVisible,
-                        style: const TextStyle(color: Colors.white),
-                        decoration: InputDecoration(
-                          labelText: 'Password',
-                          labelStyle: const TextStyle(color: Colors.white),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(50),
-                          ),
-                          filled: true,
-                          fillColor: Colors.black.withOpacity(0.3),
-                          suffixIcon: IconButton(
-                            icon: Icon(
-                              _isPasswordVisible
-                                  ? Icons.visibility
-                                  : Icons.visibility_off,
-                              color: Colors.white,
-                            ),
-                            onPressed: () {
-                              setState(() {
-                                _isPasswordVisible = !_isPasswordVisible;
-                              });
-                            },
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderSide: const BorderSide(color: Colors.green, width: 2.0),
-                            borderRadius: BorderRadius.circular(50),
-                          ),
-                          enabledBorder: OutlineInputBorder(
-                            borderSide: const BorderSide(color: Colors.white),
-                            borderRadius: BorderRadius.circular(50),
-                          ),
-                        ),
-                      ),
-                    ),
+                    _buildPasswordTextField(),
+
+                    const SizedBox(height: 16),
+
+                    // Aadhar Number Text Field
+                    _buildTextField('Aadhar Number', aadharController),
+
+                    const SizedBox(height: 16),
+
+                    // Phone Number Text Field
+                    _buildTextField('Phone Number', phoneController),
+
+                    const SizedBox(height: 16),
+
+                    // Address Text Field
+                    _buildTextField('Address', addressController),
+
+                    const SizedBox(height: 16),
+
+                    // Gender Selection
+                    _buildGenderSelection(),
+
                     const SizedBox(height: 24),
 
                     // Register Button
+                    loading ? CircularProgressIndicator():
                     ElevatedButton(
-                      onPressed: (){
-                        UserAuthService().userRegister(email: emailController.text, fullName: fullNameController.text, password: passwordController.text, context: context);
-                      }
-                      ,
+                      onPressed: registerHandler,
                       child: const Text('Register'),
                     ),
                   ],
@@ -182,6 +153,113 @@ class _UserRegistrationPageState extends State<UserRegistrationPage> {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  // Helper function to build text fields
+  Widget _buildTextField(String label, TextEditingController controller) {
+    return SizedBox(
+      width: 300,
+      child: TextField(
+        controller: controller,
+        style: const TextStyle(color: Colors.white),
+        decoration: InputDecoration(
+          labelText: label,
+          labelStyle: const TextStyle(color: Colors.white),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(50),
+          ),
+          filled: true,
+          fillColor: Colors.black.withOpacity(0.3),
+          focusedBorder: OutlineInputBorder(
+            borderSide: const BorderSide(color: Colors.green, width: 2.0),
+            borderRadius: BorderRadius.circular(50),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderSide: const BorderSide(color: Colors.white),
+            borderRadius: BorderRadius.circular(50),
+          ),
+        ),
+      ),
+    );
+  }
+
+  // Helper function to build password text field
+  Widget _buildPasswordTextField() {
+    return SizedBox(
+      width: 300,
+      child: TextField(
+        controller: passwordController,
+        obscureText: !_isPasswordVisible,
+        style: const TextStyle(color: Colors.white),
+        decoration: InputDecoration(
+          labelText: 'Password',
+          labelStyle: const TextStyle(color: Colors.white),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(50),
+          ),
+          filled: true,
+          fillColor: Colors.black.withOpacity(0.3),
+          suffixIcon: IconButton(
+            icon: Icon(
+              _isPasswordVisible ? Icons.visibility : Icons.visibility_off,
+              color: Colors.white,
+            ),
+            onPressed: () {
+              setState(() {
+                _isPasswordVisible = !_isPasswordVisible;
+              });
+            },
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderSide: const BorderSide(color: Colors.green, width: 2.0),
+            borderRadius: BorderRadius.circular(50),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderSide: const BorderSide(color: Colors.white),
+            borderRadius: BorderRadius.circular(50),
+          ),
+        ),
+      ),
+    );
+  }
+
+  // Helper function to build gender selection dropdown
+  Widget _buildGenderSelection() {
+    return SizedBox(
+      width: 300,
+      child: DropdownButtonFormField<String>(
+        value: selectedGender,
+        onChanged: (String? newValue) {
+          setState(() {
+            selectedGender = newValue!;
+          });
+        },
+        decoration: InputDecoration(
+          labelText: 'Gender',
+          labelStyle: const TextStyle(color: Colors.white),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(50),
+          ),
+          filled: true,
+          fillColor: Colors.black.withOpacity(0.3),
+          focusedBorder: OutlineInputBorder(
+            borderSide: const BorderSide(color: Colors.green, width: 2.0),
+            borderRadius: BorderRadius.circular(50),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderSide: const BorderSide(color: Colors.white),
+            borderRadius: BorderRadius.circular(50),
+          ),
+        ),
+        items: ['Male', 'Female', 'Other']
+            .map<DropdownMenuItem<String>>((String value) {
+          return DropdownMenuItem<String>(
+            value: value,
+            child: Text(value),
+          );
+        }).toList(),
       ),
     );
   }

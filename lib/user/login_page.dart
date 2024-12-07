@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:project1/user/registration_page.dart'; // Import Registration Page
 import 'package:project1/user/home_page.dart'; // Import HomePage after login
-import 'package:project1/user/forgot_password_page.dart'; // Import ForgotPassword Page
+import 'package:project1/user/forgot_password_page.dart';
+import 'package:project1/user/services/user_auth_service.dart'; // Import ForgotPassword Page
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -11,32 +12,29 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  TextEditingController fullNameController = TextEditingController();
+  TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
 
   bool _isPasswordVisible = false;
 
   // Login handler function to process form data
   void loginHandler() {
-    String fullName = fullNameController.text;
+    String email = emailController.text;
     String password = passwordController.text;
 
     // Basic validation
-    if (fullName.isEmpty || password.isEmpty) {
+    if (email.isEmpty || password.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Please fill in all the fields')),
       );
       return;
     }
 
-    // Navigate to HomePage after successful login
-    Navigator.push(context, MaterialPageRoute(builder: (context) {
-      return HomePage(); // Navigate to HomePage (replace with actual widget)
-    }));
+    UserAuthService().userLogin(email: email, password: password, context: context);
 
-    // Print for debugging (optional)
-    print("Full Name: $fullName");
-    print("Password: $password");
+   
+
+   
   }
 
   @override
@@ -78,10 +76,10 @@ class _LoginPageState extends State<LoginPage> {
                     SizedBox(
                       width: 300,
                       child: TextField(
-                        controller: fullNameController,
+                        controller: emailController,
                         style: const TextStyle(color: Colors.white),
                         decoration: InputDecoration(
-                          labelText: 'Full Name',
+                          labelText: 'email',
                           labelStyle: const TextStyle(color: Colors.white),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(50),

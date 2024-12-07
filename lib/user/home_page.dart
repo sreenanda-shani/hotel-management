@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:project1/user/login_page.dart';
+import 'package:project1/user/profile.dart';
 
 class HomePage extends StatelessWidget {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
@@ -253,7 +253,9 @@ class HomePage extends StatelessWidget {
           ListTile(
             title: Text('Profile'),
             onTap: () {
-              Navigator.pop(context);
+              Navigator.push(context, MaterialPageRoute(builder: (context) {
+                return ProfilePage();
+              },));
             },
           ),
           ListTile(
