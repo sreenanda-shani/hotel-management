@@ -16,7 +16,7 @@ Future<void> main() async {
 );
   runApp(MaterialApp(
     debugShowCheckedModeBanner: false,
-    home: AdminHomeScreen()
+    home: UserRegistrationPage()
   ));
 }
 

@@ -18,16 +18,16 @@ class _UserRegistrationPageState extends State<UserRegistrationPage> {
   TextEditingController phoneController = TextEditingController();
   TextEditingController addressController = TextEditingController();
 
-bool loading =false;
-
+  bool loading = false;
   bool _isPasswordVisible = false;
   String? selectedGender = 'Male'; // Default gender is Male
+
   // Registration handler function to process form data
   Future<void> registerHandler() async {
     setState(() {
-      loading=true;
+      loading = true;
     });
-    
+
     String fullName = fullNameController.text;
     String email = emailController.text;
     String password = passwordController.text;
@@ -47,6 +47,9 @@ bool loading =false;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Please fill in all the fields')),
       );
+      setState(() {
+        loading = false;
+      });
       return;
     }
 
@@ -61,14 +64,15 @@ bool loading =false;
       gender: gender, // Pass the selected gender here
       context: context,
     );
+
     setState(() {
-      loading=false;
+      loading = false;
     });
 
     // Navigate to a success page (replace with your own)
     Navigator.push(context, MaterialPageRoute(builder: (context) {
-      return  LoginPage();
-    },)); // Go back to the Login Page after registration
+      return LoginPage(); // Go back to the Login Page after registration
+    }));
   }
 
   @override
@@ -142,11 +146,12 @@ bool loading =false;
                     const SizedBox(height: 24),
 
                     // Register Button
-                    loading ? CircularProgressIndicator():
-                    ElevatedButton(
-                      onPressed: registerHandler,
-                      child: const Text('Register'),
-                    ),
+                    loading
+                        ? const CircularProgressIndicator()
+                        : ElevatedButton(
+                            onPressed: registerHandler,
+                            child: const Text('Register'),
+                          ),
                   ],
                 ),
               ),
@@ -253,11 +258,15 @@ bool loading =false;
             borderRadius: BorderRadius.circular(50),
           ),
         ),
+        dropdownColor: Colors.black, // Dropdown background color
         items: ['Male', 'Female', 'Other']
             .map<DropdownMenuItem<String>>((String value) {
           return DropdownMenuItem<String>(
             value: value,
-            child: Text(value),
+            child: Text(
+              value,
+              style: const TextStyle(color: Colors.white), // Dropdown text color
+            ),
           );
         }).toList(),
       ),
