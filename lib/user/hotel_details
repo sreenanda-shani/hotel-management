@@ -1,0 +1,115 @@
+import 'package:flutter/material.dart';
+
+class HotelDetailsPage extends StatelessWidget {
+  const HotelDetailsPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    // Demo hotel details (hardcoded)
+    String hotelName = "Sunshine Resort";
+    String hotelImage = "assets/hotel_image.png"; // Replace with your image path
+    String hotelDescription = "Enjoy a luxurious stay with breathtaking views, excellent service, and top-notch facilities. Our rooms are equipped with modern amenities for your comfort.";
+
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(hotelName),
+        backgroundColor: Colors.blueAccent,
+        elevation: 0,
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Hotel Image
+            Container(
+              height: 250,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(15),
+                image: DecorationImage(
+                  image: AssetImage(hotelImage), // Provide hotel image asset
+                  fit: BoxFit.cover,
+                ),
+              ),
+            ),
+            const SizedBox(height: 20),
+
+            // Hotel Name
+            Text(
+              hotelName,
+              style: const TextStyle(
+                fontSize: 28,
+                fontWeight: FontWeight.bold,
+                color: Colors.blueAccent,
+              ),
+            ),
+            const SizedBox(height: 10),
+
+            // Hotel Description
+            Text(
+              hotelDescription,
+              style: TextStyle(
+                fontSize: 16,
+                color: Colors.grey[700],
+              ),
+            ),
+            const SizedBox(height: 20),
+
+            // Hotel Facilities
+            const Text(
+              "Facilities:",
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: Colors.blueAccent,
+              ),
+            ),
+            const SizedBox(height: 10),
+            _buildFacility("Free WiFi"),
+            _buildFacility("Swimming Pool"),
+            _buildFacility("24/7 Room Service"),
+            _buildFacility("Free Parking"),
+            _buildFacility("Spa & Wellness Center"),
+
+            const SizedBox(height: 20),
+
+            // Book Now Button
+            Center(
+              child: ElevatedButton(
+                onPressed: () {
+                  // Navigate to the booking page or perform action
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Booking for $hotelName')),
+                  );
+                },
+                style: ElevatedButton.styleFrom(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                ),
+                child: const Text("Book Now"),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // Helper method to build facility items
+  Widget _buildFacility(String facility) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 5.0),
+      child: Row(
+        children: [
+          const Icon(Icons.check_circle, color: Colors.green, size: 20),
+          const SizedBox(width: 10),
+          Text(
+            facility,
+            style: const TextStyle(fontSize: 16),
+          ),
+        ],
+      ),
+    );
+  }
+}

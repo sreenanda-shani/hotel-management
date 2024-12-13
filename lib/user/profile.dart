@@ -1,177 +1,173 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart'; // Firebase Firestore
+import 'package:firebase_auth/firebase_auth.dart'; // Firebase Auth
+import 'edit_profile.dart'; // Import the EditProfilePage
 
-class ProfilePage extends StatefulWidget {
-  const ProfilePage({super.key});
+class ProfilePage extends StatelessWidget {
+  const ProfilePage({Key? key}) : super(key: key);
 
-  @override
-  State<ProfilePage> createState() => _ProfilePageState();
-}
+  Future<Map<String, dynamic>?> fetchUserData() async {
+    try {
+      // Fetch the current user ID from Firebase Auth
+      final String? userId = FirebaseAuth.instance.currentUser?.uid;
 
-class _ProfilePageState extends State<ProfilePage> {
-  // Dummy values for the user profile
-  String name = "John Doe";
-  String email = "johndoe@example.com";
-  String aadhar = "1234 5678 9123";
-  String mobile = "9876543210";
-  String address = "1234 Main St, Springfield, IL";
-  String gender = "Male";  // Could be 'Male', 'Female', or 'Other'
-  String imageUrl = "https://via.placeholder.com/150"; // Replace with a default image or profile picture URL
+      if (userId == null) {
+        debugPrint('User is not logged in');
+        return null;
+      }
 
-  // Function to simulate editing the profile
-  void editProfile() {
-    setState(() {
-      name = "Jane Doe";  // This is a placeholder; update it with actual user input or profile editing logic
-      email = "janedoe@example.com";  // Update the email if changed
-      aadhar = "9876 5432 1098";  // Update the Aadhar number
-      mobile = "1234567890";  // Update the mobile number
-      address = "5678 Elm St, Springfield, IL";  // Update the address
-      gender = "Female";  // Update gender if changed
-    });
+      DocumentSnapshot userDoc =
+          await FirebaseFirestore.instance.collection('user').doc(userId).get();
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Profile updated successfully')),
-    );
-  }
-
-  // Function to simulate logging out
-  void logout() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Logged out')),
-    );
+      if (userDoc.exists) {
+        return userDoc.data() as Map<String, dynamic>?;
+      }
+    } catch (e) {
+      debugPrint('Error fetching user data: $e');
+    }
+    return null;
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.blueAccent,
-        title: const Text("Profile"),
+        title: const Text('Profile'),
         centerTitle: true,
+        backgroundColor: Colors.blue,
       ),
-      body: StreamBuilder<DocumentSnapshot>(
-        stream: FirebaseFirestore.instance
-            .collection('users')
-            .doc(FirebaseAuth.instance.currentUser?.uid)
-            .snapshots(),
+      body: FutureBuilder<Map<String, dynamic>?> (
+        future: fetchUserData(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           } else if (snapshot.hasError) {
-            return const Center(child: Text("Data not available"));
-          } else if (!snapshot.hasData || !snapshot.data!.exists) {
-            return const Center(child: Text("Profile not found"));
-          } else {
-            // Fetch user profile data from Firestore
-            var profileData = snapshot.data?.data() as Map<String, dynamic>;
-            String name = profileData['name'] ?? "John Doe";
-            String email = profileData['email'] ?? "johndoe@example.com";
-            String aadhar = profileData['aadhar'] ?? "1234 5678 9123";
-            String mobile = profileData['mobile'] ?? "9876543210";
-            String address = profileData['address'] ?? "1234 Main St, Springfield, IL";
-            String gender = profileData['gender'] ?? "Male";
-            String imageUrl = profileData['imageUrl'] ?? "https://via.placeholder.com/150";
-
-            return SingleChildScrollView(
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    // Profile Picture
-                    CircleAvatar(
-                      radius: 75,
-                      backgroundImage: NetworkImage(imageUrl),
-                      backgroundColor: Colors.grey.shade200,
-                    ),
-                    const SizedBox(height: 20),
-                    // User Name
-                    Text(
-                      name,
-                      style: const TextStyle(
-                        fontSize: 30,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 10),
-                    // Email
-                    _buildInfoCard("Email", email),
-                    const SizedBox(height: 10),
-                    // Aadhar Number
-                    _buildInfoCard("Aadhar", aadhar),
-                    const SizedBox(height: 10),
-                    // Mobile Number
-                    _buildInfoCard("Mobile", mobile),
-                    const SizedBox(height: 10),
-                    // Address
-                    _buildInfoCard("Address", address),
-                    const SizedBox(height: 10),
-                    // Gender
-                    _buildInfoCard("Gender", gender),
-                    const SizedBox(height: 30),
-
-                    // Edit Profile Button
-                    ElevatedButton(
-                      onPressed: editProfile, // Simulate profile editing
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.blueAccent,
-                        padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
-                      ),
-                      child: const Text('Edit Profile'),
-                    ),
-                    const SizedBox(height: 16),
-
-                    // Log out Button
-                    ElevatedButton(
-                      onPressed: logout, // Log out functionality
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.redAccent,
-                        padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
-                      ),
-                      child: const Text('Log Out'),
-                    ),
-                  ],
-                ),
-              ),
-            );
+            return const Center(child: Text('Error loading profile data'));
+          } else if (!snapshot.hasData || snapshot.data == null) {
+            return const Center(child: Text('No user data found'));
           }
+
+          final userDetails = snapshot.data!;
+
+          return SingleChildScrollView(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                // Profile Picture Placeholder
+                CircleAvatar(
+                  radius: 60,
+                  backgroundColor: Colors.blue.shade100,
+                  child: const Icon(
+                    Icons.account_circle,
+                    size: 120,
+                    color: Colors.grey,
+                  ),
+                ),
+                const SizedBox(height: 20),
+
+                // User Details
+                ProfileDetailRow(
+                  icon: Icons.person,
+                  label: 'Name',
+                  value: userDetails['name'] ?? 'N/A',
+                ),
+                ProfileDetailRow(
+                  icon: Icons.email,
+                  label: 'Email',
+                  value: userDetails['email'] ?? 'N/A',
+                ),
+                ProfileDetailRow(
+                  icon: Icons.location_on,
+                  label: 'Address',
+                  value: userDetails['address'] ?? 'N/A',
+                ),
+                ProfileDetailRow(
+                  icon: Icons.phone,
+                  label: 'Phone',
+                  value: userDetails['phone'] ?? 'N/A',
+                ),
+                ProfileDetailRow(
+                  icon: Icons.transgender,
+                  label: 'Gender',
+                  value: userDetails['gender'] ?? 'N/A',
+                ),
+                ProfileDetailRow(
+                  icon: Icons.security,
+                  label: 'Aadhar',
+                  value: userDetails['aadhar'] ?? 'N/A',
+                ),
+                const SizedBox(height: 20),
+
+                // Edit Button
+                Center(
+                  child: ElevatedButton(
+                    onPressed: () {
+                      // Navigate to EditProfilePage
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const EditProfilePage(),
+                        ),
+                      );
+                    },
+                    child: const Text('Edit Profile'),
+                  ),
+                ),
+              ],
+            ),
+          );
         },
       ),
     );
   }
+}
 
-  // Helper widget to create information cards
-  Widget _buildInfoCard(String label, String value) {
-    return Card(
-      color: Colors.blueGrey.shade50,
-      elevation: 5,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 15.0, horizontal: 20.0),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              label,
-              style: const TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w500,
-                color: Colors.blueGrey,
-              ),
+// A helper widget for displaying profile details
+class ProfileDetailRow extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final String value;
+
+  const ProfileDetailRow({
+    Key? key,
+    required this.icon,
+    required this.label,
+    required this.value,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(icon, size: 24, color: Colors.blue),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  label,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  value,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    color: Colors.black54,
+                  ),
+                ),
+              ],
             ),
-            Text(
-              value,
-              style: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w400,
-                color: Colors.black,
-              ),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

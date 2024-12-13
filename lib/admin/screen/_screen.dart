@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 
-void main() {
-  runApp(AdminHomePage());
-}
+import 'analytics_screen.dart';
+import 'hotel_management_screen.dart';
+import 'notification_screen.dart';
+import 'report_screen.dart';
+import 'user_details_screen.dart';
 
 class AdminHomePage extends StatelessWidget {
   @override
@@ -23,15 +25,16 @@ class AdminHomeScreen extends StatefulWidget {
 class _AdminHomeScreenState extends State<AdminHomeScreen> {
   int _selectedIndex = 0;
 
-  // Placeholder for pages
-  static const List<Widget> _pages = <Widget>[
-    Center(child: Text('User Details Page')),
-    Center(child: Text('Analytics Page')),
-    Center(child: Text('Hotel Management Page')),
-    Center(child: Text('Notifications Page')),
-    Center(child: Text('Reports Page')),
+  // List of pages for each navigation item
+  final List<Widget> _pages = [
+    UserSearchPage(),
+    AnalyticsScreen(),
+    HotelManagementScreen(),
+    NotificationScreen(),
+    ReportsScreen(),
   ];
 
+  // This function is triggered when a navigation item is tapped
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
@@ -45,6 +48,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
         title: Text('Admin Home'),
         centerTitle: true,
       ),
+      // Body changes based on the selected index
       body: _pages[_selectedIndex],
       bottomNavigationBar: BottomNavigationBar(
         items: const <BottomNavigationBarItem>[
@@ -72,7 +76,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
         currentIndex: _selectedIndex,
         selectedItemColor: Colors.blue,
         unselectedItemColor: Colors.grey,
-        onTap: _onItemTapped,
+        onTap: _onItemTapped, // Update index when tapped
       ),
     );
   }
