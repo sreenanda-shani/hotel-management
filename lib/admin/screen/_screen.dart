@@ -31,7 +31,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
     UserSearchPage(),
     AnalyticsScreen(),
     HotelManagementScreen(),
-    AdminNotification(),
+    NotificationScreen(),
   ];
 
   // This function is triggered when a navigation item is tapped
@@ -66,7 +66,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.notifications),
-            label: 'Notifications',
+            label: 'Notification',
           ),
          
         ],
