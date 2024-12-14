@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:project1/user/profile.dart';
+import 'package:project1/user/feedback.dart'; // Make sure to import the feedback page
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -10,11 +11,11 @@ class HomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(120), // Adjust the height here
+        preferredSize: const Size.fromHeight(120),
         child: Container(
-          margin: const EdgeInsets.symmetric(horizontal: 20), // Adjust horizontal margin to reduce width
+          margin: const EdgeInsets.symmetric(horizontal: 20),
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(10), // Optional rounded corners
+            borderRadius: BorderRadius.circular(10),
             color: Colors.transparent,
           ),
           child: AppBar(
@@ -22,15 +23,15 @@ class HomePage extends StatelessWidget {
             elevation: 0,
             flexibleSpace: Center(
               child: Container(
-                padding: const EdgeInsets.all(5), // Smaller padding
+                padding: const EdgeInsets.all(5),
                 decoration: const BoxDecoration(
                   shape: BoxShape.circle,
                   color: Colors.white,
                 ),
                 child: const CircleAvatar(
-                  radius: 30, // Adjust size as needed
+                  radius: 30,
                   backgroundColor: Colors.white,
-                  backgroundImage: AssetImage("assets/asset/img3.jpg"), // Replace with your logo path
+                  backgroundImage: AssetImage("assets/asset/img3.jpg"),
                 ),
               ),
             ),
@@ -45,25 +46,30 @@ class HomePage extends StatelessWidget {
               decoration: BoxDecoration(
                 color: Colors.blueAccent,
               ),
-              child: UserDrawerHeader(), // Custom header displaying user data
+              child: UserDrawerHeader(),
             ),
             _buildDrawerItem(Icons.person, "Profile", () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => const ProfilePage()), // Navigate to Profile Screen
+                MaterialPageRoute(builder: (context) => const ProfilePage()),
               );
             }),
             _buildDrawerItem(Icons.search, "Search Hotel", () {}),
             _buildDrawerItem(Icons.history, "Booking History", () {}),
             _buildDrawerItem(Icons.favorite, "Favourites", () {}),
             _buildDrawerItem(Icons.notifications, "Notifications", () {}),
+            _buildDrawerItem(Icons.feedback, "Feedback", () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const FeedbackPage()),
+              );
+            }),
             _buildDrawerItem(Icons.login, "Logout", () {}),
           ],
         ),
       ),
       body: Stack(
         children: [
-          // Background gradient
           Container(
             decoration: BoxDecoration(
               gradient: LinearGradient(
@@ -80,7 +86,6 @@ class HomePage extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const SizedBox(height: 20),
-                  // Hero Section
                   Stack(
                     children: [
                       Container(
@@ -88,7 +93,7 @@ class HomePage extends StatelessWidget {
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(15),
                           image: const DecorationImage(
-                            image: AssetImage("assets/asset/img1.jpg"), // Replace with your image path
+                            image: AssetImage("assets/asset/img1.jpg"),
                             fit: BoxFit.cover,
                           ),
                         ),
@@ -248,59 +253,3 @@ class HomePage extends StatelessWidget {
   }
 }
 
-// UserDrawerHeader class to show user details from Firestore
-class UserDrawerHeader extends StatelessWidget {
-  const UserDrawerHeader({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return FutureBuilder<DocumentSnapshot>(
-      future: FirebaseFirestore.instance
-          .collection('user') // 'user' collection in Firestore
-          .doc(FirebaseAuth.instance.currentUser?.uid) // Get the current user's ID
-          .get(),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const CircularProgressIndicator();
-        }
-
-        if (snapshot.hasError) {
-          return const Text('Error fetching user data');
-        }
-
-        if (!snapshot.hasData || snapshot.data == null) {
-          return const Text('User not found');
-        }
-
-        final userData = snapshot.data!.data() as Map<String, dynamic>;
-
-        // Fetch user details (name, email, profile picture)
-        final name = userData['name'] ?? 'User Name';  // Default to 'User Name' if null
-        final email = userData['email'] ?? 'No email';  // Default to 'No email' if null
-        final profilePictureUrl = userData['profilePicture'];  // Assuming the user has a profile picture URL field
-
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            CircleAvatar(
-              radius: 30,
-              backgroundColor: Colors.white,
-              backgroundImage: profilePictureUrl != null
-                  ? NetworkImage(profilePictureUrl)
-                  : const AssetImage('assets/asset/default_profile.jpg') as ImageProvider,
-            ),
-            const SizedBox(height: 10),
-            Text(
-              "Welcome $name",  // Displaying the user's name
-              style: const TextStyle(color: Colors.white, fontSize: 18),
-            ),
-            Text(
-              email,
-              style: const TextStyle(color: Colors.white70, fontSize: 14),
-            ),
-          ],
-        );
-      },
-    );
-  }
-}

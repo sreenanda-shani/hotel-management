@@ -21,7 +21,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
     try {
       // Fetch total users
       QuerySnapshot userSnapshot =
-          await FirebaseFirestore.instance.collection('users').get();
+          await FirebaseFirestore.instance.collection('user').get();
       setState(() {
         totalUsers = userSnapshot.size; // Count of user documents
       });

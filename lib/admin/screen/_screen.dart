@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:project1/admin/screen/notification.dart';
+import 'package:project1/admin/usersearchpage.dart';
 
 import 'analytics_screen.dart';
 import 'hotel_management_screen.dart';
 
-import 'user_details_screen.dart';
+
 
 class AdminHomePage extends StatelessWidget {
   @override
@@ -67,10 +68,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
             icon: Icon(Icons.notifications),
             label: 'Notifications',
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.report),
-            label: 'Reports',
-          ),
+         
         ],
         currentIndex: _selectedIndex,
         selectedItemColor: Colors.blue,
