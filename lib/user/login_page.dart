@@ -31,10 +31,6 @@ class _LoginPageState extends State<LoginPage> {
     }
 
     UserAuthService().userLogin(email: email, password: password, context: context);
-
-   
-
-   
   }
 
   @override

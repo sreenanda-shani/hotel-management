@@ -1,274 +1,246 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:project1/user/profile.dart';
 
 class HomePage extends StatelessWidget {
-  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
-  final List<String> locations = ['Nearby', 'Bangalore', 'Chennai', 'Delhi'];
-  final List<String> premiumHotels = ['₹999 + taxes', '₹1199 + taxes', '₹1499 + taxes'];
+  const HomePage({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      key: _scaffoldKey,
-      appBar: AppBar(
-        leading: IconButton(
-          icon: Icon(Icons.menu),
-          onPressed: () {
-            if (_scaffoldKey.currentState != null) {
-              _scaffoldKey.currentState!.openDrawer();
-            }
-          },
-        ),
-        title: Center(
-          child: ClipOval(
-            child: Image.asset(
-              'asset/download.png', // Ensure the file exists
-              height: 40.0,
-              width: 40.0,
-              fit: BoxFit.cover,
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(120), // Adjust the height here
+        child: Container(
+          margin: const EdgeInsets.symmetric(horizontal: 20), // Adjust horizontal margin to reduce width
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(10), // Optional rounded corners
+            color: Colors.transparent,
+          ),
+          child: AppBar(
+            backgroundColor: Colors.transparent,
+            elevation: 0,
+            flexibleSpace: Center(
+              child: Container(
+                padding: const EdgeInsets.all(5), // Smaller padding
+                decoration: const BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Colors.white,
+                ),
+                child: const CircleAvatar(
+                  radius: 30, // Adjust size as needed
+                  backgroundColor: Colors.white,
+                  backgroundImage: AssetImage("assets/asset/img3.jpg"), // Replace with your logo path
+                ),
+              ),
             ),
           ),
         ),
-        elevation: 4,
       ),
-      drawer: _buildLeftDrawer(context),
-      body: Container(
-        height: MediaQuery.of(context).size.height,
-        child: Stack(
+      drawer: Drawer(
+        child: ListView(
+          padding: EdgeInsets.zero,
           children: [
-            // Background Image
-            Positioned.fill(
-              child: Image.asset(
-                'asset/img4.webp', // Replace with your background image path
-                fit: BoxFit.cover,
+            const DrawerHeader(
+              decoration: BoxDecoration(
+                color: Colors.blueAccent,
+              ),
+              child: UserDrawerHeader(), // Custom header displaying user data
+            ),
+            _buildDrawerItem(Icons.person, "Profile", () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const ProfilePage()), // Navigate to Profile Screen
+              );
+            }),
+            _buildDrawerItem(Icons.search, "Search Hotel", () {}),
+            _buildDrawerItem(Icons.history, "Booking History", () {}),
+            _buildDrawerItem(Icons.favorite, "Favourites", () {}),
+            _buildDrawerItem(Icons.notifications, "Notifications", () {}),
+            _buildDrawerItem(Icons.login, "Logout", () {}),
+          ],
+        ),
+      ),
+      body: Stack(
+        children: [
+          // Background gradient
+          Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [Colors.lightBlue.shade50, Colors.blueAccent.shade100],
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
               ),
             ),
-            // Foreground Content
-            SingleChildScrollView(
+          ),
+          SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Search Bar
-                  Padding(
-                    padding: const EdgeInsets.all(12.0),
-                    child: TextField(
-                      decoration: InputDecoration(
-                        hintText: "Search for city, location or hotel",
-                        hintStyle: TextStyle(color: Colors.black54),
-                        prefixIcon: Icon(Icons.search, color: Colors.black),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(25.0),
-                        ),
-                        filled: true,
-                        fillColor: Colors.grey[200]!.withOpacity(0.6),
-                      ),
-                    ),
-                  ),
-                  // Horizontal Scrollable Buttons for Locations
-                  SizedBox(
-                    height: 80,
-                    child: ListView.builder(
-                      scrollDirection: Axis.horizontal,
-                      itemCount: locations.length,
-                      itemBuilder: (context, index) {
-                        return InkWell(
-                          onTap: () {
-                            // Navigate to a new page for the selected location
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => LocationPage(locationName: locations[index]),
-                              ),
-                            );
-                          },
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                            child: Column(
-                              children: [
-                                CircleAvatar(
-                                  radius: 25,
-                                  backgroundColor: Colors.white,
-                                  child: Text(
-                                    locations[index][0], // First letter of location
-                                    style: TextStyle(color: Colors.white, fontSize: 20),
-                                  ),
-                                ),
-                                SizedBox(height: 4),
-                                Text(
-                                  locations[index],
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 16,
-                                  ),
-                                ),
-                              ],
-                            ),
+                  const SizedBox(height: 20),
+                  // Hero Section
+                  Stack(
+                    children: [
+                      Container(
+                        height: 300,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(15),
+                          image: const DecorationImage(
+                            image: AssetImage("assets/asset/img1.jpg"), // Replace with your image path
+                            fit: BoxFit.cover,
                           ),
-                        );
-                      },
-                    ),
+                        ),
+                      ),
+                      Container(
+                        height: 300,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(15),
+                          gradient: const LinearGradient(
+                            colors: [Colors.black54, Colors.transparent],
+                            begin: Alignment.bottomCenter,
+                            end: Alignment.topCenter,
+                          ),
+                        ),
+                      ),
+                      const Positioned(
+                        bottom: 20,
+                        left: 20,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              "ENJOY A LUXURY EXPERIENCE",
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 26,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            SizedBox(height: 8),
+                            Text(
+                              "Luxury Hotel & Best Resort",
+                              style: TextStyle(color: Colors.white, fontSize: 16),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
                   ),
-                  // Premium Hotels Section
-                  Padding(
-                    padding: const EdgeInsets.all(12.0),
+                  const SizedBox(height: 20),
+                  const Center(
                     child: Text(
-                      "Premium Hotels",
+                      "Top Hotels",
                       style: TextStyle(
-                        fontSize: 18,
+                        fontSize: 24,
                         fontWeight: FontWeight.bold,
                         color: Colors.white,
                       ),
                     ),
                   ),
-                  ConstrainedBox(
-                    constraints: BoxConstraints(maxHeight: 400),
-                    child: GridView.builder(
-                      shrinkWrap: true,
-                      physics: NeverScrollableScrollPhysics(),
-                      itemCount: premiumHotels.length,
-                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 2,
-                        childAspectRatio: 3 / 2,
-                        crossAxisSpacing: 10,
-                        mainAxisSpacing: 10,
+                  const SizedBox(height: 10),
+                  Column(
+                    children: List.generate(
+                      6,
+                      (index) => Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 10.0),
+                        child: _buildHotelCard(
+                          "Hotel ${index + 1}",
+                          "5 Stars",
+                          "A luxurious experience awaits you at Hotel ${index + 1}. Enjoy premium services and world-class amenities.",
+                          "assets/asset/img1.jpg",
+                        ),
                       ),
-                      padding: EdgeInsets.symmetric(horizontal: 12),
-                      itemBuilder: (context, index) {
-                        return InkWell(
-                          onTap: () {
-                            // Navigate to a new page for the selected price
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => PricePage(priceDetails: premiumHotels[index]),
-                              ),
-                            );
-                          },
-                          child: Card(
-                            elevation: 4,
-                            color: Colors.transparent,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(15),
-                            ),
-                            child: Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                                children: [
-                                  Icon(
-                                    Icons.hotel,
-                                    color: Colors.white,
-                                    size: 30,
-                                  ),
-                                  Text(
-                                    "Starting from",
-                                    style: TextStyle(color: Colors.white, fontSize: 14),
-                                  ),
-                                  Text(
-                                    premiumHotels[index],
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 16,
-                                    ),
-                                  ),
-                                  ElevatedButton(
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: Colors.white,
-                                      foregroundColor: Colors.black,
-                                    ),
-                                    onPressed: () {
-                                      // Navigate to the price page
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (context) => PricePage(priceDetails: premiumHotels[index]),
-                                        ),
-                                      );
-                                    },
-                                    child: Text("Explore"),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        );
-                      },
                     ),
                   ),
                 ],
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
       bottomNavigationBar: BottomNavigationBar(
-        items: [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home, color: Colors.black),
-            label: 'Home',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.book, color: Colors.black),
-            label: 'Bookings',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.search, color: Colors.black),
-            label: 'Search',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.room_service, color: Colors.black),
-            label: 'Services',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.share, color: Colors.black),
-            label: 'Refer & Earn',
-          ),
+        type: BottomNavigationBarType.fixed,
+        selectedItemColor: Colors.blueAccent,
+        unselectedItemColor: Colors.grey,
+        items: const [
+          BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
+          BottomNavigationBarItem(icon: Icon(Icons.favorite), label: "Favorites"),
+          BottomNavigationBarItem(icon: Icon(Icons.notifications), label: "Notifications"),
+          BottomNavigationBarItem(icon: Icon(Icons.search), label: "Search"),
         ],
-        selectedItemColor: Colors.black,
-        unselectedItemColor: Colors.black54,
       ),
     );
   }
 
-  Widget _buildLeftDrawer(BuildContext context) {
-    return Drawer(
-      child: ListView(
-        padding: EdgeInsets.zero,
+  Widget _buildDrawerItem(IconData icon, String title, VoidCallback onTap) {
+    return ListTile(
+      leading: Icon(icon),
+      title: Text(title),
+      onTap: onTap,
+    );
+  }
+
+  Widget _buildHotelCard(String hotelName, String hotelRating, String description, String hotelImage) {
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(15),
+        color: Colors.white,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.blueAccent.withOpacity(0.5),
+            blurRadius: 10,
+            spreadRadius: 2,
+          ),
+        ],
+      ),
+      child: Column(
         children: [
-          UserAccountsDrawerHeader(
-            accountName: Text("User Name"),
-            accountEmail: Text("user@example.com"),
-            currentAccountPicture: CircleAvatar(
-              backgroundColor: Colors.yellow,
-              child: Icon(Icons.person, size: 50),
+          ClipRRect(
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(15)),
+            child: Image.asset(
+              hotelImage,
+              height: 150,
+              width: double.infinity,
+              fit: BoxFit.cover,
             ),
           ),
-          ListTile(
-            title: Text('Home'),
-            onTap: () {
-              Navigator.pop(context);
-            },
-          ),
-          ListTile(
-            title: Text('Profile'),
-            onTap: () {
-              Navigator.push(context, MaterialPageRoute(builder: (context) {
-                return ProfilePage();
-              },));
-            },
-          ),
-          ListTile(
-            title: Text('Settings'),
-            onTap: () {
-              Navigator.pop(context);
-            },
-          ),
-          ListTile(
-            title: Text('Logout'),
-            onTap: () {
-              Navigator.pop(context);
-            },
+          Padding(
+            padding: const EdgeInsets.all(12.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  hotelName,
+                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  hotelRating,
+                  style: const TextStyle(color: Colors.orange, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  description,
+                  style: TextStyle(color: Colors.grey[700]),
+                ),
+                const SizedBox(height: 12),
+                ElevatedButton(
+                  onPressed: () {},
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                  child: const Text(
+                    "Book Now",
+                    style: TextStyle(color: Colors.blueAccent),
+                  ),
+                ),
+              ],
+            ),
           ),
         ],
       ),
@@ -276,44 +248,59 @@ class HomePage extends StatelessWidget {
   }
 }
 
-class LocationPage extends StatelessWidget {
-  final String locationName;
-
-  const LocationPage({Key? key, required this.locationName}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(locationName),
-      ),
-      body: Center(
-        child: Text(
-          'Welcome to $locationName!',
-          style: TextStyle(fontSize: 24),
-        ),
-      ),
-    );
-  }
-}
-
-class PricePage extends StatelessWidget {
-  final String priceDetails;
-
-  const PricePage({Key? key, required this.priceDetails}) : super(key: key);
+// UserDrawerHeader class to show user details from Firestore
+class UserDrawerHeader extends StatelessWidget {
+  const UserDrawerHeader({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text("Hotel Details"),
-      ),
-      body: Center(
-        child: Text(
-          'Hotels at $priceDetails',
-          style: TextStyle(fontSize: 24),
-        ),
-      ),
+    return FutureBuilder<DocumentSnapshot>(
+      future: FirebaseFirestore.instance
+          .collection('user') // 'user' collection in Firestore
+          .doc(FirebaseAuth.instance.currentUser?.uid) // Get the current user's ID
+          .get(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const CircularProgressIndicator();
+        }
+
+        if (snapshot.hasError) {
+          return const Text('Error fetching user data');
+        }
+
+        if (!snapshot.hasData || snapshot.data == null) {
+          return const Text('User not found');
+        }
+
+        final userData = snapshot.data!.data() as Map<String, dynamic>;
+
+        // Fetch user details (name, email, profile picture)
+        final name = userData['name'] ?? 'User Name';  // Default to 'User Name' if null
+        final email = userData['email'] ?? 'No email';  // Default to 'No email' if null
+        final profilePictureUrl = userData['profilePicture'];  // Assuming the user has a profile picture URL field
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            CircleAvatar(
+              radius: 30,
+              backgroundColor: Colors.white,
+              backgroundImage: profilePictureUrl != null
+                  ? NetworkImage(profilePictureUrl)
+                  : const AssetImage('assets/asset/default_profile.jpg') as ImageProvider,
+            ),
+            const SizedBox(height: 10),
+            Text(
+              "Welcome $name",  // Displaying the user's name
+              style: const TextStyle(color: Colors.white, fontSize: 18),
+            ),
+            Text(
+              email,
+              style: const TextStyle(color: Colors.white70, fontSize: 14),
+            ),
+          ],
+        );
+      },
     );
   }
 }

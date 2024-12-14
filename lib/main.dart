@@ -10,7 +10,6 @@ import 'package:project1/user/hotel_details';
 import 'package:project1/user/login_page.dart';
 import 'package:project1/user/orders.dart';
 import 'package:project1/user/profile.dart';
-import 'package:project1/user/registration%20screen.dart';
 import 'package:project1/user/registration_page.dart';
 
 Future<void> main() async {
@@ -19,7 +18,7 @@ Future<void> main() async {
 );
   runApp(MaterialApp(
     debugShowCheckedModeBanner: false,
-    home: UserRegistrationPage()
+    home: LoginPage()
   ));
 }
 

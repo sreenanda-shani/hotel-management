@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 
-class NotificationScreen extends StatelessWidget {
+class AdminNotification extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Notifications')),
+      appBar: AppBar(title: Text('Reports')),
       body: Center(
         child: Text(
-          'Notification Page',
+          'Reports Page',
           style: TextStyle(fontSize: 18),
         ),
       ),

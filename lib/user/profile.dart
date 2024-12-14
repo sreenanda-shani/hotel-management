@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart'; // Firebase Firestore
-import 'package:firebase_auth/firebase_auth.dart'; // Firebase Auth
-import 'edit_profile.dart'; // Import the EditProfilePage
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:project1/user/edit_profile'; // Firebase Auth
 
 class ProfilePage extends StatelessWidget {
   const ProfilePage({Key? key}) : super(key: key);

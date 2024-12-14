@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:project1/admin/screen/notification.dart';
 
 import 'analytics_screen.dart';
 import 'hotel_management_screen.dart';
-import 'notification_screen.dart';
-import 'report_screen.dart';
+
 import 'user_details_screen.dart';
 
 class AdminHomePage extends StatelessWidget {
@@ -30,8 +30,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
     UserSearchPage(),
     AnalyticsScreen(),
     HotelManagementScreen(),
-    NotificationScreen(),
-    ReportsScreen(),
+    AdminNotification(),
   ];
 
   // This function is triggered when a navigation item is tapped
