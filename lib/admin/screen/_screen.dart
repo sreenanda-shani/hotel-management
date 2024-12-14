@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:project1/admin/screen/feedback.dart';
 import 'package:project1/admin/screen/notification.dart';
 import 'package:project1/admin/usersearchpage.dart';
 
@@ -32,6 +33,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
     AnalyticsScreen(),
     HotelManagementScreen(),
     NotificationScreen(),
+   AdminFeedback(),
   ];
 
   // This function is triggered when a navigation item is tapped
@@ -67,6 +69,10 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
           BottomNavigationBarItem(
             icon: Icon(Icons.notifications),
             label: 'Notification',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.feedback),
+            label: 'Feedback',
           ),
          
         ],
