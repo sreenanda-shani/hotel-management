@@ -39,9 +39,7 @@ class _AdminLoginPageState extends State<AdminLoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("Admin Login"),
-      ),
+     
       body: Stack(
         children: [
           // Background Image

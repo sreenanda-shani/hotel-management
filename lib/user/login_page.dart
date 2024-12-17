@@ -4,14 +4,14 @@ import 'package:project1/user/home_page.dart'; // Import HomePage after login
 import 'package:project1/user/forgot_password_page.dart';
 import 'package:project1/user/services/user_auth_service.dart'; // Import ForgotPassword Page
 
-class LoginPage extends StatefulWidget {
-  const LoginPage({super.key});
+class UserLoginPage extends StatefulWidget {
+  const UserLoginPage({super.key});
 
   @override
-  State<LoginPage> createState() => _LoginPageState();
+  State<UserLoginPage> createState() => _UserLoginPageState();
 }
 
-class _LoginPageState extends State<LoginPage> {
+class _UserLoginPageState extends State<UserLoginPage> {
   TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
 
@@ -36,9 +36,7 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("Login"),
-      ),
+     
       body: Stack(
         children: [
           // Background Image
