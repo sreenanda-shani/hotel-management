@@ -1,11 +1,14 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloudinary/cloudinary.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
+
+import 'package:project1/hotel/hotel_login.dart';
 
 class HotelRegistrationPage extends StatefulWidget {
   const HotelRegistrationPage({super.key});
@@ -21,9 +24,9 @@ class _HotelRegistrationPageState extends State<HotelRegistrationPage> {
   String hotelName = '';
   String location = ''; // Location will be automatically fetched
   String contactEmail = '';
-  String contactNumber = '';// Added for full address
-     // Added for pin code
-  String password = '';     // Added for password
+  String contactNumber = ''; // Added for full address
+  // Added for pin code
+  String password = ''; // Added for password
   String confirmPassword = ''; // Added for confirm password
   int numberOfRooms = 1;
 
@@ -80,7 +83,7 @@ class _HotelRegistrationPageState extends State<HotelRegistrationPage> {
     List<Placemark> placemarks = await placemarkFromCoordinates(position.latitude, position.longitude);
     Placemark place = placemarks[0];
     setState(() {
-      location = "${place.subLocality}, ${place.locality}, ${place.country}";  // Update location with a human-readable name
+      location = "${place.subLocality}, ${place.locality}, ${place.country}"; // Update location with a human-readable name
     });
   }
 
@@ -105,7 +108,7 @@ class _HotelRegistrationPageState extends State<HotelRegistrationPage> {
         folder: 'hotels',
         resourceType: CloudinaryResourceType.image,
       );
-      return result.secureUrl;  // Return the image URL
+      return result.secureUrl; // Return the image URL
     } catch (e) {
       print("Error uploading image: $e");
       return null;
@@ -146,7 +149,8 @@ class _HotelRegistrationPageState extends State<HotelRegistrationPage> {
         );
         return;
       }
-
+      
+      await FirebaseAuth.instance.createUserWithEmailAndPassword(email: contactEmail, password: password);
       // Upload image to Cloudinary if an image was picked
       if (_image != null) {
         imageUrl = await _uploadImageToCloudinary(_image!);
@@ -158,7 +162,6 @@ class _HotelRegistrationPageState extends State<HotelRegistrationPage> {
         'location': location,
         'contactEmail': contactEmail,
         'contactNumber': contactNumber,
-      
         'lat': latitude,
         'log': longitude,
         'isApproved': false,
@@ -254,7 +257,7 @@ class _HotelRegistrationPageState extends State<HotelRegistrationPage> {
                     const Icon(Icons.location_pin, color: Colors.teal),
                     const SizedBox(width: 8),
                     Expanded(
-                      child: Text(location)
+                      child: Text(location),
                     ),
                   ],
                 ),
@@ -301,13 +304,12 @@ class _HotelRegistrationPageState extends State<HotelRegistrationPage> {
                   },
                 ),
                 const SizedBox(height: 16),
-                // Full Address
+                // Number of Rooms
                 TextFormField(
-                
-                  decoration: _buildInputDecoration("No.of rooms"),
+                  decoration: _buildInputDecoration("No. of Rooms"),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return "Please enter the no of rooms";
+                      return "Please enter the number of rooms";
                     }
                     return null;
                   },
@@ -315,8 +317,6 @@ class _HotelRegistrationPageState extends State<HotelRegistrationPage> {
                     numberOfRooms = int.parse(value!);
                   },
                 ),
-                // Pin Code
-               
                 const SizedBox(height: 16),
                 // Password
                 TextFormField(
@@ -453,6 +453,28 @@ class _HotelRegistrationPageState extends State<HotelRegistrationPage> {
                   child: isLoading
                       ? const CircularProgressIndicator()
                       : const Text('Submit'),
+                ),
+                
+                const SizedBox(height: 20),
+                // Add "Already have an account?" section
+                Align(
+                  alignment: Alignment.center,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Text("Already have an account?"),
+                      TextButton(
+                        onPressed: () {
+                          // Navigate to Hotel Login
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) =>  HotelLoginPage()),
+                          );
+                        },
+                        child: const Text("Login"),
+                      ),
+                    ],
+                  ),
                 ),
               ],
             ),

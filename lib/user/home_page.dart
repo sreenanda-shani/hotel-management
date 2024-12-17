@@ -1,8 +1,10 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:project1/user/hotel_details';
+import 'package:project1/user/notification.dart';
+import 'package:project1/user/orders.dart';
 import 'package:project1/user/profile.dart';
 import 'package:project1/user/feedback.dart'; // Make sure to import the feedback page
+import 'package:project1/user/login_page.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -31,7 +33,7 @@ class HomePage extends StatelessWidget {
                 child: const CircleAvatar(
                   radius: 30,
                   backgroundColor: Colors.white,
-                  backgroundImage: AssetImage("assets/asset/img3.jpg"),
+                  backgroundImage: AssetImage("asset/download.png"),
                 ),
               ),
             ),
@@ -54,17 +56,55 @@ class HomePage extends StatelessWidget {
                 MaterialPageRoute(builder: (context) => const ProfilePage()),
               );
             }),
-            _buildDrawerItem(Icons.search, "Search Hotel", () {}),
-            _buildDrawerItem(Icons.history, "Booking History", () {}),
-            _buildDrawerItem(Icons.favorite, "Favourites", () {}),
-            _buildDrawerItem(Icons.notifications, "Notifications", () {}),
+            _buildDrawerItem(Icons.search, "Search Hotel", () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => HotelDetailsPage()),
+              );
+            }),
+            _buildDrawerItem(Icons.history, "Booking History", () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => MyBookingsPage(
+                    hotel: {
+                      'hotelName': 'Oceanview Resort',
+                      'address': '123 Beach Road, Seaside City',
+                      'location': 'Seaside City',
+                      'checkInDate': '2024-11-15',
+                      'checkOutDate': '2024-11-18',
+                      'price': '\$450',
+                      'amenities': ['Free WiFi', 'Swimming Pool', 'Gym', 'Spa'],
+                      'description': 'A luxury resort by the ocean with stunning views and premium facilities.',
+                      'image': 'assets/asset/image1.jpeg',
+                    },
+                  ),
+                ),
+              );
+            }),
+            _buildDrawerItem(Icons.favorite, "Favourites", () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const FeedbackPage()),
+              );
+            }),
+            _buildDrawerItem(Icons.notifications, "Notifications", () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => NotificationPage()),
+              );
+            }),
             _buildDrawerItem(Icons.feedback, "Feedback", () {
               Navigator.push(
                 context,
                 MaterialPageRoute(builder: (context) => const FeedbackPage()),
               );
             }),
-            _buildDrawerItem(Icons.login, "Logout", () {}),
+            _buildDrawerItem(Icons.login, "Logout", () {
+              Navigator.push(context, MaterialPageRoute(builder: (context) {
+                return UserLoginPage();
+              }));
+            }),
           ],
         ),
       ),
@@ -93,7 +133,7 @@ class HomePage extends StatelessWidget {
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(15),
                           image: const DecorationImage(
-                            image: AssetImage("assets/asset/img1.jpg"),
+                            image: AssetImage("asset/image1.jpeg"),
                             fit: BoxFit.cover,
                           ),
                         ),
@@ -154,7 +194,7 @@ class HomePage extends StatelessWidget {
                           "Hotel ${index + 1}",
                           "5 Stars",
                           "A luxurious experience awaits you at Hotel ${index + 1}. Enjoy premium services and world-class amenities.",
-                          "assets/asset/img1.jpg",
+                          "asset/image2",
                         ),
                       ),
                     ),
@@ -252,4 +292,3 @@ class HomePage extends StatelessWidget {
     );
   }
 }
-

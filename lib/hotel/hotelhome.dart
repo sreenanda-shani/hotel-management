@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:project1/hotel/hotel_booking.dart';
+import 'package:project1/hotel/hotelcontact.dart';
+import 'package:project1/hotel/hotelmanage.dart';
 
 
 
@@ -150,7 +152,7 @@ class _HotelHomeState extends State<HotelHome> {
                   onPressed: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => const HotelManageDetailsPage()),
+                      MaterialPageRoute(builder: (context) =>  ManageHotelDetailsPage()),
                     );
                   },
                   icon: const Icon(Icons.manage_accounts),
@@ -169,56 +171,4 @@ class _HotelHomeState extends State<HotelHome> {
   }
 }
 
-class HotelContactPage extends StatelessWidget {
-  const HotelContactPage({super.key});
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text("Contact Details"),
-        backgroundColor: Colors.teal,
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: const [
-            Text(
-              "Phone: +123 456 7890\nEmail: info@ourhotel.com",
-              style: TextStyle(fontSize: 16),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-
-
-class HotelManageDetailsPage extends StatelessWidget {
-  const HotelManageDetailsPage({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text("Manage Details"),
-        backgroundColor: Colors.teal,
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: const [
-            Text(
-              "This section allows you to manage hotel details.",
-              style: TextStyle(fontSize: 16),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}

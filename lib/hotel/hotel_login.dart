@@ -1,6 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:project1/hotel/hotel_registration.dart';
+import 'package:project1/hotel/hotelhome.dart';
 
 class HotelLoginPage extends StatefulWidget {
   @override
@@ -31,6 +33,7 @@ class _HotelLoginPageState extends State<HotelLoginPage> {
         return;
       }
 
+      // Firebase Auth login
       UserCredential userCredential = await _auth.signInWithEmailAndPassword(
         email: _emailController.text,
         password: _passwordController.text,
@@ -39,26 +42,25 @@ class _HotelLoginPageState extends State<HotelLoginPage> {
       User? user = userCredential.user;
       if (user != null) {
         var userEmail = user.email;
+
+        // Query the hotels collection in Firestore to find the hotel account
         var userDoc = await FirebaseFirestore.instance
-            .collection('hotel')
-            .where('email', isEqualTo: userEmail)
+            .collection('hotels') // Ensure you're using the correct collection name
+            .where('contactEmail', isEqualTo: userEmail) // Assuming 'email' is the field name
             .limit(1)
             .get();
 
-        if (userDoc.docs.isNotEmpty) {
-          var hotelData = userDoc.docs.first.data();
-          bool isAdminApproved = hotelData['adminApproved'] ?? false;
+        print(userDoc.docs.length);
 
-          if (isAdminApproved) {
-            Navigator.pushReplacementNamed(context, '/home');
-          } else {
-            setState(() {
-              _errorMessage = "Your account is not admin-approved.";
-            });
-          }
+        if (userDoc.docs.isNotEmpty) {
+          // No need to check for admin approval anymore
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => HotelHome()), // Navigate to the hotel home page
+          );
         } else {
           setState(() {
-            _errorMessage = "No user found in the hotel collection.";
+            _errorMessage = "No hotel account found for this email.";
           });
         }
       }
@@ -121,90 +123,90 @@ class _HotelLoginPageState extends State<HotelLoginPage> {
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Card(
-  elevation: 10,
-  color: Colors.white.withOpacity(0.8), // Adjust the transparency here
-  shape: RoundedRectangleBorder(
-    borderRadius: BorderRadius.circular(20),
-  ),
-  child: Padding(
-    padding: const EdgeInsets.all(24.0),
-    child: Column(
-      mainAxisSize: MainAxisSize.min,
-      children: <Widget>[
-        // Hotel Logo
-        const CircleAvatar(
-          radius: 50,
-          backgroundImage: AssetImage("asset/download.png"),
-        ),
-        const SizedBox(height: 16),
-        const Text(
-          "Welcome to Hotel Booking",
-          style: TextStyle(
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
-            color: Colors.teal,
-          ),
-        ),
-        const SizedBox(height: 16),
-        // Email Field
-        TextFormField(
-          controller: _emailController,
-          decoration: _buildInputDecoration("Email"),
-        ),
-        const SizedBox(height: 16),
-        // Password Field
-        TextFormField(
-          controller: _passwordController,
-          obscureText: true,
-          decoration: _buildInputDecoration("Password"),
-        ),
-        const SizedBox(height: 24),
-        if (_isLoading)
-          const CircularProgressIndicator()
-        else
-          ElevatedButton(
-            onPressed: _login,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.teal,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10.0),
-              ),
-              padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 12),
-            ),
-            child: const Text(
-              'Login',
-              style: TextStyle(fontSize: 16,color: Colors.white),
-            ),
-          ),
-        const SizedBox(height: 16),
-        if (_errorMessage.isNotEmpty)
-          Padding(
-            padding: const EdgeInsets.only(top: 16.0),
-            child: Text(
-              _errorMessage,
-              style: const TextStyle(color: Colors.red),
-            ),
-          ),
-        const SizedBox(height: 24),
-        GestureDetector(
-          onTap: () {
-            Navigator.pushReplacementNamed(context, '/signup');
-          },
-          child: const Text(
-            "Don't have an account? Sign Up",
-            style: TextStyle(
-              color: Colors.teal,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ),
-      ],
-    ),
-  ),
-),
-
-             
-             
+                  elevation: 10,
+                  color: Colors.white.withOpacity(0.8), // Adjust the transparency here
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(24.0),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: <Widget>[
+                        // Hotel Logo
+                        const CircleAvatar(
+                          radius: 50,
+                          backgroundImage: AssetImage("asset/download.png"),
+                        ),
+                        const SizedBox(height: 16),
+                        const Text(
+                          "Welcome to Hotel Booking",
+                          style: TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.teal,
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        // Email Field
+                        TextFormField(
+                          controller: _emailController,
+                          decoration: _buildInputDecoration("Email"),
+                        ),
+                        const SizedBox(height: 16),
+                        // Password Field
+                        TextFormField(
+                          controller: _passwordController,
+                          obscureText: true,
+                          decoration: _buildInputDecoration("Password"),
+                        ),
+                        const SizedBox(height: 24),
+                        if (_isLoading)
+                          const CircularProgressIndicator()
+                        else
+                          ElevatedButton(
+                            onPressed: _login,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.teal,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10.0),
+                              ),
+                              padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 12),
+                            ),
+                            child: const Text(
+                              'Login',
+                              style: TextStyle(fontSize: 16, color: Colors.white),
+                            ),
+                          ),
+                        const SizedBox(height: 16),
+                        if (_errorMessage.isNotEmpty)
+                          Padding(
+                            padding: const EdgeInsets.only(top: 16.0),
+                            child: Text(
+                              _errorMessage,
+                              style: const TextStyle(color: Colors.red),
+                            ),
+                          ),
+                        const SizedBox(height: 24),
+                        GestureDetector(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => const HotelRegistrationPage()),
+                            );
+                          },
+                          child: const Text(
+                            "Don't have an account? Sign Up",
+                            style: TextStyle(
+                              color: Colors.teal,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
               ),
             ),
           ),
