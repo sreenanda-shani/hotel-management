@@ -17,75 +17,86 @@ class _HotelLoginPageState extends State<HotelLoginPage> {
   bool _isLoading = false;
   String _errorMessage = "";
 
+
   Future<void> _login() async {
-    setState(() {
-      _isLoading = true;
-      _errorMessage = "";
-    });
+  setState(() {
+    _isLoading = true;
+    _errorMessage = "";
+  });
 
-    try {
-      String email = _emailController.text;
-      if (email.isEmpty || !RegExp(r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$").hasMatch(email)) {
-        setState(() {
-          _errorMessage = "Please enter a valid email address.";
-          _isLoading = false;
-        });
-        return;
-      }
+  try {
+    String email = _emailController.text;
 
-      // Firebase Auth login
-      UserCredential userCredential = await _auth.signInWithEmailAndPassword(
-        email: _emailController.text,
-        password: _passwordController.text,
-      );
+    if (email.isEmpty || !RegExp(r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$").hasMatch(email)) {
+      setState(() {
+        _errorMessage = "Please enter a valid email address.";
+        _isLoading = false;
+      });
+      return;
+    }
 
-      User? user = userCredential.user;
-      if (user != null) {
-        var userEmail = user.email;
+    // Firebase Auth login
+    UserCredential userCredential = await _auth.signInWithEmailAndPassword(
+      email: _emailController.text,
+      password: _passwordController.text,
+    );
 
-        // Query the hotels collection in Firestore to find the hotel account
-        var userDoc = await FirebaseFirestore.instance
-            .collection('hotels') // Ensure you're using the correct collection name
-            .where('contactEmail', isEqualTo: userEmail) // Assuming 'email' is the field name
-            .limit(1)
-            .get();
+    User? user = userCredential.user;
 
-        print(userDoc.docs.length);
+    if (user != null) {
+      var userEmail = user.email;
 
-        if (userDoc.docs.isNotEmpty) {
-          // No need to check for admin approval anymore
+      // Query the 'hotels' collection in Firestore
+      var userDoc = await FirebaseFirestore.instance
+          .collection('hotels')
+          .where('contactEmail', isEqualTo: userEmail)
+          .limit(1)
+          .get();
+
+      if (userDoc.docs.isNotEmpty) {
+        var hotelData = userDoc.docs.first.data();
+
+        // Check if 'isAdminApproved' field exists and is true
+        if (hotelData['isApproved'] == true) {
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(builder: (context) => HotelHome()), // Navigate to the hotel home page
           );
         } else {
           setState(() {
-            _errorMessage = "No hotel account found for this email.";
+            _errorMessage = "Your account is not yet approved by the admin.";
           });
         }
+      } else {
+        setState(() {
+          _errorMessage = "No hotel account found for this email.";
+        });
       }
-    } catch (e) {
-      setState(() {
-        if (e is FirebaseAuthException) {
-          if (e.code == 'wrong-password') {
-            _errorMessage = "The password is incorrect.";
-          } else if (e.code == 'user-not-found') {
-            _errorMessage = "No user found for that email.";
-          } else if (e.code == 'invalid-email') {
-            _errorMessage = "The email address is badly formatted.";
-          } else {
-            _errorMessage = "An error occurred: ${e.message}";
-          }
-        } else {
-          _errorMessage = "An unexpected error occurred.";
-        }
-      });
-    } finally {
-      setState(() {
-        _isLoading = false;
-      });
     }
+  } catch (e) {
+    setState(() {
+      if (e is FirebaseAuthException) {
+        if (e.code == 'wrong-password') {
+          _errorMessage = "The password is incorrect.";
+        } else if (e.code == 'user-not-found') {
+          _errorMessage = "No user found for that email.";
+        } else if (e.code == 'invalid-email') {
+          _errorMessage = "The email address is badly formatted.";
+        } else {
+          _errorMessage = "An error occurred: ${e.message}";
+        }
+      } else {
+        _errorMessage = "An unexpected error occurred.";
+      }
+    });
+  } finally {
+    setState(() {
+      _isLoading = false;
+    });
   }
+}
+
+
 
   InputDecoration _buildInputDecoration(String labelText) {
     return InputDecoration(
