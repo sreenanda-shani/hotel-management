@@ -465,14 +465,16 @@ class _HotelRegistrationPageState extends State<HotelRegistrationPage> {
                 Text('Document'),
 
                  GestureDetector(
-                  onTap: _pickImage,
+                  onTap: (){
+                    _pickImage(isDocument: true);
+                  },
                   child: Container(
                     height: 200,
                     width: MediaQuery.of(context).size.width,
                     color: Colors.grey[200],
-                    child: _image == null
+                    child: document == null
                         ? const Icon(Icons.add_a_photo, size: 50)
-                        : Image.file(_image!, fit: BoxFit.cover),
+                        : Image.file(document!, fit: BoxFit.cover),
                   ),
                 ),
                 const SizedBox(height: 20),

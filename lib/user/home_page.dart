@@ -1,10 +1,12 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:project1/user/hotel_details';
+import 'package:project1/user/hotel_details.dart';
 import 'package:project1/user/notification.dart';
 import 'package:project1/user/orders.dart';
 import 'package:project1/user/profile.dart';
-import 'package:project1/user/feedback.dart'; // Make sure to import the feedback page
+import 'package:project1/user/feedback.dart';
 import 'package:project1/user/login_page.dart';
+import 'package:project1/user/user_hotelhomepage.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -48,7 +50,7 @@ class HomePage extends StatelessWidget {
               decoration: BoxDecoration(
                 color: Colors.blueAccent,
               ),
-              child: UserDrawerHeader(),
+              child: UserDrawerHeader(), // Make sure this widget is defined somewhere in your project
             ),
             _buildDrawerItem(Icons.person, "Profile", () {
               Navigator.push(
@@ -59,7 +61,7 @@ class HomePage extends StatelessWidget {
             _buildDrawerItem(Icons.search, "Search Hotel", () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => const HotelDetailsPage()),
+                MaterialPageRoute(builder: (context) => const HotelDetailsPage()), // Fixed typo
               );
             }),
             _buildDrawerItem(Icons.history, "Booking History", () {
@@ -185,19 +187,45 @@ class HomePage extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 10),
-                  Column(
-                    children: List.generate(
-                      6,
-                      (index) => Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 10.0),
-                        child: _buildHotelCard(
-                          "Hotel ${index + 1}",
-                          "5 Stars",
-                          "A luxurious experience awaits you at Hotel ${index + 1}. Enjoy premium services and world-class amenities.",
-                          "asset/image2",
-                        ),
-                      ),
-                    ),
+
+                  // Fetching and displaying approved hotels
+                  StreamBuilder<QuerySnapshot>(
+                    stream: FirebaseFirestore.instance
+                        .collection('hotels')
+                        .where('isApproved', isEqualTo: true)
+                        .snapshots(),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const Center(child: CircularProgressIndicator());
+                      }
+
+                      if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                        return const Center(child: Text('No approved hotels available.'));
+                      }
+
+                      final hotels = snapshot.data!.docs;
+                      return Column(
+                        children: hotels.map((doc) {
+                          final hotelData = doc.data() as Map<String, dynamic>;
+                          final hotelName = hotelData['hotelName'] ?? 'No name';
+                          final description = hotelData['facilities'] ?? 'No description';
+                          final imageUrl = hotelData['imageUrl'] ?? '';
+                          final rating = '5 Stars'; // Add logic for actual rating if needed
+                      
+                          return GestureDetector(
+                            onTap: () {
+                              Navigator.push(context, MaterialPageRoute(builder:  (context) => UserHotelDetailsScreen(hotelData: hotelData),));
+                            },
+                            child: _buildHotelCard(
+                              hotelName,
+                              rating,
+                              description,
+                              imageUrl,
+                            ),
+                          );
+                        }).toList(),
+                      );
+                    },
                   ),
                 ],
               ),
@@ -244,12 +272,14 @@ class HomePage extends StatelessWidget {
         children: [
           ClipRRect(
             borderRadius: const BorderRadius.vertical(top: Radius.circular(15)),
-            child: Image.asset(
-              hotelImage,
-              height: 150,
-              width: double.infinity,
-              fit: BoxFit.cover,
-            ),
+            child: hotelImage.isNotEmpty
+                ? Image.network(
+                    hotelImage,
+                    height: 150,
+                    width: double.infinity,
+                    fit: BoxFit.cover,
+                  )
+                : const Icon(Icons.image_not_supported, size: 150), // Placeholder icon for invalid URLs
           ),
           Padding(
             padding: const EdgeInsets.all(12.0),

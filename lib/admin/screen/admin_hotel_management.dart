@@ -135,10 +135,31 @@ Widget _buildHotelCard(Map<String, dynamic> hotelData, String hotelId) {
                 ),
               ],
             ),
+             // Document Link Section
+                  if (hotelData['document'] != null) ...[
+                    const Divider(),
+                    
+                    const SizedBox(height: 8),
+                    GestureDetector(
+                      onTap: () {
+                        showDocumentImage(context, hotelData['document']);
+                      },
+                      child: const Text(
+                        'View Document',
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: Colors.blue,
+                          decoration: TextDecoration.underline,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                  ],
             const SizedBox(height: 12),
             // Buttons Section: Full-Width Buttons
             Row(
               children: [
+                if(!hotelData['isApproved'])
                 Expanded(
                   
                   child: ElevatedButton.icon(
@@ -247,3 +268,48 @@ Widget _buildHotelCard(Map<String, dynamic> hotelData, String hotelId) {
     );
   }
 }
+ // Show Document Image in a Popup
+  void showDocumentImage(BuildContext context, String imageUrl) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const SizedBox(height: 8),
+              const Text(
+                'Document Image',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.teal,
+                ),
+              ),
+              const SizedBox(height: 8),
+              SizedBox(
+                height: 250,
+                width: double.infinity,
+                child: Image.network(
+                  imageUrl,
+                  fit: BoxFit.cover,
+                ),
+              ),
+              const SizedBox(height: 8),
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text(
+                  'Close',
+                  style: TextStyle(color: Colors.teal),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+

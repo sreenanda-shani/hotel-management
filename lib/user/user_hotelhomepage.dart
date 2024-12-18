@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 
-class HotelDetailsScreen extends StatelessWidget {
+class UserHotelDetailsScreen extends StatelessWidget {
   final Map<String, dynamic> hotelData;
 
-  const HotelDetailsScreen({Key? key, required this.hotelData})
+  const UserHotelDetailsScreen({Key? key, required this.hotelData})
       : super(key: key);
 
   @override

@@ -1,4 +1,8 @@
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:project1/admin/screen/_screen.dart';
+import 'package:project1/admin/screen/admin_home_page.dart';
 
 class AdminLoginPage extends StatefulWidget {
   const AdminLoginPage({super.key});
@@ -14,7 +18,7 @@ class _AdminLoginPageState extends State<AdminLoginPage> {
   bool _isPasswordVisible = false;
 
   // Admin login handler function to process form data
-  void loginHandler() {
+  void loginHandler() async {
     String adminID = adminIDController.text;
     String password = passwordController.text;
 
@@ -26,10 +30,35 @@ class _AdminLoginPageState extends State<AdminLoginPage> {
       return;
     }
 
-    // Navigate to Admin Dashboard after successful login
-    Navigator.push(context, MaterialPageRoute(builder: (context) {
-      return const AdminLoginPage(); // Navigate to the Admin Dashboard
-    }));
+    try {
+      // Firebase Authentication
+      UserCredential userCredential = await FirebaseAuth.instance
+          .signInWithEmailAndPassword(email: adminID, password: password);
+
+      // Check if the email is in the admin collection
+      FirebaseFirestore.instance
+          .collection('admin') // Assuming collection is 'admins'
+          .where('email', isEqualTo: adminID)
+          .get()
+          .then((querySnapshot) {
+        if (querySnapshot.docs.isNotEmpty) {
+          // Successfully logged in as admin, navigate to admin dashboard
+          Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) {
+            return  AdminUserScreen(); // Navigate to the admin dashboard
+          }));
+        } else {
+          // If the email is not found in the admin collection
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('This email is not authorized')),
+          );
+        }
+      });
+    } catch (e) {
+      // If there's an error (invalid credentials, etc.)
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error: ${e.toString()}')),
+      );
+    }
 
     // Print for debugging (optional)
     print("Admin ID: $adminID");
@@ -39,7 +68,6 @@ class _AdminLoginPageState extends State<AdminLoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-     
       body: Stack(
         children: [
           // Background Image
@@ -154,3 +182,4 @@ class _AdminLoginPageState extends State<AdminLoginPage> {
     );
   }
 }
+
