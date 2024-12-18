@@ -10,11 +10,11 @@ class HotelBookingsPage extends StatelessWidget {
         title: const Text("Bookings"),
         backgroundColor: Colors.teal,
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
+      body: const Padding(
+        padding: EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: const [
+          children: [
             Text(
               "Bookings will be displayed here.",
               style: TextStyle(fontSize: 16),

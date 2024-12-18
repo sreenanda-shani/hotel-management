@@ -36,9 +36,9 @@ class UserAuthService {
         'gender': gender, // Store gender
       });
 
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Registration Successful')));
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Registration Successful')));
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Registration failed')));
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Registration failed')));
     }
   }
 
@@ -56,13 +56,13 @@ class UserAuthService {
       Navigator.push(
         context,
         MaterialPageRoute(builder: (context) {
-          return HomePage();
+          return const HomePage();
         }),
       );
 
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Login Successful')));
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Login Successful')));
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Login failed')));
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Login failed')));
     }
   }
 }

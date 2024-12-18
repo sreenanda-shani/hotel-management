@@ -89,8 +89,8 @@ class _HotelRegistrationPageState extends State<HotelRegistrationPage> {
 
   // Method to pick image
   Future<void> _pickImage() async {
-    final ImagePicker _picker = ImagePicker();
-    final XFile? image = await _picker.pickImage(source: ImageSource.gallery); // You can also use ImageSource.camera
+    final ImagePicker picker = ImagePicker();
+    final XFile? image = await picker.pickImage(source: ImageSource.gallery); // You can also use ImageSource.camera
 
     if (image != null) {
       setState(() {
@@ -182,7 +182,7 @@ class _HotelRegistrationPageState extends State<HotelRegistrationPage> {
           builder: (context) {
             return AlertDialog(
               title: const Text("Registration Successful"),
-              content: Text("Hotel registration successful!"),
+              content: const Text("Hotel registration successful!"),
               actions: [
                 TextButton(
                   onPressed: () => Navigator.of(context).pop(),

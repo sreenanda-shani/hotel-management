@@ -59,14 +59,14 @@ class HomePage extends StatelessWidget {
             _buildDrawerItem(Icons.search, "Search Hotel", () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => HotelDetailsPage()),
+                MaterialPageRoute(builder: (context) => const HotelDetailsPage()),
               );
             }),
             _buildDrawerItem(Icons.history, "Booking History", () {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => MyBookingsPage(
+                  builder: (context) => const MyBookingsPage(
                     hotel: {
                       'hotelName': 'Oceanview Resort',
                       'address': '123 Beach Road, Seaside City',
@@ -74,7 +74,7 @@ class HomePage extends StatelessWidget {
                       'checkInDate': '2024-11-15',
                       'checkOutDate': '2024-11-18',
                       'price': '\$450',
-                      'amenities': ['Free WiFi', 'Swimming Pool', 'Gym', 'Spa'],
+                      'amenities': const ['Free WiFi', 'Swimming Pool', 'Gym', 'Spa'],
                       'description': 'A luxury resort by the ocean with stunning views and premium facilities.',
                       'image': 'assets/asset/image1.jpeg',
                     },
@@ -102,7 +102,7 @@ class HomePage extends StatelessWidget {
             }),
             _buildDrawerItem(Icons.login, "Logout", () {
               Navigator.push(context, MaterialPageRoute(builder: (context) {
-                return UserLoginPage();
+                return const UserLoginPage();
               }));
             }),
           ],

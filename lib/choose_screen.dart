@@ -4,6 +4,8 @@ import 'package:project1/hotel/hotel_login.dart';
 import 'package:project1/user/login_page.dart';
 
 class ChooseScreen extends StatelessWidget {
+  const ChooseScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -73,7 +75,7 @@ class ChooseScreen extends StatelessWidget {
                   title: 'User',
                   icon: Icons.person,
                   onTap: () {
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => UserLoginPage(),));
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => const UserLoginPage(),));
                   },
                 ),
                 const SizedBox(height: 20),
@@ -84,7 +86,7 @@ class ChooseScreen extends StatelessWidget {
 
                     
 
-                                        Navigator.push(context, MaterialPageRoute(builder: (context) => AdminLoginPage(),));
+                                        Navigator.push(context, MaterialPageRoute(builder: (context) => const AdminLoginPage(),));
 
                     print('Admin selected');
                   },
@@ -103,7 +105,7 @@ class RoleCard extends StatelessWidget {
   final IconData icon;
   final VoidCallback onTap;
 
-  const RoleCard({
+  const RoleCard({super.key, 
     required this.title,
     required this.icon,
     required this.onTap,
@@ -121,7 +123,7 @@ class RoleCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: Colors.white.withOpacity(0.85),
           borderRadius: BorderRadius.circular(20),
-          boxShadow: [
+          boxShadow: const [
             BoxShadow(
               color: Colors.black26,
               blurRadius: 8,

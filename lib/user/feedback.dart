@@ -27,7 +27,7 @@ class FeedbackPage extends StatelessWidget {
             TextField(
               controller: feedbackController,
               maxLines: 5,
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                 border: OutlineInputBorder(),
                 hintText: "Enter your feedback here...",
               ),

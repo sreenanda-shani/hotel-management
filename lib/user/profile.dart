@@ -4,7 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:project1/user/edit_profile'; // Firebase Auth
 
 class ProfilePage extends StatelessWidget {
-  const ProfilePage({Key? key}) : super(key: key);
+  const ProfilePage({super.key});
 
   Future<Map<String, dynamic>?> fetchUserData() async {
     try {
@@ -130,11 +130,11 @@ class ProfileDetailRow extends StatelessWidget {
   final String value;
 
   const ProfileDetailRow({
-    Key? key,
+    super.key,
     required this.icon,
     required this.label,
     required this.value,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

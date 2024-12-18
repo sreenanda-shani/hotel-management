@@ -10,11 +10,11 @@ class HotelContactPage extends StatelessWidget {
         title: const Text("Contact Details"),
         backgroundColor: Colors.teal,
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
+      body: const Padding(
+        padding: EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: const [
+          children: [
             Text(
               "Phone: +123 456 7890\nEmail: info@ourhotel.com",
               style: TextStyle(fontSize: 16),

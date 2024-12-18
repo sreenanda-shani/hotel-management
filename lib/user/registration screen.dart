@@ -6,13 +6,15 @@ class Registration extends StatelessWidget {
   final List<String> locations = ['Nearby', 'Bangalore', 'Chennai', 'Delhi'];
   final List<String> premiumHotels = ['₹999 + taxes', '₹1199 + taxes', '₹1499 + taxes'];
 
+  Registration({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(
         leading: IconButton(
-          icon: Icon(Icons.menu),
+          icon: const Icon(Icons.menu),
           onPressed: () {
             if (_scaffoldKey.currentState != null) {
               _scaffoldKey.currentState!.openDrawer();
@@ -32,7 +34,7 @@ class Registration extends StatelessWidget {
         elevation: 4,
       ),
       drawer: _buildLeftDrawer(context),
-      body: Container(
+      body: SizedBox(
         height: MediaQuery.of(context).size.height,
         child: Stack(
           children: [
@@ -54,8 +56,8 @@ class Registration extends StatelessWidget {
                     child: TextField(
                       decoration: InputDecoration(
                         hintText: "Search for city, location or hotel",
-                        hintStyle: TextStyle(color: Colors.black54),
-                        prefixIcon: Icon(Icons.search, color: Colors.black),
+                        hintStyle: const TextStyle(color: Colors.black54),
+                        prefixIcon: const Icon(Icons.search, color: Colors.black),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(25.0),
                         ),
@@ -90,13 +92,13 @@ class Registration extends StatelessWidget {
                                   backgroundColor: Colors.white,
                                   child: Text(
                                     locations[index][0], // First letter of location
-                                    style: TextStyle(color: Colors.white, fontSize: 20),
+                                    style: const TextStyle(color: Colors.white, fontSize: 20),
                                   ),
                                 ),
-                                SizedBox(height: 4),
+                                const SizedBox(height: 4),
                                 Text(
                                   locations[index],
-                                  style: TextStyle(
+                                  style: const TextStyle(
                                     color: Colors.white,
                                     fontSize: 16,
                                   ),
@@ -109,8 +111,8 @@ class Registration extends StatelessWidget {
                     ),
                   ),
                   // Premium Hotels Section
-                  Padding(
-                    padding: const EdgeInsets.all(12.0),
+                  const Padding(
+                    padding: EdgeInsets.all(12.0),
                     child: Text(
                       "Premium Hotels",
                       style: TextStyle(
@@ -121,18 +123,18 @@ class Registration extends StatelessWidget {
                     ),
                   ),
                   ConstrainedBox(
-                    constraints: BoxConstraints(maxHeight: 400),
+                    constraints: const BoxConstraints(maxHeight: 400),
                     child: GridView.builder(
                       shrinkWrap: true,
-                      physics: NeverScrollableScrollPhysics(),
+                      physics: const NeverScrollableScrollPhysics(),
                       itemCount: premiumHotels.length,
-                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                         crossAxisCount: 2,
                         childAspectRatio: 3 / 2,
                         crossAxisSpacing: 10,
                         mainAxisSpacing: 10,
                       ),
-                      padding: EdgeInsets.symmetric(horizontal: 12),
+                      padding: const EdgeInsets.symmetric(horizontal: 12),
                       itemBuilder: (context, index) {
                         return InkWell(
                           onTap: () {
@@ -155,18 +157,18 @@ class Registration extends StatelessWidget {
                               child: Column(
                                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                                 children: [
-                                  Icon(
+                                  const Icon(
                                     Icons.hotel,
                                     color: Colors.white,
                                     size: 30,
                                   ),
-                                  Text(
+                                  const Text(
                                     "Starting from",
                                     style: TextStyle(color: Colors.white, fontSize: 14),
                                   ),
                                   Text(
                                     premiumHotels[index],
-                                    style: TextStyle(
+                                    style: const TextStyle(
                                       color: Colors.white,
                                       fontWeight: FontWeight.bold,
                                       fontSize: 16,
@@ -186,7 +188,7 @@ class Registration extends StatelessWidget {
                                         ),
                                       );
                                     },
-                                    child: Text("Explore"),
+                                    child: const Text("Explore"),
                                   ),
                                 ],
                               ),
@@ -203,7 +205,7 @@ class Registration extends StatelessWidget {
         ),
       ),
       bottomNavigationBar: BottomNavigationBar(
-        items: [
+        items: const [
           BottomNavigationBarItem(
             icon: Icon(Icons.home, color: Colors.black),
             label: 'Home',
@@ -236,7 +238,7 @@ class Registration extends StatelessWidget {
       child: ListView(
         padding: EdgeInsets.zero,
         children: [
-          UserAccountsDrawerHeader(
+          const UserAccountsDrawerHeader(
             accountName: Text("User Name"),
             accountEmail: Text("user@example.com"),
             currentAccountPicture: CircleAvatar(
@@ -245,25 +247,25 @@ class Registration extends StatelessWidget {
             ),
           ),
           ListTile(
-            title: Text('Home'),
+            title: const Text('Home'),
             onTap: () {
               Navigator.pop(context);
             },
           ),
           ListTile(
-            title: Text('Profile'),
+            title: const Text('Profile'),
             onTap: () {
               Navigator.pop(context);
             },
           ),
           ListTile(
-            title: Text('Settings'),
+            title: const Text('Settings'),
             onTap: () {
               Navigator.pop(context);
             },
           ),
           ListTile(
-            title: Text('Logout'),
+            title: const Text('Logout'),
             onTap: () {
               Navigator.pop(context);
             },
@@ -277,7 +279,7 @@ class Registration extends StatelessWidget {
 class LocationPage extends StatelessWidget {
   final String locationName;
 
-  const LocationPage({Key? key, required this.locationName}) : super(key: key);
+  const LocationPage({super.key, required this.locationName});
 
   @override
   Widget build(BuildContext context) {
@@ -288,7 +290,7 @@ class LocationPage extends StatelessWidget {
       body: Center(
         child: Text(
           'Welcome to $locationName!',
-          style: TextStyle(fontSize: 24),
+          style: const TextStyle(fontSize: 24),
         ),
       ),
     );
@@ -298,18 +300,18 @@ class LocationPage extends StatelessWidget {
 class PricePage extends StatelessWidget {
   final String priceDetails;
 
-  const PricePage({Key? key, required this.priceDetails}) : super(key: key);
+  const PricePage({super.key, required this.priceDetails});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Hotel Details"),
+        title: const Text("Hotel Details"),
       ),
       body: Center(
         child: Text(
           'Hotels at $priceDetails',
-          style: TextStyle(fontSize: 24),
+          style: const TextStyle(fontSize: 24),
         ),
       ),
     );

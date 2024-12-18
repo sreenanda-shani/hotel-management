@@ -152,7 +152,7 @@ class _HotelHomeState extends State<HotelHome> {
                   onPressed: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) =>  ManageHotelDetailsPage()),
+                      MaterialPageRoute(builder: (context) =>  const ManageHotelDetailsPage()),
                     );
                   },
                   icon: const Icon(Icons.manage_accounts),

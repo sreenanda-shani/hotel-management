@@ -9,6 +9,8 @@ import 'hotel_management_screen.dart';
 
 
 class AdminHomePage extends StatelessWidget {
+  const AdminHomePage({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -20,6 +22,8 @@ class AdminHomePage extends StatelessWidget {
 }
 
 class AdminHomeScreen extends StatefulWidget {
+  const AdminHomeScreen({super.key});
+
   @override
   _AdminHomeScreenState createState() => _AdminHomeScreenState();
 }
@@ -29,11 +33,11 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
 
   // List of pages for each navigation item
   final List<Widget> _pages = [
-    UserSearchPage(),
+    const UserSearchPage(),
     AnalyticsScreen(),
     HotelManagementScreen(),
     NotificationScreen(),
-   AdminFeedback(),
+   const AdminFeedback(),
   ];
 
   // This function is triggered when a navigation item is tapped
@@ -47,7 +51,7 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Admin Home'),
+        title: const Text('Admin Home'),
         centerTitle: true,
       ),
       // Body changes based on the selected index

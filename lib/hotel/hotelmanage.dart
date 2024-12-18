@@ -11,15 +11,15 @@ class ManageHotelDetailsPage extends StatefulWidget {
 
 class _ManageHotelDetailsPageState extends State<ManageHotelDetailsPage> {
   // Controllers for each field
-  TextEditingController _hotelNameController = TextEditingController();
-  TextEditingController _contactEmailController = TextEditingController();
-  TextEditingController _contactNumberController = TextEditingController();
-  TextEditingController _facilitiesController = TextEditingController();
-  TextEditingController _imageUrlController = TextEditingController();
-  TextEditingController _locationController = TextEditingController();
-  TextEditingController _latController = TextEditingController();
-  TextEditingController _logController = TextEditingController();
-  TextEditingController _numberOfRoomsController = TextEditingController();
+  final TextEditingController _hotelNameController = TextEditingController();
+  final TextEditingController _contactEmailController = TextEditingController();
+  final TextEditingController _contactNumberController = TextEditingController();
+  final TextEditingController _facilitiesController = TextEditingController();
+  final TextEditingController _imageUrlController = TextEditingController();
+  final TextEditingController _locationController = TextEditingController();
+  final TextEditingController _latController = TextEditingController();
+  final TextEditingController _logController = TextEditingController();
+  final TextEditingController _numberOfRoomsController = TextEditingController();
   bool _isApproved = false;
 
   bool _isLoading = true;
@@ -98,9 +98,9 @@ class _ManageHotelDetailsPageState extends State<ManageHotelDetailsPage> {
         'isApproved': _isApproved,
       });
 
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Hotel details updated successfully!')));
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Hotel details updated successfully!')));
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error updating hotel details')));
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Error updating hotel details')));
       print("Error updating hotel details: $e");
     }
   }
@@ -167,7 +167,7 @@ class _ManageHotelDetailsPageState extends State<ManageHotelDetailsPage> {
         controller: controller,
         decoration: InputDecoration(
           labelText: label,
-          border: OutlineInputBorder(),
+          border: const OutlineInputBorder(),
         ),
       ),
     );

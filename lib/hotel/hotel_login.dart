@@ -5,6 +5,8 @@ import 'package:project1/hotel/hotel_registration.dart';
 import 'package:project1/hotel/hotelhome.dart';
 
 class HotelLoginPage extends StatefulWidget {
+  const HotelLoginPage({super.key});
+
   @override
   _HotelLoginPageState createState() => _HotelLoginPageState();
 }
@@ -56,7 +58,7 @@ class _HotelLoginPageState extends State<HotelLoginPage> {
           // No need to check for admin approval anymore
           Navigator.pushReplacement(
             context,
-            MaterialPageRoute(builder: (context) => HotelHome()), // Navigate to the hotel home page
+            MaterialPageRoute(builder: (context) => const HotelHome()), // Navigate to the hotel home page
           );
         } else {
           setState(() {

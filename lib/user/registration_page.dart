@@ -71,7 +71,7 @@ class _UserRegistrationPageState extends State<UserRegistrationPage> {
 
     // Navigate to a success page (replace with your own)
     Navigator.push(context, MaterialPageRoute(builder: (context) {
-      return UserLoginPage(); // Go back to the Login Page after registration
+      return const UserLoginPage(); // Go back to the Login Page after registration
     }));
   }
 

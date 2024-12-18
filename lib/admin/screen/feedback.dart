@@ -9,7 +9,7 @@ class AdminFeedback extends StatefulWidget {
 }
 
 class _AdminFeedbackState extends State<AdminFeedback> {
-  List<Map<String, dynamic>> _feedbacks = []; // Local list to store feedbacks
+  final List<Map<String, dynamic>> _feedbacks = []; // Local list to store feedbacks
 
   // Fetch feedback data from Firestore
   void fetchFeedbacks() async {

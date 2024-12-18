@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:project1/user/registration_page.dart'; // Import Registration Page
-import 'package:project1/user/home_page.dart'; // Import HomePage after login
+// Import HomePage after login
 import 'package:project1/user/forgot_password_page.dart';
 import 'package:project1/user/services/user_auth_service.dart'; // Import ForgotPassword Page
 
