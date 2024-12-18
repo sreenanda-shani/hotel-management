@@ -2,8 +2,10 @@
 
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:project1/admin/screen/_screen.dart';
+import 'package:project1/admin/screen/admin_home_page.dart';
 import 'package:project1/firebase_options.dart';
-import 'package:project1/hotel/hotel_login.dart';
+
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -12,7 +14,7 @@ Future<void> main() async {
 );
   runApp(MaterialApp(
     debugShowCheckedModeBanner: false,
-    home: HotelLoginPage()
+    home: AdminUserScreen()
   ));
 }
 

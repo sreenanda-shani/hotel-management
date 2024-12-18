@@ -52,7 +52,9 @@ class _HotelRegistrationPageState extends State<HotelRegistrationPage> {
 
   // Image fields
   String? imageUrl;
+  String ? documnetUrl;
   File? _image; // Holds the selected image file
+  File ? document;
 
   final cloudinary = Cloudinary.signedConfig(
     apiKey: '666732294294543',
@@ -88,13 +90,18 @@ class _HotelRegistrationPageState extends State<HotelRegistrationPage> {
   }
 
   // Method to pick image
-  Future<void> _pickImage() async {
-    final ImagePicker picker = ImagePicker();
-    final XFile? image = await picker.pickImage(source: ImageSource.gallery); // You can also use ImageSource.camera
+  Future<void> _pickImage({ bool isDocument  = false}) async {
+    final ImagePicker _picker = ImagePicker();
+    final XFile? image = await _picker.pickImage(source: ImageSource.gallery); // You can also use ImageSource.camera
 
     if (image != null) {
       setState(() {
-        _image = File(image.path);
+        if(isDocument){
+          document = File(image.path);
+
+        }else{
+          _image = File(image.path);
+        }
       });
     }
   }
@@ -150,10 +157,11 @@ class _HotelRegistrationPageState extends State<HotelRegistrationPage> {
         return;
       }
       
-      await FirebaseAuth.instance.createUserWithEmailAndPassword(email: contactEmail, password: password);
+      final user = await FirebaseAuth.instance.createUserWithEmailAndPassword(email: contactEmail, password: password);
       // Upload image to Cloudinary if an image was picked
-      if (_image != null) {
+      if (_image != null && document != null) {
         imageUrl = await _uploadImageToCloudinary(_image!);
+        documnetUrl = await  _uploadImageToCloudinary(document!);
       }
 
       // Creating a hotel registration model
@@ -168,13 +176,16 @@ class _HotelRegistrationPageState extends State<HotelRegistrationPage> {
         'numberOfRooms': numberOfRooms,
         'facilities': _getSelectedFacilities(),
         'imageUrl': imageUrl, // Add image URL to the data
+        'document': documnetUrl
       };
 
       try {
-        await _firestore.collection('hotels').add(hotelData);
+        await _firestore.collection('hotels').doc(user.user!.uid).set(hotelData);
         setState(() {
           isLoading = false;
         });
+
+        Navigator.of(context).pop();
 
         // Display success dialog
         showDialog(
@@ -435,24 +446,47 @@ class _HotelRegistrationPageState extends State<HotelRegistrationPage> {
                   },
                 ),
                 const SizedBox(height: 16),
+
+                Text('logo'),
                 // Hotel Image Picker
                 GestureDetector(
                   onTap: _pickImage,
                   child: Container(
                     height: 200,
+                    width: MediaQuery.of(context).size.width,
                     color: Colors.grey[200],
                     child: _image == null
                         ? const Icon(Icons.add_a_photo, size: 50)
                         : Image.file(_image!, fit: BoxFit.cover),
                   ),
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 20),
+
+                Text('Document'),
+
+                 GestureDetector(
+                  onTap: _pickImage,
+                  child: Container(
+                    height: 200,
+                    width: MediaQuery.of(context).size.width,
+                    color: Colors.grey[200],
+                    child: _image == null
+                        ? const Icon(Icons.add_a_photo, size: 50)
+                        : Image.file(_image!, fit: BoxFit.cover),
+                  ),
+                ),
+                const SizedBox(height: 20),
+
                 // Submit Button
                 ElevatedButton(
                   onPressed: submitForm,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.teal,
+                    fixedSize: Size(MediaQuery.of(context).size.width, 50)
+                  ),
                   child: isLoading
                       ? const CircularProgressIndicator()
-                      : const Text('Submit'),
+                      : const Text('Submit',style: TextStyle(color: Colors.white),),
                 ),
                 
                 const SizedBox(height: 20),

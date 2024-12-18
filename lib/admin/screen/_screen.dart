@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:project1/admin/screen/admin_hotel_management.dart';
 import 'package:project1/admin/screen/feedback.dart';
 import 'package:project1/admin/screen/notification.dart';
 import 'package:project1/admin/usersearchpage.dart';
@@ -8,34 +9,22 @@ import 'hotel_management_screen.dart';
 
 
 
-class AdminHomePage extends StatelessWidget {
-  const AdminHomePage({super.key});
 
+
+class AdminUserScreen extends StatefulWidget {
   @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Admin Home',
-      theme: ThemeData(primarySwatch: Colors.blue),
-      home: AdminHomeScreen(),
-    );
-  }
+  _AdminUserScreenState createState() => _AdminUserScreenState();
 }
 
-class AdminHomeScreen extends StatefulWidget {
-  const AdminHomeScreen({super.key});
-
-  @override
-  _AdminHomeScreenState createState() => _AdminHomeScreenState();
-}
-
-class _AdminHomeScreenState extends State<AdminHomeScreen> {
+class _AdminUserScreenState extends State<AdminUserScreen> {
   int _selectedIndex = 0;
 
   // List of pages for each navigation item
   final List<Widget> _pages = [
-    const UserSearchPage(),
     AnalyticsScreen(),
-    HotelManagementScreen(),
+    UserSearchPage(),
+    
+   AdminHotelManagementScreen(),
     NotificationScreen(),
    const AdminFeedback(),
   ];
@@ -50,22 +39,20 @@ class _AdminHomeScreenState extends State<AdminHomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Admin Home'),
-        centerTitle: true,
-      ),
+      
       // Body changes based on the selected index
       body: _pages[_selectedIndex],
       bottomNavigationBar: BottomNavigationBar(
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            label: 'User Details',
-          ),
-          BottomNavigationBarItem(
             icon: Icon(Icons.analytics),
             label: 'Analytics',
           ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.person),
+            label: 'User Details',
+          ),
+          
           BottomNavigationBarItem(
             icon: Icon(Icons.hotel),
             label: 'Hotel Management',
