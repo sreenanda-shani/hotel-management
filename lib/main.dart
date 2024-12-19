@@ -7,6 +7,7 @@ import 'package:project1/admin/screen/admin_home_page.dart';
 import 'package:project1/choose_screen.dart';
 import 'package:project1/firebase_options.dart';
 import 'package:project1/hotel/hotel_rooms.dart';
+import 'package:project1/user/home_page.dart';
 
 
 Future<void> main() async {

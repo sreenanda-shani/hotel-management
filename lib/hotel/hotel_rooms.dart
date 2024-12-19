@@ -1,5 +1,4 @@
 import 'dart:io';
-
 import 'package:image_picker/image_picker.dart';  // Import the image_picker package
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloudinary/cloudinary.dart';
@@ -20,6 +19,7 @@ class _ManageRoomDetailsPageState extends State<ManageRoomDetailsPage> {
   String _bedType = 'Single';
   bool _wifiAvailable = false;
   bool _balconyAvailable = false;
+  bool _isAvailable = true;  // Added to store room availability status
 
   bool _isLoading = true;
   String _hotelId = '';
@@ -31,22 +31,21 @@ class _ManageRoomDetailsPageState extends State<ManageRoomDetailsPage> {
     cloudName: 'dsjp0qqgo',
   );
 
+  // Function to upload image to Cloudinary
   Future<String?> _uploadImageToCloudinary(File imageFile) async {
-  try {
-    // Upload image to Cloudinary without the 'uploadPreset'
-    final result = await cloudinary.upload(
-      file: imageFile.path,
-      folder: 'hotels',  // Upload to 'hotels' folder
-      resourceType: CloudinaryResourceType.image,  // Upload as image
-    );
-
-    return result.secureUrl;  // Return the image URL
-  } catch (e) {
-    print("Error uploading image: $e");
-    return null;
+    try {
+      // Upload image to Cloudinary without the 'uploadPreset'
+      final result = await cloudinary.upload(
+        file: imageFile.path,
+        folder: 'hotels',  // Upload to 'hotels' folder
+        resourceType: CloudinaryResourceType.image,  // Upload as image
+      );
+      return result.secureUrl;  // Return the image URL
+    } catch (e) {
+      print("Error uploading image: $e");
+      return null;
+    }
   }
-}
-
 
   @override
   void initState() {
@@ -54,6 +53,7 @@ class _ManageRoomDetailsPageState extends State<ManageRoomDetailsPage> {
     _fetchRoomDetails();
   }
 
+  // Function to fetch room details
   Future<void> _fetchRoomDetails() async {
     try {
       User? user = FirebaseAuth.instance.currentUser;
@@ -67,32 +67,43 @@ class _ManageRoomDetailsPageState extends State<ManageRoomDetailsPage> {
         if (docSnapshot.exists) {
           var data = docSnapshot.data() as Map<String, dynamic>;
 
-          setState(() {
-            _roomNumberController.text = data['roomNumber'].toString() ?? '';
-            _rentController.text = data['rent'].toString() ?? '';
-            _acType = data['acType'] ?? 'AC';
-            _bedType = data['bedType'] ?? 'Single';
-            _wifiAvailable = data['wifiAvailable'] ?? false;
-            _balconyAvailable = data['balconyAvailable'] ?? false;
-            _isLoading = false;
-          });
+          // Ensure widget is still mounted before calling setState
+          if (mounted) {
+            setState(() {
+              _roomNumberController.text = data['roomNumber'].toString() ?? '';
+              _rentController.text = data['rent'].toString() ?? '';
+              _acType = data['acType'] ?? 'AC';
+              _bedType = data['bedType'] ?? 'Single';
+              _wifiAvailable = data['wifiAvailable'] ?? false;
+              _balconyAvailable = data['balconyAvailable'] ?? false;
+              _isAvailable = data['isAvailable'] ?? true;  // Fetch availability status
+              _isLoading = false;
+            });
+          }
         } else {
+          if (mounted) {
+            setState(() {
+              _isLoading = false;
+            });
+          }
+        }
+      } else {
+        if (mounted) {
           setState(() {
             _isLoading = false;
           });
         }
-      } else {
+      }
+    } catch (e) {
+      if (mounted) {
         setState(() {
           _isLoading = false;
         });
       }
-    } catch (e) {
-      setState(() {
-        _isLoading = false;
-      });
     }
   }
 
+  // Function to update room details
   Future<void> _updateRoomDetails() async {
     try {
       await FirebaseFirestore.instance.collection('rooms').add({
@@ -103,15 +114,20 @@ class _ManageRoomDetailsPageState extends State<ManageRoomDetailsPage> {
         'bedType': _bedType,
         'wifiAvailable': _wifiAvailable,
         'balconyAvailable': _balconyAvailable,
+        'isAvailable': _isAvailable,  // Include room availability in the update
       });
 
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Room details updated successfully!')));
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Room details updated successfully!')));
+      }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Error updating room details')));
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Error updating room details')));
+      }
     }
   }
 
-  // Use image_picker to pick an image
+  // Function to pick an image
   Future<void> _pickImage() async {
     final picker = ImagePicker();
     final pickedFile = await picker.pickImage(source: ImageSource.gallery);
@@ -123,6 +139,7 @@ class _ManageRoomDetailsPageState extends State<ManageRoomDetailsPage> {
     }
   }
 
+  // Function to add room details
   Future<void> _addRoomDetails({
     required int roomNumber,
     required double rent,
@@ -130,6 +147,7 @@ class _ManageRoomDetailsPageState extends State<ManageRoomDetailsPage> {
     required String bedType,
     required bool wifiAvailable,
     required bool balconyAvailable,
+    required bool isAvailable,  // Add the isAvailable parameter here
   }) async {
     try {
       User? user = FirebaseAuth.instance.currentUser;
@@ -151,17 +169,22 @@ class _ManageRoomDetailsPageState extends State<ManageRoomDetailsPage> {
           'bedType': bedType,
           'wifiAvailable': wifiAvailable,
           'balconyAvailable': balconyAvailable,
-          'imageUrl': imageUrl,  // Add image URL to Firestore
-          'isAvailable': true,
+          'imageUrl': imageUrl,
+          'isAvailable': isAvailable,  // Include the isAvailable field in the new room
         });
 
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Room added successfully!')));
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Room added successfully!')));
+        }
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('User is not logged in')));
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('User is not logged in')));
+        }
       }
     } catch (e) {
-      print(e);
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Error adding room details')));
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Error adding room details')));
+      }
     }
   }
 
@@ -251,6 +274,23 @@ class _ManageRoomDetailsPageState extends State<ManageRoomDetailsPage> {
                     onChanged: (value) {
                       setState(() {
                         _balconyAvailable = value!;
+                      });
+                    },
+                  ),
+                ],
+              ),
+            ),
+
+            // Room Availability
+            _buildCard(
+              child: Row(
+                children: [
+                  const Text("Room Available", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                  _buildCustomCheckbox(
+                    value: _isAvailable,
+                    onChanged: (value) {
+                      setState(() {
+                        _isAvailable = value!;
                       });
                     },
                   ),

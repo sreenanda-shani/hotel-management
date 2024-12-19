@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:project1/user/home_page.dart';
+import 'package:project1/user/navigation.dart';
 
 class UserAuthService {
   final firebaseAuth = FirebaseAuth.instance;
@@ -54,11 +55,12 @@ class UserAuthService {
         password: password,
       );
       Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) {
-          return const HomePage();
-        }),
-      );
+  context,
+  MaterialPageRoute(builder: (context) {
+    return BottomNavBarScreen();
+  }),
+);
+
 
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Login Successful')));
     } catch (e) {

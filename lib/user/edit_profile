@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class EditProfilePage extends StatefulWidget {
@@ -8,12 +10,100 @@ class EditProfilePage extends StatefulWidget {
 }
 
 class _EditProfilePageState extends State<EditProfilePage> {
-  // Default values for the form fields
-  final TextEditingController _nameController = TextEditingController(text: 'John Doe');
-  final TextEditingController _emailController = TextEditingController(text: 'johndoe@example.com');
-  final TextEditingController _addressController = TextEditingController(text: '123 Main Street, Springfield, USA');
-  final TextEditingController _phoneController = TextEditingController(text: '+1 234 567 890');
+  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _addressController = TextEditingController();
+  final TextEditingController _phoneController = TextEditingController();
   String _selectedGender = 'Male'; // Default gender
+  
+  // Firebase Authentication instance to get the current user
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+
+  // Firestore reference for user collection
+  final CollectionReference _userCollection =
+      FirebaseFirestore.instance.collection('user');
+
+  late String uid;
+
+  @override
+  void initState() {
+    super.initState();
+    _getCurrentUserUid();
+  }
+
+  // Fetch current user's UID
+  Future<void> _getCurrentUserUid() async {
+    try {
+      User? user = _auth.currentUser;  // Get the currently logged-in user
+      if (user != null) {
+        setState(() {
+          uid = user.uid;  // Get the UID from the current user
+        });
+        _fetchUserData(uid);  // Fetch user data using the UID
+      } else {
+        print("User not logged in");
+      }
+    } catch (e) {
+      print('Error fetching user UID: $e');
+    }
+  }
+
+  // Fetch user data from Firestore and populate the fields
+  Future<void> _fetchUserData(String uid) async {
+    try {
+      // Fetch user data from Firestore using the UID
+      DocumentSnapshot userDoc = await _userCollection.doc(uid).get();
+
+      if (userDoc.exists) {
+        var data = userDoc.data() as Map<String, dynamic>;
+
+        // Set the text fields with fetched data
+        setState(() {
+          _nameController.text = data['name'] ?? '';
+          _emailController.text = data['email'] ?? '';
+          _addressController.text = data['address'] ?? '';
+          _phoneController.text = data['phone'] ?? '';
+          _selectedGender = data['gender'] ?? 'Male';
+        });
+      } else {
+        // Handle case when the document doesn't exist
+        print('User data not found');
+      }
+    } catch (e) {
+      print('Error fetching user data: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Failed to load user data')),
+      );
+    }
+  }
+
+  // Update user data in Firestore
+  Future<void> _updateUserData() async {
+    try {
+      await _userCollection.doc(uid).update({
+        'name': _nameController.text,
+        'email': _emailController.text,
+        'address': _addressController.text,
+        'phone': _phoneController.text,
+        'gender': _selectedGender,
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Profile updated successfully')),
+      );
+      Navigator.pop(context); // Go back to the previous screen
+    } catch (e) {
+      print('Error updating user data: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Failed to update profile')),
+      );
+    }
+  }
+
+  // Reset fields to the original user data
+  void _resetFields() {
+    _fetchUserData(uid);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -90,24 +180,24 @@ class _EditProfilePageState extends State<EditProfilePage> {
                 border: OutlineInputBorder(),
               ),
             ),
-            const SizedBox(height: 20),
-            // Save Button
-            Center(
-              child: ElevatedButton(
-                onPressed: () {
-                  // Handle save logic
-                  // For now, we will just print the updated values
-                  print('Name: ${_nameController.text}');
-                  print('Email: ${_emailController.text}');
-                  print('Address: ${_addressController.text}');
-                  print('Phone: ${_phoneController.text}');
-                  print('Gender: $_selectedGender');
-
-                  // Navigate back to the ProfilePage
-                  Navigator.pop(context);
-                },
-                child: const Text('Save Changes'),
-              ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                // Save Button
+                ElevatedButton(
+                  onPressed: _updateUserData,
+                  child: const Text('Save Changes'),
+                ),
+                const SizedBox(width: 20),
+                // Reset Button
+                ElevatedButton(
+                  onPressed: _resetFields,
+                  child: const Text('Reset'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.grey,
+                  ),
+                ),
+              ],
             ),
           ],
         ),

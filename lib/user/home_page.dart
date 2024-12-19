@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:project1/user/favuorite.dart';
 import 'package:project1/user/hotel_details.dart';
 import 'package:project1/user/notification.dart';
 import 'package:project1/user/orders.dart';
@@ -87,7 +88,7 @@ class HomePage extends StatelessWidget {
             _buildDrawerItem(Icons.favorite, "Favourites", () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => const FeedbackPage()),
+                MaterialPageRoute(builder: (context) =>  FavouritesPage()),
               );
             }),
             _buildDrawerItem(Icons.notifications, "Notifications", () {
@@ -189,7 +190,7 @@ class HomePage extends StatelessWidget {
                   const SizedBox(height: 10),
 
                   // Fetching and displaying approved hotels
-                  StreamBuilder<QuerySnapshot>(
+                  StreamBuilder<QuerySnapshot>( 
                     stream: FirebaseFirestore.instance
                         .collection('hotels')
                         .where('isApproved', isEqualTo: true)
@@ -212,6 +213,7 @@ class HomePage extends StatelessWidget {
                           final imageUrl = hotelData['imageUrl'] ?? '';
                           final rating = '5 Stars'; // Add logic for actual rating if needed
                       
+
                           return GestureDetector(
                             onTap: () {
                               Navigator.push(context, MaterialPageRoute(builder:  (context) => UserHotelDetailsScreen(hotelData: hotelData),));
@@ -231,17 +233,6 @@ class HomePage extends StatelessWidget {
               ),
             ),
           ),
-        ],
-      ),
-      bottomNavigationBar: BottomNavigationBar(
-        type: BottomNavigationBarType.fixed,
-        selectedItemColor: Colors.blueAccent,
-        unselectedItemColor: Colors.grey,
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
-          BottomNavigationBarItem(icon: Icon(Icons.favorite), label: "Favorites"),
-          BottomNavigationBarItem(icon: Icon(Icons.notifications), label: "Notifications"),
-          BottomNavigationBarItem(icon: Icon(Icons.search), label: "Search"),
         ],
       ),
     );

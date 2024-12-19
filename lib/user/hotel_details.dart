@@ -1,4 +1,6 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:project1/user/booknow.dart'; // Import the BookNowPage
 
 class HotelDetailsPage extends StatefulWidget {
   const HotelDetailsPage({super.key});
@@ -9,6 +11,39 @@ class HotelDetailsPage extends StatefulWidget {
 
 class _HotelDetailsPageState extends State<HotelDetailsPage> {
   TextEditingController _searchController = TextEditingController();
+  late FirebaseFirestore _firestore;
+  late CollectionReference _hotelCollection;
+  List<Map<String, dynamic>> _hotels = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _firestore = FirebaseFirestore.instance;
+    _hotelCollection = _firestore.collection('hotels');
+    _fetchHotels();
+  }
+
+  // Fetch hotel data from Firestore
+  Future<void> _fetchHotels() async {
+  try {
+    QuerySnapshot snapshot = await _hotelCollection.get();
+    List<Map<String, dynamic>> hotels = snapshot.docs.map((doc) {
+      var data = doc.data() as Map<String, dynamic>;
+      data['hotelId'] = doc.id; // Add the document ID (hotelId) to the hotel data
+      return data;
+    }).toList();
+
+    setState(() {
+      _hotels = hotels; // Set fetched hotels data
+    });
+  } catch (e) {
+    print('Error fetching hotel data: $e');
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Failed to load hotel data')),
+    );
+  }
+}
+
 
   @override
   Widget build(BuildContext context) {
@@ -50,17 +85,21 @@ class _HotelDetailsPageState extends State<HotelDetailsPage> {
             const SizedBox(height: 20),
             // Displaying hotel cards
             Expanded(
-              child: ListView.builder(
-                itemCount: 5, // Example count, replace with dynamic data
-                itemBuilder: (context, index) {
-                  return _buildHotelCard(
-                    'Hotel ${index + 1}',
-                    '5 Stars',
-                    'A luxurious experience awaits you at Hotel ${index + 1}. Enjoy premium services and world-class amenities.',
-                    'assets/image2.jpg', // Replace with actual image path
-                  );
-                },
-              ),
+              child: _hotels.isEmpty
+                  ? const Center(child: CircularProgressIndicator())
+                  : ListView.builder(
+                      itemCount: _hotels.length,
+                      itemBuilder: (context, index) {
+                        var hotel = _hotels[index];
+                        return _buildHotelCard(
+                          hotel['hotelName'],
+                          hotel['facilities'],
+                          hotel['location'],
+                          hotel['imageUrl'], // Use imageUrl from Firebase
+                          hotel // Pass the entire hotel data
+                        );
+                      },
+                    ),
             ),
           ],
         ),
@@ -69,7 +108,7 @@ class _HotelDetailsPageState extends State<HotelDetailsPage> {
   }
 
   // Hotel card widget
-  Widget _buildHotelCard(String hotelName, String hotelRating, String description, String hotelImage) {
+  Widget _buildHotelCard(String hotelName, String facilities, String location, String hotelImage, Map<String, dynamic> hotel) {
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 10),
       decoration: BoxDecoration(
@@ -87,7 +126,7 @@ class _HotelDetailsPageState extends State<HotelDetailsPage> {
         children: [
           ClipRRect(
             borderRadius: const BorderRadius.vertical(top: Radius.circular(15)),
-            child: Image.asset(
+            child: Image.network(
               hotelImage,
               height: 150,
               width: double.infinity,
@@ -105,18 +144,24 @@ class _HotelDetailsPageState extends State<HotelDetailsPage> {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  hotelRating,
+                  facilities,
                   style: const TextStyle(color: Colors.orange, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  description,
+                  'Location: $location',
                   style: TextStyle(color: Colors.grey[700]),
                 ),
                 const SizedBox(height: 12),
                 ElevatedButton(
                   onPressed: () {
-                    // Implement booking logic or navigation to booking page
+                    // Pass the entire hotel details to BookNowPage
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => BookNowPage(hotelDetails: hotel),
+                      ),
+                    );
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.blueAccent,

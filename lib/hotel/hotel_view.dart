@@ -192,6 +192,7 @@ class _UpdateRoomPageState extends State<UpdateRoomPage> {
   String _bedType = 'Double Bed';
   bool _wifiAvailable = true;
   bool _balconyAvailable = false;
+  bool _isAvailable = true; // Added availability toggle
 
   @override
   void initState() {
@@ -202,6 +203,7 @@ class _UpdateRoomPageState extends State<UpdateRoomPage> {
     _bedType = widget.roomData['bedType'];
     _wifiAvailable = widget.roomData['wifiAvailable'];
     _balconyAvailable = widget.roomData['balconyAvailable'];
+    _isAvailable = widget.roomData['isAvailable']; // Initialize availability from Firestore
   }
 
   Future<void> _updateRoomDetails() async {
@@ -213,6 +215,7 @@ class _UpdateRoomPageState extends State<UpdateRoomPage> {
         'bedType': _bedType,
         'wifiAvailable': _wifiAvailable,
         'balconyAvailable': _balconyAvailable,
+        'isAvailable': _isAvailable, // Store availability status
       });
 
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Room details updated successfully!')));
@@ -399,6 +402,35 @@ class _UpdateRoomPageState extends State<UpdateRoomPage> {
                           onChanged: (value) {
                             setState(() {
                               _balconyAvailable = value;
+                            });
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 20),
+
+              // Room Availability Switch
+              Card(
+                elevation: 5,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+                color: Colors.teal.shade50,
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.check_circle, color: Colors.teal),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: SwitchListTile(
+                          title: const Text('Room Available'),
+                          value: _isAvailable,
+                          onChanged: (value) {
+                            setState(() {
+                              _isAvailable = value;
                             });
                           },
                         ),
