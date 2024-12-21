@@ -30,10 +30,10 @@ class _AdminFeedbackState extends State<AdminFeedback> {
             .doc(feedbackData['userId']) // Get user by the userId stored in feedback
             .get();
 
-        // Get the user's name
-        String userName = userDoc['name'] ?? 'Unknown User';
+        // Get the user's name (if available)
+        String userName = userDoc.exists ? userDoc['name'] ?? 'Unknown User' : 'Unknown User';
 
-        // Store feedback along with the user name
+        // Add feedback along with the user name and timestamp
         _feedbacks.add({
           'userName': userName,
           'feedback': feedbackData['feedback'], // Feedback text
@@ -73,15 +73,18 @@ class _AdminFeedbackState extends State<AdminFeedback> {
                   final feedbackMessage = feedback['feedback'];
                   final timestamp = feedback['timestamp'];
 
+                  // Convert Firestore Timestamp to DateTime
+                  String formattedTime = timestamp != null
+                      ? (timestamp as Timestamp).toDate().toLocal().toString() // Format timestamp to local time
+                      : 'Unknown time';
+
                   return Card(
                     margin: const EdgeInsets.symmetric(vertical: 8.0),
                     child: ListTile(
                       title: Text(userName), // Displaying the user's name
                       subtitle: Text(feedbackMessage), // Displaying the feedback message
                       trailing: Text(
-                        timestamp != null
-                            ? (timestamp as Timestamp).toDate().toString() // Convert Timestamp to DateTime
-                            : 'Unknown time',
+                        formattedTime, // Displaying formatted timestamp
                         style: const TextStyle(fontSize: 12),
                       ),
                     ),

@@ -1,9 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+
 import 'package:project1/user/favuorite.dart';
 import 'package:project1/user/hotel_details.dart';
 import 'package:project1/user/notification.dart';
-import 'package:project1/user/orders.dart';
+import 'package:project1/user/bookinghistory.dart';
 import 'package:project1/user/profile.dart';
 import 'package:project1/user/feedback.dart';
 import 'package:project1/user/login_page.dart';
@@ -51,7 +52,7 @@ class HomePage extends StatelessWidget {
               decoration: BoxDecoration(
                 color: Colors.blueAccent,
               ),
-              child: UserDrawerHeader(), // Make sure this widget is defined somewhere in your project
+              child: UserDrawerHeader(), // Ensure UserDrawerHeader widget exists
             ),
             _buildDrawerItem(Icons.person, "Profile", () {
               Navigator.push(
@@ -62,26 +63,14 @@ class HomePage extends StatelessWidget {
             _buildDrawerItem(Icons.search, "Search Hotel", () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => const HotelDetailsPage()), // Fixed typo
+                MaterialPageRoute(builder: (context) => const HotelDetailsPage()),
               );
             }),
             _buildDrawerItem(Icons.history, "Booking History", () {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => const MyBookingsPage(
-                    hotel: {
-                      'hotelName': 'Oceanview Resort',
-                      'address': '123 Beach Road, Seaside City',
-                      'location': 'Seaside City',
-                      'checkInDate': '2024-11-15',
-                      'checkOutDate': '2024-11-18',
-                      'price': '\$450',
-                      'amenities': const ['Free WiFi', 'Swimming Pool', 'Gym', 'Spa'],
-                      'description': 'A luxury resort by the ocean with stunning views and premium facilities.',
-                      'image': 'assets/asset/image1.jpeg',
-                    },
-                  ),
+                  builder: (context) => const BookingHistoryPage(),
                 ),
               );
             }),
@@ -94,7 +83,7 @@ class HomePage extends StatelessWidget {
             _buildDrawerItem(Icons.notifications, "Notifications", () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => NotificationPage()),
+                MaterialPageRoute(builder: (context) => const NotificationPage()),
               );
             }),
             _buildDrawerItem(Icons.feedback, "Feedback", () {
@@ -189,8 +178,8 @@ class HomePage extends StatelessWidget {
                   ),
                   const SizedBox(height: 10),
 
-                  // Fetching and displaying approved hotels
-                  StreamBuilder<QuerySnapshot>( 
+                  // Fetching and displaying approved hotels dynamically
+                  StreamBuilder<QuerySnapshot>(
                     stream: FirebaseFirestore.instance
                         .collection('hotels')
                         .where('isApproved', isEqualTo: true)
@@ -211,12 +200,16 @@ class HomePage extends StatelessWidget {
                           final hotelName = hotelData['hotelName'] ?? 'No name';
                           final description = hotelData['facilities'] ?? 'No description';
                           final imageUrl = hotelData['imageUrl'] ?? '';
-                          final rating = '5 Stars'; // Add logic for actual rating if needed
-                      
+                          final rating = hotelData['rating'] ?? '5 Stars'; // Assuming rating is part of hotel data
 
                           return GestureDetector(
                             onTap: () {
-                              Navigator.push(context, MaterialPageRoute(builder:  (context) => UserHotelDetailsScreen(hotelData: hotelData),));
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => UserHotelDetailsScreen(hotelData: hotelData),
+                                ),
+                              );
                             },
                             child: _buildHotelCard(
                               hotelName,

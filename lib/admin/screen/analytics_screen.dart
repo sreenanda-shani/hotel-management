@@ -39,7 +39,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
 
       // Fetch total bookings
       QuerySnapshot bookingSnapshot =
-          await FirebaseFirestore.instance.collection('bookings').get();
+          await FirebaseFirestore.instance.collection('booking').get();
       setState(() {
         totalBookings = bookingSnapshot.size; // Count of booking documents
       });
