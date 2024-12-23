@@ -34,23 +34,14 @@ class _BookingHistoryPageState extends State<BookingHistoryPage> {
         var bookingData = doc.data() as Map<String, dynamic>;
         bookingData['bookingId'] = doc.id; // Add booking ID
 
-        // Debugging: Check types of checkIn and checkOut
-        print('checkIn: ${bookingData['checkIn']}, Type: ${bookingData['checkIn'].runtimeType}');
-        print('checkOut: ${bookingData['checkOut']}, Type: ${bookingData['checkOut'].runtimeType}');
-
-        // Convert checkIn and checkOut to Timestamp if necessary
-        if (bookingData['checkIn'] is! Timestamp && bookingData['checkIn'] != null) {
-          bookingData['checkIn'] = Timestamp.fromDate(DateTime.parse(bookingData['checkIn']));
-        }
-        if (bookingData['checkOut'] is! Timestamp && bookingData['checkOut'] != null) {
-          bookingData['checkOut'] = Timestamp.fromDate(DateTime.parse(bookingData['checkOut']));
-        }
-
-        // Fetch hotel data for the booking
+        // Fetch hotel data for the booking using hotelId
         var hotelSnapshot = await _hotelCollection.doc(bookingData['hotelId']).get();
         if (hotelSnapshot.exists) {
           var hotelData = hotelSnapshot.data() as Map<String, dynamic>;
-          bookingData['hotel'] = hotelData; // Attach hotel data
+          bookingData['hotelName'] = hotelData['hotelName']; // Hotel Name
+          bookingData['hotelEmail'] = hotelData['contactEmail']; // Hotel Email
+          bookingData['hotelMobile'] = hotelData['contactNumber']; // Hotel Mobile
+          bookingData['hotelImage'] = hotelData['imageUrl']; // Hotel Image
         }
 
         bookings.add(bookingData);
@@ -103,81 +94,168 @@ class _BookingHistoryPageState extends State<BookingHistoryPage> {
 
   // Build booking card to display booking details
   Widget _buildBookingCard(Map<String, dynamic> booking) {
-    var hotel = booking['hotel'];
-    if (hotel == null) {
-      return const Text("Hotel details not available");
-    }
+    // Extract details from the booking
+    var hotelName = booking['hotelName'] ?? 'Hotel Name';
+    var hotelEmail = booking['hotelEmail'] ?? 'Not Available';
+    var hotelMobile = booking['hotelMobile'] ?? 'Not Available';
+    var roomNumber = booking['roomNumber'] ?? 'Not Available';
+    var rent = booking['rent'] ?? 'Not Available';
+    var guests = booking['guests'] ?? 'Not Available';
+    var hotelImage = booking['hotelImage'] ?? '';
 
     return Card(
       margin: const EdgeInsets.symmetric(vertical: 10),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(15),
       ),
-      child: Column(
-        children: [
-          // Display hotel image
-          ClipRRect(
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(15)),
-            child: hotel['imageUrl'] != null
-                ? Image.network(
-                    hotel['imageUrl'],
-                    height: 150,
-                    width: double.infinity,
-                    fit: BoxFit.cover,
-                  )
-                : const Icon(Icons.image_not_supported, size: 150),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(12.0),
+      child: Padding(
+        padding: const EdgeInsets.all(12.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Display hotel image
+            if (hotelImage.isNotEmpty)
+              ClipRRect(
+                borderRadius: BorderRadius.circular(10),
+                child: Image.network(
+                  hotelImage,
+                  height: 150,
+                  width: double.infinity,
+                  fit: BoxFit.cover,
+                ),
+              ),
+            const SizedBox(height: 10),
+
+            // Display hotel name
+            Text(
+              hotelName,
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 4),
+
+            // Display room details
+            Text(
+              'Room: $roomNumber',
+              style: const TextStyle(color: Colors.grey),
+            ),
+            const SizedBox(height: 4),
+
+            // Display rent
+            Text(
+              'Total Rent: \$${rent.toString()}',
+              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+            ),
+            const SizedBox(height: 4),
+
+            // Display guests
+            Text(
+              'Guests: $guests',
+              style: const TextStyle(color: Colors.grey),
+            ),
+            const SizedBox(height: 8),
+
+            // Display hotel contact details
+            Text(
+              'Hotel Email: $hotelEmail',
+              style: const TextStyle(color: Colors.grey),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              'Hotel Mobile: $hotelMobile',
+              style: const TextStyle(color: Colors.grey),
+            ),
+            const SizedBox(height: 12),
+
+            ElevatedButton(
+              onPressed: () {
+                // Navigate to detailed page or take action
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => BookingDetailsPage(
+                      bookingId: booking['bookingId'],
+                    ),
+                  ),
+                );
+              },
+              child: const Text("View Details"),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class BookingDetailsPage extends StatelessWidget {
+  final String bookingId;
+
+  const BookingDetailsPage({super.key, required this.bookingId});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.blueAccent,
+        title: const Text("Booking Details"),
+      ),
+      body: FutureBuilder<DocumentSnapshot>(
+        future: FirebaseFirestore.instance
+            .collection('booking')
+            .doc(bookingId)
+            .get(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          if (snapshot.hasError) {
+            return Center(child: Text('Error: ${snapshot.error}'));
+          }
+
+          if (!snapshot.hasData || !snapshot.data!.exists) {
+            return const Center(child: Text('Booking not found.'));
+          }
+
+          var bookingData = snapshot.data!.data() as Map<String, dynamic>;
+
+          return Padding(
+            padding: const EdgeInsets.all(16.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Display hotel name and booking details
                 Text(
-                  hotel['hotelName'] ?? 'Hotel Name',
-                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  'Room: ${booking['roomNumber']} | Guests: ${booking['guests']}',
-                  style: const TextStyle(color: Colors.grey),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  'Check-in: ${_formatDate(booking['checkIn'])} | Check-out: ${_formatDate(booking['checkOut'])}',
-                  style: const TextStyle(color: Colors.grey),
+                  'Name: ${bookingData['name']}',
+                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 8),
-                Text(
-                  'Total Rent: \$${booking['rent']}',
-                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                ),
-                const SizedBox(height: 12),
+                Text('Email: ${bookingData['email']}'),
+                Text('Room: ${bookingData['roomNumber']}'),
+                Text('Guests: ${bookingData['guests']}'),
+                Text('Total Rent: \$${bookingData['rent']}'),
+                Text('Check-In: ${_formatDate(bookingData['checkIn'])}'),
+                Text('Check-Out: ${_formatDate(bookingData['checkOut'])}'),
+                const SizedBox(height: 20),
                 ElevatedButton(
                   onPressed: () {
-                    // Navigate to detailed page or take action
+                    Navigator.pop(context);
                   },
-                  child: const Text("View Details"),
+                  child: const Text('Back'),
                 ),
               ],
             ),
-          ),
-        ],
+          );
+        },
       ),
     );
   }
 
-  // Helper function to format timestamp to human-readable format
   String _formatDate(dynamic date) {
-    try {
-      if (date == null) return "Unknown date";
-      if (date is Timestamp) {
-        var convertedDate = date.toDate();
-        return "${convertedDate.day}/${convertedDate.month}/${convertedDate.year} ${convertedDate.hour}:${convertedDate.minute}";
-      }
-      return "Invalid date format";
-    } catch (e) {
-      return "Invalid date"; // Fallback for unexpected errors
+    if (date == null) return "Unknown date";
+    if (date is Timestamp) {
+      var convertedDate = date.toDate();
+      return "${convertedDate.day}/${convertedDate.month}/${convertedDate.year} ${convertedDate.hour}:${convertedDate.minute}";
     }
+    return "Invalid date format";
   }
 }

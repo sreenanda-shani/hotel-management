@@ -1,139 +1,165 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:project1/user/AvailableRooms.dart'; // Import AvailableRoomsPage
 
 class UserHotelDetailsScreen extends StatelessWidget {
-  final Map<String, dynamic> hotelData;
+  final String hotelDocumentId; // Accept hotel document ID
 
-  const UserHotelDetailsScreen({Key? key, required this.hotelData})
+  const UserHotelDetailsScreen({Key? key, required this.hotelDocumentId})
       : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          hotelData['hotelName'],
-          style: const TextStyle(fontWeight: FontWeight.bold,color: Colors.white),
-        ),
-        backgroundColor: Colors.teal,
-        centerTitle: true,
-        elevation: 4,
-      ),
-      body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Hotel Image
-            Container(
-              width: double.infinity,
-              height: 250,
-              decoration: BoxDecoration(
-                borderRadius: const BorderRadius.only(
-                  bottomLeft: Radius.circular(16),
-                  bottomRight: Radius.circular(16),
-                ),
-                boxShadow: const [
-                  BoxShadow(
-                    color: Colors.black26,
-                    offset: Offset(0, 2),
-                    blurRadius: 6.0,
-                  ),
-                ],
-                image: DecorationImage(
-                  image: NetworkImage(hotelData['imageUrl'] ?? ''),
-                  fit: BoxFit.cover,
+    return FutureBuilder<DocumentSnapshot>(
+      future: FirebaseFirestore.instance
+          .collection('hotels')
+          .doc(hotelDocumentId) // Use hotelDocumentId here
+          .get(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        } else if (snapshot.hasError) {
+          return Center(child: Text('Error: ${snapshot.error}'));
+        } else if (!snapshot.hasData) {
+          return const Center(child: Text('Hotel not found'));
+        } else {
+          var hotelData = snapshot.data!.data() as Map<String, dynamic>;
+          final hotelId = snapshot.data!.id; // This is the document ID, which serves as hotelId
+
+          return Scaffold(
+            appBar: AppBar(
+              title: Text(
+                hotelData['hotelName'],
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
                 ),
               ),
+              backgroundColor: Colors.blueAccent,
+              centerTitle: true,
+              elevation: 4,
             ),
-            const SizedBox(height: 16),
-
-            // Hotel Details Section
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            body: SingleChildScrollView(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    hotelData['hotelName'],
-                    style: const TextStyle(
-                      fontSize: 28,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.teal,
+                  // Hotel Image
+                  Container(
+                    width: double.infinity,
+                    height: 250,
+                    decoration: BoxDecoration(
+                      borderRadius: const BorderRadius.only(
+                        bottomLeft: Radius.circular(16),
+                        bottomRight: Radius.circular(16),
+                      ),
+                      boxShadow: const [
+                        BoxShadow(
+                          color: Colors.black26,
+                          offset: Offset(0, 2),
+                          blurRadius: 6.0,
+                        ),
+                      ],
+                      image: DecorationImage(
+                        image: NetworkImage(hotelData['imageUrl'] ?? ''),
+                        fit: BoxFit.cover,
+                      ),
                     ),
                   ),
-                  const SizedBox(height: 8),
-                  const Divider(),
-                  _buildDetailRow(
-                    icon: Icons.phone,
-                    title: 'Contact Number',
-                    value: hotelData['contactNumber'] ?? 'N/A',
-                  ),
-                  _buildDetailRow(
-                    icon: Icons.email,
-                    title: 'Email',
-                    value: hotelData['contactEmail'] ?? 'N/A',
-                  ),
-                  _buildDetailRow(
-                    icon: Icons.location_on,
-                    title: 'Location',
-                    value: hotelData['location'] ?? 'N/A',
-                  ),
-                  _buildDetailRow(
-                    icon: Icons.hotel,
-                    title: 'Number of Rooms',
-                    value: hotelData['numberOfRooms'].toString(),
-                  ),
-                  const Divider(thickness: 1),
-                  const SizedBox(height: 8),
-
-                  // Facilities Section
-                  const Text(
-                    'Facilities',
-                    style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.teal),
-                  ),
-                  const SizedBox(height: 8),
-
-                  Text(hotelData['facilities'] ?? 'N/A'),
-
                   const SizedBox(height: 16),
 
-                  // Document Link Section
-                  if (hotelData['document'] != null) ...[
-                    const Divider(),
-                    const Text(
-                      'Document',
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.teal,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    GestureDetector(
-                      onTap: () {
-                        showDocumentImage(context, hotelData['document']);
-                      },
-                      child: const Text(
-                        'View Document',
-                        style: TextStyle(
-                          fontSize: 16,
-                          color: Colors.blue,
-                          decoration: TextDecoration.underline,
+                  // Hotel Details Section
+                  Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Hotel Name
+                        Text(
+                          hotelData['hotelName'],
+                          style: const TextStyle(
+                            fontSize: 28,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.blueAccent,
+                          ),
                         ),
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                  ],
+                        const SizedBox(height: 8),
+                        const Divider(),
 
-                  
+                        // Contact Information
+                        _buildDetailRow(
+                          icon: Icons.phone,
+                          title: 'Contact Number',
+                          value: hotelData['contactNumber'] ?? 'N/A',
+                        ),
+                        _buildDetailRow(
+                          icon: Icons.email,
+                          title: 'Email',
+                          value: hotelData['contactEmail'] ?? 'N/A',
+                        ),
+                        _buildDetailRow(
+                          icon: Icons.location_on,
+                          title: 'Location',
+                          value: hotelData['location'] ?? 'N/A',
+                        ),
+                        _buildDetailRow(
+                          icon: Icons.hotel,
+                          title: 'Number of Rooms',
+                          value: hotelData['numberOfRooms']?.toString() ?? 'N/A',
+                        ),
+                        const Divider(),
+
+                        // Facilities Section
+                        const SizedBox(height: 8),
+                        const Text(
+                          'Facilities',
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.blueAccent,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          hotelData['facilities'] ?? 'N/A',
+                          style: const TextStyle(fontSize: 16),
+                        ),
+                        const SizedBox(height: 16),
+
+                        // Book Now Button
+                        Center(
+                          child: ElevatedButton(
+                            onPressed: () {
+                              // Pass hotelId to AvailableRoomsPage
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => AvailableRoomsPage(
+                                    hotelId: hotelId, // Pass hotelId here
+                                  ),
+                                ),
+                              );
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.blueAccent,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                            ),
+                            child: const Text(
+                              "Book Now",
+                              style: TextStyle(color: Colors.white, fontSize: 18),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 ],
               ),
             ),
-          ],
-        ),
-      ),
+          );
+        }
+      },
     );
   }
 
@@ -148,7 +174,7 @@ class UserHotelDetailsScreen extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon, color: Colors.teal, size: 24),
+          Icon(icon, color: Colors.blueAccent, size: 24),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
@@ -174,51 +200,6 @@ class UserHotelDetailsScreen extends StatelessWidget {
           ),
         ],
       ),
-    );
-  }
-
-  // Show Document Image in a Popup
-  void showDocumentImage(BuildContext context, String imageUrl) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return Dialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const SizedBox(height: 8),
-              const Text(
-                'Document Image',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.teal,
-                ),
-              ),
-              const SizedBox(height: 8),
-              SizedBox(
-                height: 250,
-                width: double.infinity,
-                child: Image.network(
-                  imageUrl,
-                  fit: BoxFit.cover,
-                ),
-              ),
-              const SizedBox(height: 8),
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Text(
-                  'Close',
-                  style: TextStyle(color: Colors.teal),
-                ),
-              ),
-            ],
-          ),
-        );
-      },
     );
   }
 }

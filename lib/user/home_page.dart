@@ -1,20 +1,37 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:project1/user/bookinghistory.dart';
 import 'package:project1/user/favuorite.dart';
+import 'package:project1/user/feedback.dart';
 import 'package:project1/user/hotel_details.dart';
 import 'package:project1/user/notification.dart';
-import 'package:project1/user/bookinghistory.dart';
 import 'package:project1/user/profile.dart';
-import 'package:project1/user/feedback.dart';
-import 'package:project1/user/login_page.dart';
 import 'package:project1/user/user_hotelhomepage.dart';
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
   @override
+  _HomePageState createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  String searchQuery = '';
+
+  @override
   Widget build(BuildContext context) {
+    // Get the current user info
+    User? currentUser = FirebaseAuth.instance.currentUser;
+
+    // Define a default image
+    String defaultImage = "asset/default_profile_image.png"; // Replace with actual default image path
+
+    // Fetch the user's name, email, and profile image URL (if available)
+    String userName = currentUser?.displayName ?? 'Guest User';
+    String userEmail = currentUser?.email ?? 'guest@example.com';
+    String userImageUrl = currentUser?.photoURL ?? defaultImage; // Use default image if null
+
     return Scaffold(
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(120),
@@ -27,17 +44,25 @@ class HomePage extends StatelessWidget {
           child: AppBar(
             backgroundColor: Colors.transparent,
             elevation: 0,
-            flexibleSpace: Center(
-              child: Container(
-                padding: const EdgeInsets.all(5),
-                decoration: const BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Colors.white,
-                ),
-                child: const CircleAvatar(
-                  radius: 30,
-                  backgroundColor: Colors.white,
-                  backgroundImage: AssetImage("asset/download.png"),
+            flexibleSpace: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Center(
+                child: TextField(
+                  onChanged: (query) {
+                    setState(() {
+                      searchQuery = query;
+                    });
+                  },
+                  decoration: InputDecoration(
+                    hintText: 'Search Hotels...',
+                    filled: true,
+                    fillColor: Colors.white,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(30),
+                      borderSide: BorderSide.none,
+                    ),
+                    prefixIcon: Icon(Icons.search, color: Colors.grey),
+                  ),
                 ),
               ),
             ),
@@ -48,55 +73,68 @@ class HomePage extends StatelessWidget {
         child: ListView(
           padding: EdgeInsets.zero,
           children: [
-            const DrawerHeader(
+            DrawerHeader(
               decoration: BoxDecoration(
                 color: Colors.blueAccent,
               ),
-              child: UserDrawerHeader(), // Ensure UserDrawerHeader widget exists
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const SizedBox(height: 5),
+                  Text(
+                    userEmail,
+                    style: const TextStyle(color: Colors.white),
+                  ),
+                ],
+              ),
             ),
             _buildDrawerItem(Icons.person, "Profile", () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => const ProfilePage()),
+                MaterialPageRoute(builder: (context) => ProfilePage()),
               );
             }),
             _buildDrawerItem(Icons.search, "Search Hotel", () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => const HotelDetailsPage()),
+                MaterialPageRoute(builder: (context) => HotelDetailsPage()),
               );
             }),
             _buildDrawerItem(Icons.history, "Booking History", () {
               Navigator.push(
                 context,
-                MaterialPageRoute(
-                  builder: (context) => const BookingHistoryPage(),
-                ),
+                MaterialPageRoute(builder: (context) => BookingHistoryPage()),
               );
             }),
             _buildDrawerItem(Icons.favorite, "Favourites", () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) =>  FavouritesPage()),
+                MaterialPageRoute(builder: (context) => FavouritesPage()),
               );
             }),
             _buildDrawerItem(Icons.notifications, "Notifications", () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => const NotificationPage()),
+                MaterialPageRoute(builder: (context) => NotificationPage()),
               );
             }),
             _buildDrawerItem(Icons.feedback, "Feedback", () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => const FeedbackPage()),
+                MaterialPageRoute(builder: (context) => FeedbackPage()),
               );
             }),
             _buildDrawerItem(Icons.login, "Logout", () {
-              Navigator.push(context, MaterialPageRoute(builder: (context) {
-                return const UserLoginPage();
-              }));
+              FirebaseAuth.instance.signOut();
+              Navigator.pop(context);
             }),
+            Container(
+              margin: const EdgeInsets.only(top: 10, bottom: 10),
+              child: CircleAvatar(
+                radius: 30,
+                backgroundImage: NetworkImage(userImageUrl),
+              ),
+            ),
           ],
         ),
       ),
@@ -117,68 +155,6 @@ class HomePage extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const SizedBox(height: 20),
-                  Stack(
-                    children: [
-                      Container(
-                        height: 300,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(15),
-                          image: const DecorationImage(
-                            image: AssetImage("asset/image1.jpeg"),
-                            fit: BoxFit.cover,
-                          ),
-                        ),
-                      ),
-                      Container(
-                        height: 300,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(15),
-                          gradient: const LinearGradient(
-                            colors: [Colors.black54, Colors.transparent],
-                            begin: Alignment.bottomCenter,
-                            end: Alignment.topCenter,
-                          ),
-                        ),
-                      ),
-                      const Positioned(
-                        bottom: 20,
-                        left: 20,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              "ENJOY A LUXURY EXPERIENCE",
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 26,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            SizedBox(height: 8),
-                            Text(
-                              "Luxury Hotel & Best Resort",
-                              style: TextStyle(color: Colors.white, fontSize: 16),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 20),
-                  const Center(
-                    child: Text(
-                      "Top Hotels",
-                      style: TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-
-                  // Fetching and displaying approved hotels dynamically
                   StreamBuilder<QuerySnapshot>(
                     stream: FirebaseFirestore.instance
                         .collection('hotels')
@@ -194,29 +170,29 @@ class HomePage extends StatelessWidget {
                       }
 
                       final hotels = snapshot.data!.docs;
+                      final filteredHotels = hotels.where((doc) {
+                        final hotelData = doc.data() as Map<String, dynamic>;
+                        final hotelName = hotelData['hotelName'] ?? '';
+                        return hotelName.toLowerCase().contains(searchQuery.toLowerCase());
+                      }).toList();
+
                       return Column(
-                        children: hotels.map((doc) {
+                        children: filteredHotels.map((doc) {
                           final hotelData = doc.data() as Map<String, dynamic>;
                           final hotelName = hotelData['hotelName'] ?? 'No name';
                           final description = hotelData['facilities'] ?? 'No description';
                           final imageUrl = hotelData['imageUrl'] ?? '';
-                          final rating = hotelData['rating'] ?? '5 Stars'; // Assuming rating is part of hotel data
+                          final rating = hotelData['rating'] ?? '5 Stars';
+                          final hotelId = doc.id;
 
-                          return GestureDetector(
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => UserHotelDetailsScreen(hotelData: hotelData),
-                                ),
-                              );
-                            },
-                            child: _buildHotelCard(
-                              hotelName,
-                              rating,
-                              description,
-                              imageUrl,
-                            ),
+                          return _buildHotelCard(
+                            hotelName,
+                            rating,
+                            description,
+                            imageUrl,
+                            hotelData,
+                            hotelId,
+                            context,
                           );
                         }).toList(),
                       );
@@ -239,70 +215,142 @@ class HomePage extends StatelessWidget {
     );
   }
 
-  Widget _buildHotelCard(String hotelName, String hotelRating, String description, String hotelImage) {
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(15),
-        color: Colors.white,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.blueAccent.withOpacity(0.5),
-            blurRadius: 10,
-            spreadRadius: 2,
-          ),
-        ],
-      ),
-      child: Column(
-        children: [
-          ClipRRect(
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(15)),
-            child: hotelImage.isNotEmpty
-                ? Image.network(
-                    hotelImage,
-                    height: 150,
-                    width: double.infinity,
-                    fit: BoxFit.cover,
-                  )
-                : const Icon(Icons.image_not_supported, size: 150), // Placeholder icon for invalid URLs
-          ),
-          Padding(
-            padding: const EdgeInsets.all(12.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  hotelName,
-                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  hotelRating,
-                  style: const TextStyle(color: Colors.orange, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  description,
-                  style: TextStyle(color: Colors.grey[700]),
-                ),
-                const SizedBox(height: 12),
-                ElevatedButton(
-                  onPressed: () {},
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
+  Widget _buildHotelCard(
+    String hotelName,
+    String hotelRating,
+    String description,
+    String hotelImage,
+    Map<String, dynamic> hotelData,
+    String hotelId,
+    BuildContext context,
+  ) {
+    User? currentUser = FirebaseAuth.instance.currentUser;
+
+    return StatefulBuilder(
+      builder: (context, setState) {
+        Future<bool> isFavorite() async {
+          final userDoc = await FirebaseFirestore.instance
+              .collection('user')
+              .doc(currentUser?.uid)
+              .get();
+          final favorites = userDoc.data()?['favourites'] as List<dynamic>? ?? [];
+          return favorites.contains(hotelId);
+        }
+
+        Future<void> toggleFavorite() async {
+          final userDocRef = FirebaseFirestore.instance
+              .collection('user')
+              .doc(currentUser?.uid);
+
+          final userDoc = await userDocRef.get();
+          final favorites = userDoc.data()?['favourites'] as List<dynamic>? ?? [];
+
+          if (favorites.contains(hotelId)) {
+            await userDocRef.update({
+              'favourites': FieldValue.arrayRemove([hotelId]),
+            });
+          } else {
+            await userDocRef.update({
+              'favourites': FieldValue.arrayUnion([hotelId]),
+            });
+          }
+          setState(() {});
+        }
+
+        return FutureBuilder<bool>(
+          future: isFavorite(),
+          builder: (context, snapshot) {
+            final isFavorite = snapshot.data ?? false;
+
+            return Container(
+              margin: const EdgeInsets.symmetric(vertical: 10),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(15),
+                color: Colors.white,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.blueAccent.withOpacity(0.5),
+                    blurRadius: 10,
+                    spreadRadius: 2,
+                  ),
+                ],
+              ),
+              child: Column(
+                children: [
+                  ClipRRect(
+                    borderRadius: const BorderRadius.vertical(top: Radius.circular(15)),
+                    child: hotelImage.isNotEmpty
+                        ? Image.network(
+                            hotelImage,
+                            height: 150,
+                            width: double.infinity,
+                            fit: BoxFit.cover,
+                          )
+                        : const Icon(Icons.image_not_supported, size: 150),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(12.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              hotelName,
+                              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                            ),
+                            IconButton(
+                              icon: Icon(
+                                isFavorite ? Icons.favorite : Icons.favorite_border,
+                                color: isFavorite ? Colors.red : Colors.grey,
+                              ),
+                              onPressed: () => toggleFavorite(),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          hotelRating,
+                          style: const TextStyle(color: Colors.orange, fontWeight: FontWeight.bold),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          description,
+                          style: TextStyle(color: Colors.grey[700]),
+                        ),
+                        const SizedBox(height: 12),
+                        ElevatedButton(
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => UserHotelDetailsScreen(
+                                  hotelDocumentId: hotelId,
+                                ),
+                              ),
+                            );
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.white,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                          ),
+                          child: const Text(
+                            "Book Now",
+                            style: TextStyle(color: Colors.blueAccent),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                  child: const Text(
-                    "Book Now",
-                    style: TextStyle(color: Colors.blueAccent),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
+                ],
+              ),
+            );
+          },
+        );
+      },
     );
   }
 }

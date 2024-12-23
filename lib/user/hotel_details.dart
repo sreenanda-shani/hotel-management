@@ -1,6 +1,7 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:project1/user/booknow.dart'; // Import the BookNowPage
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:project1/user/user_hotelhomepage.dart';
+ // Import UserHotelDetailsScreen
 
 class HotelDetailsPage extends StatefulWidget {
   const HotelDetailsPage({super.key});
@@ -14,6 +15,7 @@ class _HotelDetailsPageState extends State<HotelDetailsPage> {
   late FirebaseFirestore _firestore;
   late CollectionReference _hotelCollection;
   List<Map<String, dynamic>> _hotels = [];
+  List<Map<String, dynamic>> _filteredHotels = [];
 
   @override
   void initState() {
@@ -25,25 +27,41 @@ class _HotelDetailsPageState extends State<HotelDetailsPage> {
 
   // Fetch hotel data from Firestore
   Future<void> _fetchHotels() async {
-  try {
-    QuerySnapshot snapshot = await _hotelCollection.get();
-    List<Map<String, dynamic>> hotels = snapshot.docs.map((doc) {
-      var data = doc.data() as Map<String, dynamic>;
-      data['hotelId'] = doc.id; // Add the document ID (hotelId) to the hotel data
-      return data;
-    }).toList();
+    try {
+      QuerySnapshot snapshot = await _hotelCollection.get();
+      List<Map<String, dynamic>> hotels = snapshot.docs.map((doc) {
+        var data = doc.data() as Map<String, dynamic>;
+        data['hotelId'] = doc.id; // Add the document ID (hotelId) to the hotel data
+        return data;
+      }).toList();
 
-    setState(() {
-      _hotels = hotels; // Set fetched hotels data
-    });
-  } catch (e) {
-    print('Error fetching hotel data: $e');
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Failed to load hotel data')),
-    );
+      setState(() {
+        _hotels = hotels; // Set fetched hotels data
+        _filteredHotels = hotels; // Initially, all hotels are shown
+      });
+    } catch (e) {
+      print('Error fetching hotel data: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Failed to load hotel data')),
+      );
+    }
   }
-}
 
+  // Filter hotels based on search query
+  void _filterHotels(String query) {
+    setState(() {
+      if (query.isEmpty) {
+        _filteredHotels = _hotels; // If search is empty, show all hotels
+      } else {
+        _filteredHotels = _hotels.where((hotel) {
+          // Check if hotel name matches search query (case-insensitive)
+          return hotel['hotelName']
+              .toLowerCase()
+              .contains(query.toLowerCase());
+        }).toList();
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -77,20 +95,23 @@ class _HotelDetailsPageState extends State<HotelDetailsPage> {
                 suffixIcon: IconButton(
                   icon: const Icon(Icons.search),
                   onPressed: () {
-                    // Implement search logic here
+                    _filterHotels(_searchController.text); // Trigger search
                   },
                 ),
               ),
+              onChanged: (query) {
+                _filterHotels(query); // Update filtered hotels on text change
+              },
             ),
             const SizedBox(height: 20),
             // Displaying hotel cards
             Expanded(
-              child: _hotels.isEmpty
+              child: _filteredHotels.isEmpty
                   ? const Center(child: CircularProgressIndicator())
                   : ListView.builder(
-                      itemCount: _hotels.length,
+                      itemCount: _filteredHotels.length,
                       itemBuilder: (context, index) {
-                        var hotel = _hotels[index];
+                        var hotel = _filteredHotels[index];
                         return _buildHotelCard(
                           hotel['hotelName'],
                           hotel['facilities'],
@@ -108,7 +129,13 @@ class _HotelDetailsPageState extends State<HotelDetailsPage> {
   }
 
   // Hotel card widget
-  Widget _buildHotelCard(String hotelName, String facilities, String location, String hotelImage, Map<String, dynamic> hotel) {
+  Widget _buildHotelCard(
+    String hotelName,
+    String facilities,
+    String location,
+    String hotelImage,
+    Map<String, dynamic> hotel,
+  ) {
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 10),
       decoration: BoxDecoration(
@@ -155,11 +182,13 @@ class _HotelDetailsPageState extends State<HotelDetailsPage> {
                 const SizedBox(height: 12),
                 ElevatedButton(
                   onPressed: () {
-                    // Pass the entire hotel details to BookNowPage
+                    // Pass the hotel document ID to UserHotelDetailsScreen
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => BookNowPage(hotelDetails: hotel),
+                        builder: (context) => UserHotelDetailsScreen(
+                          hotelDocumentId: hotel['hotelId'], // Pass hotelDocumentId
+                        ),
                       ),
                     );
                   },

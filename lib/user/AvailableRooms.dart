@@ -5,7 +5,6 @@ import 'package:project1/user/roombooking.dart'; // Import RoomBookingPage
 class AvailableRoomsPage extends StatelessWidget {
   final String hotelId;
 
-  // Constructor to accept hotel ID
   const AvailableRoomsPage({super.key, required this.hotelId});
 
   @override
@@ -39,10 +38,8 @@ class AvailableRoomsPage extends StatelessWidget {
     );
   }
 
-  // Fetch available rooms for a given hotelId from Firestore
   Future<List<Room>> _fetchAvailableRooms(String hotelId) async {
     try {
-      // Query the Firestore rooms collection based on hotelId and isAvailable = true
       QuerySnapshot snapshot = await FirebaseFirestore.instance
           .collection('rooms') // Assuming you have a 'rooms' collection
           .where('hotelId', isEqualTo: hotelId) // Filter by hotelId
@@ -50,7 +47,6 @@ class AvailableRoomsPage extends StatelessWidget {
           .get();
 
       List<Room> rooms = snapshot.docs.map((doc) {
-        // Map Firestore document to Room object
         var data = doc.data() as Map<String, dynamic>;
         return Room(
           roomNumber: data['roomNumber'],
@@ -71,7 +67,6 @@ class AvailableRoomsPage extends StatelessWidget {
   }
 }
 
-// Room model to represent a room
 class Room {
   final int roomNumber;
   final String acType;
@@ -92,7 +87,6 @@ class Room {
   });
 }
 
-// Widget to display a single room tile with expansion on tap
 class RoomTile extends StatefulWidget {
   final Room room;
   final String hotelId; // To pass hotelId for booking

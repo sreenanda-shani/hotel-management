@@ -3,6 +3,7 @@ import 'package:project1/user/favuorite.dart';
 import 'package:project1/user/home_page.dart';
 import 'package:project1/user/hotel_details.dart';
 import 'package:project1/user/notification.dart';
+import 'package:project1/user/profile.dart';
 
 class BottomNavBarScreen extends StatefulWidget {
   @override
@@ -18,7 +19,7 @@ class _BottomNavBarScreenState extends State<BottomNavBarScreen> {
     HomePage(),
     FavouritesPage(),
     NotificationPage(),
-    HotelDetailsPage(),
+  ProfilePage(),
   ];
 
   // Function to handle bottom navigation item tap
@@ -54,7 +55,7 @@ class _BottomNavBarScreenState extends State<BottomNavBarScreen> {
           BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
           BottomNavigationBarItem(icon: Icon(Icons.favorite), label: "Favorites"),
           BottomNavigationBarItem(icon: Icon(Icons.notifications), label: "Notifications"),
-          BottomNavigationBarItem(icon: Icon(Icons.search), label: "Search"),
+          BottomNavigationBarItem(icon: Icon(Icons.person), label: "Profile"),
         ],
       ),
     );
