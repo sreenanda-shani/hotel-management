@@ -100,6 +100,14 @@ class _ViewRoomPageState extends State<ViewRoomPage> {
                                 color: Colors.teal[700],
                               ),
                             ),
+                            Text(
+                              "Max People: ${room['maxPeople']}",
+                              style: TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.w500,
+                                color: Colors.teal[700],
+                              ),
+                            ),
                             const SizedBox(height: 8),
                             Text(
                               "AC Type: ${room['acType']}",
@@ -188,6 +196,8 @@ class UpdateRoomPage extends StatefulWidget {
 class _UpdateRoomPageState extends State<UpdateRoomPage> {
   late TextEditingController _roomNumberController;
   late TextEditingController _rentController;
+  late TextEditingController _maxPeopleController;
+
   String _acType = 'AC';
   String _bedType = 'Double Bed';
   bool _wifiAvailable = true;
@@ -199,6 +209,7 @@ class _UpdateRoomPageState extends State<UpdateRoomPage> {
     super.initState();
     _roomNumberController = TextEditingController(text: widget.roomData['roomNumber'].toString());
     _rentController = TextEditingController(text: widget.roomData['rent'].toString());
+    _maxPeopleController = TextEditingController(text: widget.roomData['maxPeople'].toString()); // Correct controller for maxPeople
     _acType = widget.roomData['acType'];
     _bedType = widget.roomData['bedType'];
     _wifiAvailable = widget.roomData['wifiAvailable'];
@@ -211,6 +222,7 @@ class _UpdateRoomPageState extends State<UpdateRoomPage> {
       await FirebaseFirestore.instance.collection('rooms').doc(widget.roomData['id']).update({
         'roomNumber': int.tryParse(_roomNumberController.text) ?? 0,
         'rent': double.tryParse(_rentController.text) ?? 0.0,
+        'maxPeople' :  int.tryParse(_maxPeopleController.text) ?? 0,
         'acType': _acType,
         'bedType': _bedType,
         'wifiAvailable': _wifiAvailable,
@@ -278,6 +290,31 @@ class _UpdateRoomPageState extends State<UpdateRoomPage> {
                           controller: _rentController,
                           decoration: const InputDecoration(labelText: 'Rent'),
                           keyboardType: TextInputType.numberWithOptions(decimal: true),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 20),
+
+              // Max People Field (Fixed here)
+              Card(
+                elevation: 5,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+                color: Colors.teal.shade50,
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.people, color: Colors.teal),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: TextField(
+                          controller: _maxPeopleController,  // Correct controller
+                          decoration: const InputDecoration(labelText: 'Max People'),
+                          keyboardType: TextInputType.number,
                         ),
                       ),
                     ],

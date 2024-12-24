@@ -134,7 +134,7 @@ class _HotelHomeState extends State<HotelHome> {
                   onPressed: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => const HotelBookingsPage()),
+                      MaterialPageRoute(builder: (context) => BookingHistoryPage()),
                     );
                   },
                   icon: const Icon(Icons.book),

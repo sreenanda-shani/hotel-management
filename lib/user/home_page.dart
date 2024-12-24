@@ -25,7 +25,7 @@ class _HomePageState extends State<HomePage> {
     User? currentUser = FirebaseAuth.instance.currentUser;
 
     // Define a default image
-    String defaultImage = "asset/default_profile_image.png"; // Replace with actual default image path
+    String defaultImage = "assets/default_profile_image.png"; // Corrected path to assets
 
     // Fetch the user's name, email, and profile image URL (if available)
     String userName = currentUser?.displayName ?? 'Guest User';
@@ -38,14 +38,14 @@ class _HomePageState extends State<HomePage> {
         child: Container(
           margin: const EdgeInsets.symmetric(horizontal: 20),
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(10),
+            borderRadius: BorderRadius.circular(30), // Rounded edges for the AppBar
             color: Colors.transparent,
           ),
           child: AppBar(
             backgroundColor: Colors.transparent,
             elevation: 0,
             flexibleSpace: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
+              padding: const EdgeInsets.only(left: 50, right: 16),
               child: Center(
                 child: TextField(
                   onChanged: (query) {
@@ -61,7 +61,8 @@ class _HomePageState extends State<HomePage> {
                       borderRadius: BorderRadius.circular(30),
                       borderSide: BorderSide.none,
                     ),
-                    prefixIcon: Icon(Icons.search, color: Colors.grey),
+                    prefixIcon: Icon(Icons.search, color: Colors.blueAccent),
+                    contentPadding: EdgeInsets.symmetric(vertical: 12), // Adjust padding
                   ),
                 ),
               ),
@@ -69,73 +70,87 @@ class _HomePageState extends State<HomePage> {
           ),
         ),
       ),
-      drawer: Drawer(
-        child: ListView(
-          padding: EdgeInsets.zero,
-          children: [
-            DrawerHeader(
-              decoration: BoxDecoration(
-                color: Colors.blueAccent,
+      drawer: Transform.translate(
+        offset: Offset(0, 50), // This shifts the drawer down by 50 pixels
+        child: Drawer(
+          child: Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [Colors.lightBlue.shade50, Colors.blueAccent.shade100],
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
               ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const SizedBox(height: 5),
-                  Text(
-                    userEmail,
-                    style: const TextStyle(color: Colors.white),
+            ),
+            child: ListView(
+              padding: EdgeInsets.zero,
+              children: [
+                DrawerHeader(
+                  decoration: BoxDecoration(
+                    color: Colors.blueAccent.shade700, // Gradient color for the drawer header
+                    borderRadius: BorderRadius.only(
+                      bottomLeft: Radius.circular(30),
+                      bottomRight: Radius.circular(30),
+                    ),
                   ),
-                ],
-              ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const SizedBox(height: 5),
+                      Text(
+                        userEmail,
+                        style: const TextStyle(color: Colors.white, fontSize: 18),
+                      ),
+                      const SizedBox(height: 10),
+                      CircleAvatar(
+                        radius: 30,
+                        backgroundImage: NetworkImage(userImageUrl),
+                      ),
+                    ],
+                  ),
+                ),
+                _buildDrawerItem(Icons.person, "Profile", () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => ProfilePage()),
+                  );
+                }),
+                _buildDrawerItem(Icons.search, "Search Hotel", () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => HotelDetailsPage()),
+                  );
+                }),
+                _buildDrawerItem(Icons.history, "Booking History", () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => BookingHistoryPage()),
+                  );
+                }),
+                _buildDrawerItem(Icons.favorite, "Favourites", () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => FavouritesPage()),
+                  );
+                }),
+                _buildDrawerItem(Icons.notifications, "Notifications", () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => NotificationPage()),
+                  );
+                }),
+                _buildDrawerItem(Icons.feedback, "Feedback", () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => FeedbackPage()),
+                  );
+                }),
+                _buildDrawerItem(Icons.login, "Logout", () {
+                  FirebaseAuth.instance.signOut();
+                  Navigator.pop(context);
+                }),
+              ],
             ),
-            _buildDrawerItem(Icons.person, "Profile", () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => ProfilePage()),
-              );
-            }),
-            _buildDrawerItem(Icons.search, "Search Hotel", () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => HotelDetailsPage()),
-              );
-            }),
-            _buildDrawerItem(Icons.history, "Booking History", () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => BookingHistoryPage()),
-              );
-            }),
-            _buildDrawerItem(Icons.favorite, "Favourites", () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => FavouritesPage()),
-              );
-            }),
-            _buildDrawerItem(Icons.notifications, "Notifications", () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => NotificationPage()),
-              );
-            }),
-            _buildDrawerItem(Icons.feedback, "Feedback", () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => FeedbackPage()),
-              );
-            }),
-            _buildDrawerItem(Icons.login, "Logout", () {
-              FirebaseAuth.instance.signOut();
-              Navigator.pop(context);
-            }),
-            Container(
-              margin: const EdgeInsets.only(top: 10, bottom: 10),
-              child: CircleAvatar(
-                radius: 30,
-                backgroundImage: NetworkImage(userImageUrl),
-              ),
-            ),
-          ],
+          ),
         ),
       ),
       body: Stack(
@@ -209,8 +224,11 @@ class _HomePageState extends State<HomePage> {
 
   Widget _buildDrawerItem(IconData icon, String title, VoidCallback onTap) {
     return ListTile(
-      leading: Icon(icon),
-      title: Text(title),
+      leading: Icon(icon, color: Colors.blueAccent),
+      title: Text(
+        title,
+        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+      ),
       onTap: onTap,
     );
   }
@@ -332,14 +350,14 @@ class _HomePageState extends State<HomePage> {
                             );
                           },
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.white,
+                            backgroundColor: Colors.blueAccent,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(10),
                             ),
                           ),
                           child: const Text(
                             "Book Now",
-                            style: TextStyle(color: Colors.blueAccent),
+                            style: TextStyle(color: Colors.white),
                           ),
                         ),
                       ],

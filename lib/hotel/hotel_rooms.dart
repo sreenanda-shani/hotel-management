@@ -1,5 +1,5 @@
 import 'dart:io';
-import 'package:image_picker/image_picker.dart';  // Import the image_picker package
+import 'package:image_picker/image_picker.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloudinary/cloudinary.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -15,15 +15,17 @@ class ManageRoomDetailsPage extends StatefulWidget {
 class _ManageRoomDetailsPageState extends State<ManageRoomDetailsPage> {
   final TextEditingController _roomNumberController = TextEditingController();
   final TextEditingController _rentController = TextEditingController();
+  final TextEditingController _maxPeopleController = TextEditingController(); // New controller for max people
+
   String _acType = 'AC';
   String _bedType = 'Single';
   bool _wifiAvailable = false;
   bool _balconyAvailable = false;
-  bool _isAvailable = true;  // Added to store room availability status
+  bool _isAvailable = true; // Added to store room availability status
 
   bool _isLoading = true;
   String _hotelId = '';
-  File? _selectedImage;  // Variable to store the selected image
+  File? _selectedImage; // Variable to store the selected image
 
   final cloudinary = Cloudinary.signedConfig(
     apiKey: '666732294294543',
@@ -34,13 +36,12 @@ class _ManageRoomDetailsPageState extends State<ManageRoomDetailsPage> {
   // Function to upload image to Cloudinary
   Future<String?> _uploadImageToCloudinary(File imageFile) async {
     try {
-      // Upload image to Cloudinary without the 'uploadPreset'
       final result = await cloudinary.upload(
         file: imageFile.path,
-        folder: 'hotels',  // Upload to 'hotels' folder
-        resourceType: CloudinaryResourceType.image,  // Upload as image
+        folder: 'hotels',
+        resourceType: CloudinaryResourceType.image,
       );
-      return result.secureUrl;  // Return the image URL
+      return result.secureUrl;
     } catch (e) {
       print("Error uploading image: $e");
       return null;
@@ -67,16 +68,16 @@ class _ManageRoomDetailsPageState extends State<ManageRoomDetailsPage> {
         if (docSnapshot.exists) {
           var data = docSnapshot.data() as Map<String, dynamic>;
 
-          // Ensure widget is still mounted before calling setState
           if (mounted) {
             setState(() {
               _roomNumberController.text = data['roomNumber'].toString() ?? '';
               _rentController.text = data['rent'].toString() ?? '';
+              _maxPeopleController.text = data['maxPeople'].toString() ?? ''; // Load max people field
               _acType = data['acType'] ?? 'AC';
               _bedType = data['bedType'] ?? 'Single';
               _wifiAvailable = data['wifiAvailable'] ?? false;
               _balconyAvailable = data['balconyAvailable'] ?? false;
-              _isAvailable = data['isAvailable'] ?? true;  // Fetch availability status
+              _isAvailable = data['isAvailable'] ?? true;
               _isLoading = false;
             });
           }
@@ -110,19 +111,22 @@ class _ManageRoomDetailsPageState extends State<ManageRoomDetailsPage> {
         'hotelId': _hotelId,
         'roomNumber': int.tryParse(_roomNumberController.text) ?? 0,
         'rent': double.tryParse(_rentController.text) ?? 0.0,
+        'maxPeople': int.tryParse(_maxPeopleController.text) ?? 1, // Save max people field
         'acType': _acType,
         'bedType': _bedType,
         'wifiAvailable': _wifiAvailable,
         'balconyAvailable': _balconyAvailable,
-        'isAvailable': _isAvailable,  // Include room availability in the update
+        'isAvailable': _isAvailable,
       });
 
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Room details updated successfully!')));
+        ScaffoldMessenger.of(context)
+            .showSnackBar(const SnackBar(content: Text('Room details updated successfully!')));
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Error updating room details')));
+        ScaffoldMessenger.of(context)
+            .showSnackBar(const SnackBar(content: Text('Error updating room details')));
       }
     }
   }
@@ -134,7 +138,7 @@ class _ManageRoomDetailsPageState extends State<ManageRoomDetailsPage> {
 
     if (pickedFile != null) {
       setState(() {
-        _selectedImage = File(pickedFile.path);  // Store the picked image
+        _selectedImage = File(pickedFile.path);
       });
     }
   }
@@ -147,43 +151,46 @@ class _ManageRoomDetailsPageState extends State<ManageRoomDetailsPage> {
     required String bedType,
     required bool wifiAvailable,
     required bool balconyAvailable,
-    required bool isAvailable,  // Add the isAvailable parameter here
+    required bool isAvailable,
+    required int maxPeople, // Add max people parameter
   }) async {
     try {
       User? user = FirebaseAuth.instance.currentUser;
       if (user != null) {
         String hotelId = user.uid;
 
-        // Upload image if selected
         String? imageUrl;
         if (_selectedImage != null) {
           imageUrl = await _uploadImageToCloudinary(_selectedImage!);
         }
 
-        // Add new room details to Firestore
         await FirebaseFirestore.instance.collection('rooms').add({
           'hotelId': hotelId,
           'roomNumber': roomNumber,
           'rent': rent,
+          'maxPeople': maxPeople, // Save max people field
           'acType': acType,
           'bedType': bedType,
           'wifiAvailable': wifiAvailable,
           'balconyAvailable': balconyAvailable,
           'imageUrl': imageUrl,
-          'isAvailable': isAvailable,  // Include the isAvailable field in the new room
+          'isAvailable': isAvailable,
         });
 
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Room added successfully!')));
+          ScaffoldMessenger.of(context)
+              .showSnackBar(const SnackBar(content: Text('Room added successfully!')));
         }
       } else {
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('User is not logged in')));
+          ScaffoldMessenger.of(context)
+              .showSnackBar(const SnackBar(content: Text('User is not logged in')));
         }
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Error adding room details')));
+        ScaffoldMessenger.of(context)
+            .showSnackBar(const SnackBar(content: Text('Error adding room details')));
       }
     }
   }
@@ -207,9 +214,7 @@ class _ManageRoomDetailsPageState extends State<ManageRoomDetailsPage> {
         backgroundColor: Colors.teal,
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          _updateRoomDetails();
-        },
+        onPressed: _updateRoomDetails,
         backgroundColor: Colors.teal,
         child: const Icon(Icons.save),
       ),
@@ -222,6 +227,9 @@ class _ManageRoomDetailsPageState extends State<ManageRoomDetailsPage> {
 
             // Rent
             _buildCard(child: _buildTextField("Rent", _rentController)),
+
+            // Max People
+            _buildCard(child: _buildTextField("Max People", _maxPeopleController)), // New field for max people
 
             // AC Type
             _buildCard(
@@ -342,7 +350,9 @@ class _ManageRoomDetailsPageState extends State<ManageRoomDetailsPage> {
   Widget _buildTextField(String label, TextEditingController controller) {
     return TextField(
       controller: controller,
-      keyboardType: label == "Rent" ? TextInputType.numberWithOptions(decimal: true) : TextInputType.number,
+      keyboardType: label == "Rent" || label == "Max People"
+          ? TextInputType.numberWithOptions(decimal: true)
+          : TextInputType.number,
       decoration: InputDecoration(
         labelText: label,
         border: OutlineInputBorder(
