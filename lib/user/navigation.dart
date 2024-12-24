@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:project1/user/favuorite.dart';
 import 'package:project1/user/home_page.dart';
 import 'package:project1/user/hotel_details.dart';
+import 'package:project1/user/hotel_price_prediction_screen.dart';
 import 'package:project1/user/notification.dart';
 import 'package:project1/user/profile.dart';
 
@@ -32,6 +33,13 @@ class _BottomNavBarScreenState extends State<BottomNavBarScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      floatingActionButton: FloatingActionButton(
+        child: Icon(Icons.message),
+        onPressed: () {
+
+          Navigator.push(context, MaterialPageRoute(builder: (context) => AiChatScreen(),));
+        
+      },),
       body: WillPopScope(
         onWillPop: () async {
           // If we are not on the home page, navigate to the home page
