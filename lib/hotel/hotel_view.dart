@@ -83,6 +83,18 @@ class _ViewRoomPageState extends State<ViewRoomPage> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
+                            // Image display
+                            room['imageUrl'] != null
+                                ? Image.network(room['imageUrl'], width: double.infinity, height: 200, fit: BoxFit.cover)
+                                : Container(
+                                    width: double.infinity,
+                                    height: 200,
+                                    color: Colors.grey.shade300,
+                                    child: const Icon(Icons.image, color: Colors.white),
+                                  ),
+
+                            const SizedBox(height: 8),
+
                             Text(
                               "Room Number: ${room['roomNumber']}",
                               style: TextStyle(
@@ -183,6 +195,7 @@ class _ViewRoomPageState extends State<ViewRoomPage> {
     );
   }
 }
+
 
 class UpdateRoomPage extends StatefulWidget {
   final Map<String, dynamic> roomData;

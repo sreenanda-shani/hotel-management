@@ -19,99 +19,101 @@ class _HotelLoginPageState extends State<HotelLoginPage> {
   bool _isLoading = false;
   String _errorMessage = "";
 
-
   Future<void> _login() async {
-  setState(() {
-    _isLoading = true;
-    _errorMessage = "";
-  });
+    setState(() {
+      _isLoading = true;
+      _errorMessage = "";
+    });
 
-  try {
-    String email = _emailController.text;
+    try {
+      String email = _emailController.text;
 
-    if (email.isEmpty || !RegExp(r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$").hasMatch(email)) {
-      setState(() {
-        _errorMessage = "Please enter a valid email address.";
-        _isLoading = false;
-      });
-      return;
-    }
+      if (email.isEmpty || !RegExp(r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$").hasMatch(email)) {
+        setState(() {
+          _errorMessage = "Please enter a valid email address.";
+          _isLoading = false;
+        });
+        return;
+      }
 
-    // Firebase Auth login
-    UserCredential userCredential = await _auth.signInWithEmailAndPassword(
-      email: _emailController.text,
-      password: _passwordController.text,
-    );
+      // Firebase Auth login
+      UserCredential userCredential = await _auth.signInWithEmailAndPassword(
+        email: _emailController.text,
+        password: _passwordController.text,
+      );
 
-    User? user = userCredential.user;
+      User? user = userCredential.user;
 
-    if (user != null) {
-      var userEmail = user.email;
+      if (user != null) {
+        var userEmail = user.email;
 
-      // Query the 'hotels' collection in Firestore
-      var userDoc = await FirebaseFirestore.instance
-          .collection('hotels')
-          .where('contactEmail', isEqualTo: userEmail)
-          .limit(1)
-          .get();
+        // Query the 'hotels' collection in Firestore
+        var userDoc = await FirebaseFirestore.instance
+            .collection('hotels')
+            .where('contactEmail', isEqualTo: userEmail)
+            .limit(1)
+            .get();
 
-      if (userDoc.docs.isNotEmpty) {
-        var hotelData = userDoc.docs.first.data();
+        if (userDoc.docs.isNotEmpty) {
+          var hotelData = userDoc.docs.first.data();
 
-        // Check if 'isAdminApproved' field exists and is true
-        if (hotelData['isApproved'] == true) {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => const HotelHome()), // Navigate to the hotel home page
-          );
+          // Check if 'isAdminApproved' field exists and is true
+          if (hotelData['isApproved'] == true) {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => const HotelHome()), // Navigate to the hotel home page
+            );
+          } else {
+            setState(() {
+              _errorMessage = "Your account is not yet approved by the admin.";
+            });
+          }
         } else {
           setState(() {
-            _errorMessage = "Your account is not yet approved by the admin.";
+            _errorMessage = "No hotel account found for this email.";
           });
         }
-      } else {
-        setState(() {
-          _errorMessage = "No hotel account found for this email.";
-        });
       }
-    }
-  } catch (e) {
-    setState(() {
-      if (e is FirebaseAuthException) {
-        if (e.code == 'wrong-password') {
-          _errorMessage = "The password is incorrect.";
-        } else if (e.code == 'user-not-found') {
-          _errorMessage = "No user found for that email.";
-        } else if (e.code == 'invalid-email') {
-          _errorMessage = "The email address is badly formatted.";
+    } catch (e) {
+      setState(() {
+        if (e is FirebaseAuthException) {
+          if (e.code == 'wrong-password') {
+            _errorMessage = "The password is incorrect.";
+          } else if (e.code == 'user-not-found') {
+            _errorMessage = "No user found for that email.";
+          } else if (e.code == 'invalid-email') {
+            _errorMessage = "The email address is badly formatted.";
+          } else {
+            _errorMessage = "An error occurred: ${e.message}";
+          }
         } else {
-          _errorMessage = "An error occurred: ${e.message}";
+          _errorMessage = "An unexpected error occurred.";
         }
-      } else {
-        _errorMessage = "An unexpected error occurred.";
-      }
-    });
-  } finally {
-    setState(() {
-      _isLoading = false;
-    });
+      });
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
   }
-}
-
-
 
   InputDecoration _buildInputDecoration(String labelText) {
     return InputDecoration(
       labelText: labelText,
-      labelStyle: const TextStyle(color: Colors.teal),
+      labelStyle: const TextStyle(color: Colors.black), // Label color is black
       filled: true,
       fillColor: Colors.white,
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(10.0),
+        borderSide: const BorderSide(color: Colors.black), // Set border color to black
       ),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(10.0),
-        borderSide: const BorderSide(color: Colors.teal),
+        borderSide: const BorderSide(color: Colors.black), // Set enabled border color to black
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(10.0),
+        borderSide: const BorderSide(color: Colors.black), // Set focused border color to black
       ),
     );
   }
@@ -157,7 +159,7 @@ class _HotelLoginPageState extends State<HotelLoginPage> {
                           style: TextStyle(
                             fontSize: 24,
                             fontWeight: FontWeight.bold,
-                            color: Colors.teal,
+                            color: Colors.black, // Changed color to black
                           ),
                         ),
                         const SizedBox(height: 16),
@@ -165,6 +167,7 @@ class _HotelLoginPageState extends State<HotelLoginPage> {
                         TextFormField(
                           controller: _emailController,
                           decoration: _buildInputDecoration("Email"),
+                          style: const TextStyle(color: Colors.black), // Text color set to black
                         ),
                         const SizedBox(height: 16),
                         // Password Field
@@ -172,6 +175,7 @@ class _HotelLoginPageState extends State<HotelLoginPage> {
                           controller: _passwordController,
                           obscureText: true,
                           decoration: _buildInputDecoration("Password"),
+                          style: const TextStyle(color: Colors.black), // Text color set to black
                         ),
                         const SizedBox(height: 24),
                         if (_isLoading)
@@ -180,7 +184,7 @@ class _HotelLoginPageState extends State<HotelLoginPage> {
                           ElevatedButton(
                             onPressed: _login,
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.teal,
+                              backgroundColor: Colors.white, // Button background set to white
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(10.0),
                               ),
@@ -188,7 +192,10 @@ class _HotelLoginPageState extends State<HotelLoginPage> {
                             ),
                             child: const Text(
                               'Login',
-                              style: TextStyle(fontSize: 16, color: Colors.white),
+                              style: TextStyle(
+                                fontSize: 16,
+                                color: Colors.black, // Text color set to black
+                              ),
                             ),
                           ),
                         const SizedBox(height: 16),
@@ -211,7 +218,7 @@ class _HotelLoginPageState extends State<HotelLoginPage> {
                           child: const Text(
                             "Don't have an account? Sign Up",
                             style: TextStyle(
-                              color: Colors.teal,
+                              color: Colors.black, // Change text color to black
                               fontWeight: FontWeight.bold,
                             ),
                           ),

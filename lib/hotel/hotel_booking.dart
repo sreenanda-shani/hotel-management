@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
@@ -11,7 +12,7 @@ class BookingHistoryPage extends StatelessWidget {
         title: const Text("Booking History"),
       ),
       body: StreamBuilder<QuerySnapshot>(
-        stream: FirebaseFirestore.instance.collection('booking').snapshots(),
+        stream: FirebaseFirestore.instance.collection('booking').where('hotelId', isEqualTo: FirebaseAuth.instance.currentUser?.uid).snapshots(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());

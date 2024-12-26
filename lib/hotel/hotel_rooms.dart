@@ -15,7 +15,7 @@ class ManageRoomDetailsPage extends StatefulWidget {
 class _ManageRoomDetailsPageState extends State<ManageRoomDetailsPage> {
   final TextEditingController _roomNumberController = TextEditingController();
   final TextEditingController _rentController = TextEditingController();
-  final TextEditingController _maxPeopleController = TextEditingController(); // New controller for max people
+  final TextEditingController _maxPeopleController = TextEditingController();
 
   String _acType = 'AC';
   String _bedType = 'Single';
@@ -107,15 +107,23 @@ class _ManageRoomDetailsPageState extends State<ManageRoomDetailsPage> {
   // Function to update room details
   Future<void> _updateRoomDetails() async {
     try {
+      // Upload image to Cloudinary if selected
+      String? imageUrl;
+      if (_selectedImage != null) {
+        imageUrl = await _uploadImageToCloudinary(_selectedImage!);
+      }
+
+      // Update the room details in Firestore
       await FirebaseFirestore.instance.collection('rooms').add({
         'hotelId': _hotelId,
         'roomNumber': int.tryParse(_roomNumberController.text) ?? 0,
         'rent': double.tryParse(_rentController.text) ?? 0.0,
-        'maxPeople': int.tryParse(_maxPeopleController.text) ?? 1, // Save max people field
+        'maxPeople': int.tryParse(_maxPeopleController.text) ?? 1,
         'acType': _acType,
         'bedType': _bedType,
         'wifiAvailable': _wifiAvailable,
         'balconyAvailable': _balconyAvailable,
+        'imageUrl': imageUrl,  // Save the image URL
         'isAvailable': _isAvailable,
       });
 
@@ -152,7 +160,7 @@ class _ManageRoomDetailsPageState extends State<ManageRoomDetailsPage> {
     required bool wifiAvailable,
     required bool balconyAvailable,
     required bool isAvailable,
-    required int maxPeople, // Add max people parameter
+    required int maxPeople,
   }) async {
     try {
       User? user = FirebaseAuth.instance.currentUser;
@@ -168,7 +176,7 @@ class _ManageRoomDetailsPageState extends State<ManageRoomDetailsPage> {
           'hotelId': hotelId,
           'roomNumber': roomNumber,
           'rent': rent,
-          'maxPeople': maxPeople, // Save max people field
+          'maxPeople': maxPeople,
           'acType': acType,
           'bedType': bedType,
           'wifiAvailable': wifiAvailable,
@@ -222,16 +230,9 @@ class _ManageRoomDetailsPageState extends State<ManageRoomDetailsPage> {
         padding: const EdgeInsets.all(16.0),
         child: ListView(
           children: [
-            // Room Number
             _buildCard(child: _buildTextField("Room Number", _roomNumberController)),
-
-            // Rent
             _buildCard(child: _buildTextField("Rent", _rentController)),
-
-            // Max People
-            _buildCard(child: _buildTextField("Max People", _maxPeopleController)), // New field for max people
-
-            // AC Type
+            _buildCard(child: _buildTextField("Max People", _maxPeopleController)),
             _buildCard(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -242,8 +243,6 @@ class _ManageRoomDetailsPageState extends State<ManageRoomDetailsPage> {
                 ],
               ),
             ),
-
-            // Bed Type
             _buildCard(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -254,8 +253,6 @@ class _ManageRoomDetailsPageState extends State<ManageRoomDetailsPage> {
                 ],
               ),
             ),
-
-            // Wi-Fi Availability
             _buildCard(
               child: Row(
                 children: [
@@ -271,8 +268,6 @@ class _ManageRoomDetailsPageState extends State<ManageRoomDetailsPage> {
                 ],
               ),
             ),
-
-            // Balcony Availability
             _buildCard(
               child: Row(
                 children: [
@@ -288,8 +283,6 @@ class _ManageRoomDetailsPageState extends State<ManageRoomDetailsPage> {
                 ],
               ),
             ),
-
-            // Room Availability
             _buildCard(
               child: Row(
                 children: [
@@ -305,8 +298,6 @@ class _ManageRoomDetailsPageState extends State<ManageRoomDetailsPage> {
                 ],
               ),
             ),
-
-            // Image Picker
             _buildCard(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -350,46 +341,32 @@ class _ManageRoomDetailsPageState extends State<ManageRoomDetailsPage> {
   Widget _buildTextField(String label, TextEditingController controller) {
     return TextField(
       controller: controller,
-      keyboardType: label == "Rent" || label == "Max People"
-          ? TextInputType.numberWithOptions(decimal: true)
-          : TextInputType.number,
-      decoration: InputDecoration(
-        labelText: label,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
-        filled: true,
-        fillColor: Colors.white,
-        contentPadding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
-      ),
+      decoration: InputDecoration(labelText: label),
+      keyboardType: TextInputType.number,
     );
   }
 
   Widget _buildRadioTile(String value) {
-    return ListTile(
-      title: Text(value),
-      leading: Radio<String>(
-        value: value,
-        groupValue: value == 'AC' || value == 'Non-AC' ? _acType : _bedType,
-        onChanged: (newValue) {
-          setState(() {
-            if (value == 'AC' || value == 'Non-AC') {
-              _acType = newValue!;
-            } else {
-              _bedType = newValue!;
-            }
-          });
-        },
-      ),
+    return Row(
+      children: [
+        Radio<String>(
+          value: value,
+          groupValue: value == 'AC' ? _acType : _bedType,
+          onChanged: (newValue) {
+            setState(() {
+              value == 'AC' ? _acType = newValue! : _bedType = newValue!;
+            });
+          },
+        ),
+        Text(value),
+      ],
     );
   }
 
-  Widget _buildCustomCheckbox({required bool value, required ValueChanged<bool?> onChanged}) {
+  Widget _buildCustomCheckbox({required bool value, required void Function(bool?) onChanged}) {
     return Checkbox(
       value: value,
       onChanged: onChanged,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-      activeColor: Colors.teal,
     );
   }
 }

@@ -7,6 +7,7 @@ import 'package:project1/user/feedback.dart';
 import 'package:project1/user/hotel_details.dart';
 import 'package:project1/user/notification.dart';
 import 'package:project1/user/profile.dart';
+import 'package:project1/user/user_chat_screen.dart';
 import 'package:project1/user/user_hotelhomepage.dart';
 
 class HomePage extends StatefulWidget {
@@ -338,27 +339,40 @@ class _HomePageState extends State<HomePage> {
                           style: TextStyle(color: Colors.grey[700]),
                         ),
                         const SizedBox(height: 12),
-                        ElevatedButton(
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => UserHotelDetailsScreen(
-                                  hotelDocumentId: hotelId,
+                        Row(
+                          children: [
+                            ElevatedButton(
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => UserHotelDetailsScreen(
+                                      hotelDocumentId: hotelId,
+                                    ),
+                                  ),
+                                );
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.blueAccent,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10),
                                 ),
                               ),
-                            );
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.blueAccent,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10),
+                              child: const Text(
+                                "Book Now",
+                                style: TextStyle(color: Colors.white),
+                              ),
                             ),
-                          ),
-                          child: const Text(
-                            "Book Now",
-                            style: TextStyle(color: Colors.white),
-                          ),
+                            Spacer(),
+                            TextButton.icon(
+                              icon: Icon(Icons.message),
+                              
+                              onPressed: () {
+
+                              Navigator.push(context,MaterialPageRoute(builder: (context) => UserChatScreen(hotelId: hotelId,),));
+                              
+                            }, label: Text('chat'))
+                          ],
                         ),
                       ],
                     ),
