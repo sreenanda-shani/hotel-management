@@ -10,7 +10,6 @@ class ManageHotelDetailsPage extends StatefulWidget {
 }
 
 class _ManageHotelDetailsPageState extends State<ManageHotelDetailsPage> {
-  // Controllers for each field
   final TextEditingController _hotelNameController = TextEditingController();
   final TextEditingController _contactEmailController = TextEditingController();
   final TextEditingController _contactNumberController = TextEditingController();
@@ -31,24 +30,18 @@ class _ManageHotelDetailsPageState extends State<ManageHotelDetailsPage> {
     _fetchHotelDetails();
   }
 
-  // Fetch Hotel Details from Firestore based on logged-in user
   Future<void> _fetchHotelDetails() async {
     try {
       User? user = FirebaseAuth.instance.currentUser;
       if (user != null) {
-        // Get hotel details using user ID as hotelId
-        _hotelId = user.uid; // Using user ID to fetch the hotel details
-        print("Fetching hotel details for hotel ID: $_hotelId");
-
+        _hotelId = user.uid;
         DocumentSnapshot docSnapshot = await FirebaseFirestore.instance
             .collection('hotels')
-            .doc(_hotelId) // Using user ID to fetch the hotel details
+            .doc(_hotelId)
             .get();
 
         if (docSnapshot.exists) {
           var data = docSnapshot.data() as Map<String, dynamic>;
-          print("Document found, data: $data");  // Debugging the data
-
           setState(() {
             _hotelNameController.text = data['hotelName'] ?? '';
             _contactEmailController.text = data['contactEmail'] ?? '';
@@ -63,26 +56,22 @@ class _ManageHotelDetailsPageState extends State<ManageHotelDetailsPage> {
             _isLoading = false;
           });
         } else {
-          print("Document not found for hotel ID: $_hotelId");
           setState(() {
-            _isLoading = false; // Ensure UI reflects the absence of document
+            _isLoading = false;
           });
         }
       } else {
-        print("User not logged in");
         setState(() {
-          _isLoading = false; // If no user is logged in, stop loading
+          _isLoading = false;
         });
       }
     } catch (e) {
-      print("Error fetching hotel details: $e");
       setState(() {
-        _isLoading = false; // If there's an error, set loading to false
+        _isLoading = false;
       });
     }
   }
 
-  // Update the hotel details in Firestore
   Future<void> _updateHotelDetails() async {
     try {
       await FirebaseFirestore.instance.collection('hotels').doc(_hotelId).update({
@@ -101,7 +90,6 @@ class _ManageHotelDetailsPageState extends State<ManageHotelDetailsPage> {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Hotel details updated successfully!')));
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Error updating hotel details')));
-      print("Error updating hotel details: $e");
     }
   }
 
@@ -119,42 +107,77 @@ class _ManageHotelDetailsPageState extends State<ManageHotelDetailsPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Manage Hotel Details"),
-        backgroundColor: Colors.teal,
+        title: const Text(
+          "Manage Hotel Details",
+          style: TextStyle(
+            color: Colors.black, // Change the text color to black
+            fontWeight: FontWeight.bold,
+            fontSize: 20,
+          ),
+        ),
+        backgroundColor: Colors.white, // Set the AppBar background color to white
+        elevation: 0, // Remove the shadow
         actions: [
           IconButton(
-            icon: const Icon(Icons.save),
+            icon: const Icon(Icons.save, color: Colors.black), // Change the icon color to black
             onPressed: _updateHotelDetails,
           ),
         ],
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: ListView(
-          children: [
-            _buildTextField("Hotel Name", _hotelNameController),
-            _buildTextField("Contact Email", _contactEmailController),
-            _buildTextField("Contact Number", _contactNumberController),
-            _buildTextField("Facilities", _facilitiesController),
-            _buildTextField("Image URL", _imageUrlController),
-            _buildTextField("Location", _locationController),
-            _buildTextField("Latitude", _latController),
-            _buildTextField("Longitude", _logController),
-            _buildTextField("Number of Rooms", _numberOfRoomsController),
-            Row(
-              children: [
-                const Text("Is Approved"),
-                Checkbox(
-                  value: _isApproved,
-                  onChanged: (value) {
-                    setState(() {
-                      _isApproved = value!;
-                    });
-                  },
-                ),
-              ],
+      body: Container(
+        decoration: BoxDecoration(
+          image: DecorationImage(
+            image: AssetImage('asset/img4.webp'), // Add your background image path here
+            fit: BoxFit.cover,
+          ),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: SingleChildScrollView(
+            child: Container(
+              padding: const EdgeInsets.all(16.0),
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.8), // Semi-transparent background color for the form container
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.2),
+                    blurRadius: 8,
+                    offset: Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: Column(
+                children: [
+                  _buildTextField("Hotel Name", _hotelNameController),
+                  _buildTextField("Contact Email", _contactEmailController),
+                  _buildTextField("Contact Number", _contactNumberController),
+                  _buildTextField("Facilities", _facilitiesController),
+                  _buildTextField("Image URL", _imageUrlController),
+                  _buildTextField("Location", _locationController),
+                  _buildTextField("Latitude", _latController),
+                  _buildTextField("Longitude", _logController),
+                  _buildTextField("Number of Rooms", _numberOfRoomsController),
+                  Row(
+                    children: [
+                      const Text(
+                        "Is Approved",
+                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black),
+                      ),
+                      Checkbox(
+                        value: _isApproved,
+                        onChanged: (value) {
+                          setState(() {
+                            _isApproved = value!;
+                          });
+                        },
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
-          ],
+          ),
         ),
       ),
     );
@@ -167,7 +190,15 @@ class _ManageHotelDetailsPageState extends State<ManageHotelDetailsPage> {
         controller: controller,
         decoration: InputDecoration(
           labelText: label,
-          border: const OutlineInputBorder(),
+          labelStyle: const TextStyle(color: Colors.black), // Changed label color to black
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: const BorderSide(color: Colors.teal),
+          ),
+          filled: true,
+          fillColor: Colors.transparent, // Transparent background
+          focusColor: Colors.teal, // Focus color for better visibility
+          hoverColor: Colors.teal,  // Hover color (optional)
         ),
       ),
     );

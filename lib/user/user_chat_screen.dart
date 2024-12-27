@@ -36,7 +36,7 @@ class _UserChatScreenState extends State<UserChatScreen> {
         'message': _messageController.text,
         'senderId': _currentUserId,
         'timestamp': FieldValue.serverTimestamp(),
-        'receiverId': widget.hotelId, // Or another user
+        'receiverId': widget.hotelId, // The receiverId is the hotelId
       });
       _messageController.clear();
     }
@@ -57,7 +57,7 @@ class _UserChatScreenState extends State<UserChatScreen> {
             child: StreamBuilder<QuerySnapshot>(
               stream: _firestore
                   .collection('chats')
-                  .where('receiverId', isEqualTo: widget.hotelId)
+                  .where('receiverId', isEqualTo: widget.hotelId) // Filter by hotelId (receiver)
                   .orderBy('timestamp')
                   .snapshots(),
               builder: (context, snapshot) {

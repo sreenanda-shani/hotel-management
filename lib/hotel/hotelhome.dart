@@ -1,9 +1,11 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:project1/hotel/hotel_booking.dart';
 import 'package:project1/hotel/hotel_rooms.dart';
 import 'package:project1/hotel/hotel_view.dart';
-import 'package:project1/hotel/hotelcontact.dart';
 import 'package:project1/hotel/hotelmanage.dart';
+import 'chat_screen.dart'; // Import the ChatScreenPage
 
 class HotelHome extends StatefulWidget {
   const HotelHome({super.key});
@@ -29,7 +31,7 @@ class _HotelHomeState extends State<HotelHome> {
         // Background image
         decoration: const BoxDecoration(
           image: DecorationImage(
-            image: AssetImage('asset/img7.jpg'), // Replace with your image path
+            image: AssetImage('asset/img4.webp'), // Replace with your image path
             fit: BoxFit.cover,
           ),
         ),
@@ -39,7 +41,7 @@ class _HotelHomeState extends State<HotelHome> {
             child: Container(
               // Group container for navigation buttons
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.85), // Slight transparency
+                color: const Color.fromARGB(260, 202, 197, 197).withOpacity(0.85), // Slight transparency
                 borderRadius: BorderRadius.circular(20),
                 boxShadow: [
                   BoxShadow(
@@ -63,18 +65,6 @@ class _HotelHomeState extends State<HotelHome> {
                       ),
                     ),
                     const SizedBox(height: 20),
-                    _buildNavigationButton(
-                      context,
-                      icon: Icons.contact_phone,
-                      label: "Contact Details",
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => const HotelContactPage()),
-                        );
-                      },
-                    ),
-                    const SizedBox(height: 15),
                     _buildNavigationButton(
                       context,
                       icon: Icons.book,
@@ -141,6 +131,17 @@ class _HotelHomeState extends State<HotelHome> {
           ),
         ),
       ),
+      // Floating Action Button
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const ChatScreenPage()), // Navigate to Chat Screen
+          );
+        },
+        backgroundColor: Colors.white,
+        child: const Icon(Icons.chat, size: 30),
+      ),
     );
   }
 
@@ -164,3 +165,87 @@ class _HotelHomeState extends State<HotelHome> {
     );
   }
 }
+
+class ChatScreenPage extends StatelessWidget {
+  const ChatScreenPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    // Get the current user's ID
+    final currentUserId = FirebaseAuth.instance.currentUser?.uid;
+
+    if (currentUserId == null) {
+      return Scaffold(
+        appBar: AppBar(
+          title: const Text('Chat Screen'),
+          backgroundColor: Colors.black.withOpacity(0.7),
+        ),
+        body: const Center(
+          child: Text('Please log in to view chats.'),
+        ),
+      );
+    }
+
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Chat Screen'),
+        backgroundColor: Colors.black.withOpacity(0.7),
+      ),
+      body: StreamBuilder<QuerySnapshot>(
+        stream: FirebaseFirestore.instance
+            .collection('chats')
+            .where('receiverId', isEqualTo: currentUserId) // Filter by receiverId
+            .orderBy('timestamp', descending: true) // Order by timestamp for latest chats first
+            .snapshots(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+            return const Center(child: Text('No chats available.'));
+          }
+
+          final chats = snapshot.data!.docs;
+
+          // Group chats by senderId
+          final Map<String, List<Map<String, dynamic>>> groupedChats = {};
+
+          for (var chat in chats) {
+            final senderId = chat['senderId'];
+            if (!groupedChats.containsKey(senderId)) {
+              groupedChats[senderId] = [];
+            }
+            // Correct data retrieval
+            groupedChats[senderId]!.add(chat.data() as Map<String, dynamic>);
+          }
+
+          // Display a list tile for each sender
+          return ListView.builder(
+            itemCount: groupedChats.keys.length,
+            itemBuilder: (context, index) {
+              final senderId = groupedChats.keys.elementAt(index);
+              final senderChats = groupedChats[senderId]!;
+              final latestChat = senderChats.first; // Get the latest chat from this sender
+
+              final message = latestChat['message'];
+
+              // Get the sender details (you can fetch sender info from another collection if needed)
+              return ListTile(
+                title: Text('Sender ID: $senderId'),
+                subtitle: Text(message),
+                leading: Icon(Icons.account_circle, size: 40),
+                trailing: Icon(Icons.chat_bubble_outline),
+                onTap: () {
+                  // Navigate to a chat detail screen or initiate a conversation
+                  // You can pass senderId or other details if needed.
+                },
+              );
+            },
+          );
+        },
+      ),
+    );
+  }
+}
+

@@ -9,6 +9,7 @@ import 'package:project1/user/notification.dart';
 import 'package:project1/user/profile.dart';
 import 'package:project1/user/user_chat_screen.dart';
 import 'package:project1/user/user_hotelhomepage.dart';
+import 'package:project1/user/login_page.dart';  // Import login page
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -29,7 +30,7 @@ class _HomePageState extends State<HomePage> {
     String defaultImage = "assets/default_profile_image.png"; // Corrected path to assets
 
     // Fetch the user's name, email, and profile image URL (if available)
-    String userName = currentUser?.displayName ?? 'Guest User';
+    String userName = currentUser?.displayName ?? '';
     String userEmail = currentUser?.email ?? 'guest@example.com';
     String userImageUrl = currentUser?.photoURL ?? defaultImage; // Use default image if null
 
@@ -46,7 +47,7 @@ class _HomePageState extends State<HomePage> {
             backgroundColor: Colors.transparent,
             elevation: 0,
             flexibleSpace: Padding(
-              padding: const EdgeInsets.only(left: 50, right: 16),
+              padding: const EdgeInsets.only(left: 50, right: 16, top:110), // Adjust the top padding here
               child: Center(
                 child: TextField(
                   onChanged: (query) {
@@ -62,7 +63,7 @@ class _HomePageState extends State<HomePage> {
                       borderRadius: BorderRadius.circular(30),
                       borderSide: BorderSide.none,
                     ),
-                    prefixIcon: Icon(Icons.search, color: Colors.blueAccent),
+                    prefixIcon: Icon(Icons.search, color: Colors.black), // Set the search icon color to black
                     contentPadding: EdgeInsets.symmetric(vertical: 12), // Adjust padding
                   ),
                 ),
@@ -77,7 +78,7 @@ class _HomePageState extends State<HomePage> {
           child: Container(
             decoration: BoxDecoration(
               gradient: LinearGradient(
-                colors: [Colors.lightBlue.shade50, Colors.blueAccent.shade100],
+                colors: [Colors.deepPurple.shade50, Colors.blueAccent.shade200],
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
               ),
@@ -97,14 +98,19 @@ class _HomePageState extends State<HomePage> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const SizedBox(height: 5),
-                      Text(
-                        userEmail,
-                        style: const TextStyle(color: Colors.white, fontSize: 18),
-                      ),
-                      const SizedBox(height: 10),
                       CircleAvatar(
                         radius: 30,
                         backgroundImage: NetworkImage(userImageUrl),
+                      ),
+                      const SizedBox(height: 10),
+                      Text(
+                        userName,
+                        style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        userEmail,
+                        style: const TextStyle(color: Colors.white, fontSize: 14),
                       ),
                     ],
                   ),
@@ -145,80 +151,70 @@ class _HomePageState extends State<HomePage> {
                     MaterialPageRoute(builder: (context) => FeedbackPage()),
                   );
                 }),
-                _buildDrawerItem(Icons.login, "Logout", () {
-                  FirebaseAuth.instance.signOut();
-                  Navigator.pop(context);
+                _buildDrawerItem(Icons.login, "Logout", () async {
+                  await FirebaseAuth.instance.signOut();
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(builder: (context) => UserLoginPage()),
+                  );
                 }),
               ],
             ),
           ),
         ),
       ),
-      body: Stack(
-        children: [
-          Container(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [Colors.lightBlue.shade50, Colors.blueAccent.shade100],
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-              ),
-            ),
-          ),
-          SingleChildScrollView(
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  StreamBuilder<QuerySnapshot>(
-                    stream: FirebaseFirestore.instance
-                        .collection('hotels')
-                        .where('isApproved', isEqualTo: true)
-                        .snapshots(),
-                    builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.waiting) {
-                        return const Center(child: CircularProgressIndicator());
-                      }
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              StreamBuilder<QuerySnapshot>(
+                stream: FirebaseFirestore.instance
+                    .collection('hotels')
+                    .where('isApproved', isEqualTo: true)
+                    .snapshots(),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
 
-                      if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-                        return const Center(child: Text('No approved hotels available.'));
-                      }
+                  if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                    return const Center(child: Text('No approved hotels available.'));
+                  }
 
-                      final hotels = snapshot.data!.docs;
-                      final filteredHotels = hotels.where((doc) {
-                        final hotelData = doc.data() as Map<String, dynamic>;
-                        final hotelName = hotelData['hotelName'] ?? '';
-                        return hotelName.toLowerCase().contains(searchQuery.toLowerCase());
-                      }).toList();
+                  final hotels = snapshot.data!.docs;
+                  final filteredHotels = hotels.where((doc) {
+                    final hotelData = doc.data() as Map<String, dynamic>;
+                    final hotelName = hotelData['location'] ?? '';
+                    return hotelName.toLowerCase().contains(searchQuery.toLowerCase());
+                  }).toList();
 
-                      return Column(
-                        children: filteredHotels.map((doc) {
-                          final hotelData = doc.data() as Map<String, dynamic>;
-                          final hotelName = hotelData['hotelName'] ?? 'No name';
-                          final description = hotelData['facilities'] ?? 'No description';
-                          final imageUrl = hotelData['imageUrl'] ?? '';
-                          final rating = hotelData['rating'] ?? '5 Stars';
-                          final hotelId = doc.id;
+                  return Column(
+                    children: filteredHotels.map((doc) {
+                      final hotelData = doc.data() as Map<String, dynamic>;
+                      final hotelName = hotelData['hotelName'] ?? 'No name';
+                      final description = hotelData['facilities'] ?? 'No description';
+                      final imageUrl = hotelData['imageUrl'] ?? '';
+                      final rating = hotelData['rating'] ?? ''; // Removed '5 Stars' default text
+                      final hotelId = doc.id;
 
-                          return _buildHotelCard(
-                            hotelName,
-                            rating,
-                            description,
-                            imageUrl,
-                            hotelData,
-                            hotelId,
-                            context,
-                          );
-                        }).toList(),
+                      return _buildHotelCard(
+                        hotelName,
+                        rating,
+                        description,
+                        imageUrl,
+                        hotelData,
+                        hotelId,
+                        context,
                       );
-                    },
-                  ),
-                ],
+                    }).toList(),
+                  );
+                },
               ),
-            ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
@@ -228,7 +224,7 @@ class _HomePageState extends State<HomePage> {
       leading: Icon(icon, color: Colors.blueAccent),
       title: Text(
         title,
-        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black), // Set color to black
       ),
       onTap: onTap,
     );
@@ -276,7 +272,7 @@ class _HomePageState extends State<HomePage> {
           setState(() {});
         }
 
-        return FutureBuilder<bool>(
+        return FutureBuilder<bool>( 
           future: isFavorite(),
           builder: (context, snapshot) {
             final isFavorite = snapshot.data ?? false;
@@ -285,10 +281,10 @@ class _HomePageState extends State<HomePage> {
               margin: const EdgeInsets.symmetric(vertical: 10),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(15),
-                color: Colors.white,
+                color: Colors.white, // The background color of the container
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.blueAccent.withOpacity(0.5),
+                    color: const Color.fromARGB(255, 234, 235, 236).withOpacity(0.5),
                     blurRadius: 10,
                     spreadRadius: 2,
                   ),
@@ -317,7 +313,8 @@ class _HomePageState extends State<HomePage> {
                           children: [
                             Text(
                               hotelName,
-                              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                              style: const TextStyle(
+                                  fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black),
                             ),
                             IconButton(
                               icon: Icon(
@@ -329,14 +326,16 @@ class _HomePageState extends State<HomePage> {
                           ],
                         ),
                         const SizedBox(height: 4),
-                        Text(
-                          hotelRating,
-                          style: const TextStyle(color: Colors.orange, fontWeight: FontWeight.bold),
-                        ),
+                        // Removed the "5 Stars" label and now it's just the rating
+                        if (hotelRating.isNotEmpty)
+                          Text(
+                            hotelRating,
+                            style: const TextStyle(color: Colors.orange, fontWeight: FontWeight.bold),
+                          ),
                         const SizedBox(height: 8),
                         Text(
                           description,
-                          style: TextStyle(color: Colors.grey[700]),
+                          style: const TextStyle(color: Colors.black),
                         ),
                         const SizedBox(height: 12),
                         Row(
@@ -353,25 +352,29 @@ class _HomePageState extends State<HomePage> {
                                 );
                               },
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.blueAccent,
+                                backgroundColor: Colors.black, // Set button color to black
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(10),
                                 ),
                               ),
                               child: const Text(
                                 "Book Now",
-                                style: TextStyle(color: Colors.white),
+                                style: TextStyle(color: Colors.white), // Text color is white
                               ),
                             ),
                             Spacer(),
                             TextButton.icon(
-                              icon: Icon(Icons.message),
-                              
+                              icon: Icon(Icons.message, color: Colors.black), // Icon color black
                               onPressed: () {
-
-                              Navigator.push(context,MaterialPageRoute(builder: (context) => UserChatScreen(hotelId: hotelId,),));
-                              
-                            }, label: Text('chat'))
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => UserChatScreen(hotelId: hotelId),
+                                  ),
+                                );
+                              },
+                              label: const Text('Chat', style: TextStyle(color: Colors.black)), // Text color black
+                            ),
                           ],
                         ),
                       ],

@@ -18,6 +18,7 @@ class _HotelLoginPageState extends State<HotelLoginPage> {
 
   bool _isLoading = false;
   String _errorMessage = "";
+  bool _isPasswordVisible = false; // Toggle password visibility
 
   Future<void> _login() async {
     setState(() {
@@ -97,7 +98,7 @@ class _HotelLoginPageState extends State<HotelLoginPage> {
     }
   }
 
-  InputDecoration _buildInputDecoration(String labelText) {
+  InputDecoration _buildInputDecoration(String labelText, {Widget? suffixIcon}) {
     return InputDecoration(
       labelText: labelText,
       labelStyle: const TextStyle(color: Colors.black), // Label color is black
@@ -115,6 +116,7 @@ class _HotelLoginPageState extends State<HotelLoginPage> {
         borderRadius: BorderRadius.circular(10.0),
         borderSide: const BorderSide(color: Colors.black), // Set focused border color to black
       ),
+      suffixIcon: suffixIcon, // Add the password toggle icon
     );
   }
 
@@ -170,11 +172,26 @@ class _HotelLoginPageState extends State<HotelLoginPage> {
                           style: const TextStyle(color: Colors.black), // Text color set to black
                         ),
                         const SizedBox(height: 16),
-                        // Password Field
+                        // Password Field with Icon
                         TextFormField(
                           controller: _passwordController,
-                          obscureText: true,
-                          decoration: _buildInputDecoration("Password"),
+                          obscureText: !_isPasswordVisible,
+                          decoration: _buildInputDecoration(
+                            "Password",
+                            suffixIcon: IconButton(
+                              icon: Icon(
+                                _isPasswordVisible
+                                    ? Icons.visibility
+                                    : Icons.visibility_off,
+                                color: Colors.black,
+                              ),
+                              onPressed: () {
+                                setState(() {
+                                  _isPasswordVisible = !_isPasswordVisible; // Toggle visibility
+                                });
+                              },
+                            ),
+                          ),
                           style: const TextStyle(color: Colors.black), // Text color set to black
                         ),
                         const SizedBox(height: 24),

@@ -151,58 +151,6 @@ class _ManageRoomDetailsPageState extends State<ManageRoomDetailsPage> {
     }
   }
 
-  // Function to add room details
-  Future<void> _addRoomDetails({
-    required int roomNumber,
-    required double rent,
-    required String acType,
-    required String bedType,
-    required bool wifiAvailable,
-    required bool balconyAvailable,
-    required bool isAvailable,
-    required int maxPeople,
-  }) async {
-    try {
-      User? user = FirebaseAuth.instance.currentUser;
-      if (user != null) {
-        String hotelId = user.uid;
-
-        String? imageUrl;
-        if (_selectedImage != null) {
-          imageUrl = await _uploadImageToCloudinary(_selectedImage!);
-        }
-
-        await FirebaseFirestore.instance.collection('rooms').add({
-          'hotelId': hotelId,
-          'roomNumber': roomNumber,
-          'rent': rent,
-          'maxPeople': maxPeople,
-          'acType': acType,
-          'bedType': bedType,
-          'wifiAvailable': wifiAvailable,
-          'balconyAvailable': balconyAvailable,
-          'imageUrl': imageUrl,
-          'isAvailable': isAvailable,
-        });
-
-        if (mounted) {
-          ScaffoldMessenger.of(context)
-              .showSnackBar(const SnackBar(content: Text('Room added successfully!')));
-        }
-      } else {
-        if (mounted) {
-          ScaffoldMessenger.of(context)
-              .showSnackBar(const SnackBar(content: Text('User is not logged in')));
-        }
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(const SnackBar(content: Text('Error adding room details')));
-      }
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     if (_isLoading) {
@@ -216,112 +164,129 @@ class _ManageRoomDetailsPageState extends State<ManageRoomDetailsPage> {
     }
 
     return Scaffold(
-      backgroundColor: Colors.teal.shade50,
+      backgroundColor: Colors.transparent, // Set the background color to transparent
       appBar: AppBar(
-        title: const Text("Manage Room Details"),
-        backgroundColor: Colors.teal,
+        backgroundColor: Colors.white, // Set the full AppBar background to white
+        foregroundColor: Colors.black, // Set the text color in AppBar to black
+        title: const Text(
+          "Manage Room Details",
+          style: TextStyle(color: Colors.black), // Set text color to black for contrast
+        ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: _updateRoomDetails,
         backgroundColor: Colors.teal,
         child: const Icon(Icons.save),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: ListView(
-          children: [
-            _buildCard(child: _buildTextField("Room Number", _roomNumberController)),
-            _buildCard(child: _buildTextField("Rent", _rentController)),
-            _buildCard(child: _buildTextField("Max People", _maxPeopleController)),
-            _buildCard(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text("AC Type", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                  _buildRadioTile('AC'),
-                  _buildRadioTile('Non-AC'),
-                ],
-              ),
+      body: Stack(
+        children: [
+          Positioned.fill(
+            child: Image.asset(
+              'asset/img4.webp', // Your background image here
+              fit: BoxFit.cover,
             ),
-            _buildCard(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+          ),
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Container(
+              color: Colors.transparent, // Make container transparent
+              child: ListView(
                 children: [
-                  const Text("Bed Type", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                  _buildRadioTile('Single Bed'),
-                  _buildRadioTile('Double Bed'),
-                ],
-              ),
-            ),
-            _buildCard(
-              child: Row(
-                children: [
-                  const Text("Wi-Fi Available", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                  _buildCustomCheckbox(
-                    value: _wifiAvailable,
-                    onChanged: (value) {
-                      setState(() {
-                        _wifiAvailable = value!;
-                      });
-                    },
+                  _buildCard(child: _buildTextField("Room Number", _roomNumberController)),
+                  _buildCard(child: _buildTextField("Rent", _rentController)),
+                  _buildCard(child: _buildTextField("Max People", _maxPeopleController)),
+                  _buildCard(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text("AC Type", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                        _buildRadioTile('AC'),
+                        _buildRadioTile('Non-AC'),
+                      ],
+                    ),
                   ),
-                ],
-              ),
-            ),
-            _buildCard(
-              child: Row(
-                children: [
-                  const Text("Balcony Available", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                  _buildCustomCheckbox(
-                    value: _balconyAvailable,
-                    onChanged: (value) {
-                      setState(() {
-                        _balconyAvailable = value!;
-                      });
-                    },
+                  _buildCard(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text("Bed Type", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                        _buildRadioTile('Single Bed'),
+                        _buildRadioTile('Double Bed'),
+                      ],
+                    ),
                   ),
-                ],
-              ),
-            ),
-            _buildCard(
-              child: Row(
-                children: [
-                  const Text("Room Available", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                  _buildCustomCheckbox(
-                    value: _isAvailable,
-                    onChanged: (value) {
-                      setState(() {
-                        _isAvailable = value!;
-                      });
-                    },
+                  _buildCard(
+                    child: Row(
+                      children: [
+                        const Text("Wi-Fi Available", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                        _buildCustomCheckbox(
+                          value: _wifiAvailable,
+                          onChanged: (value) {
+                            setState(() {
+                              _wifiAvailable = value!;
+                            });
+                          },
+                        ),
+                      ],
+                    ),
                   ),
-                ],
-              ),
-            ),
-            _buildCard(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text("Room Image", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                  GestureDetector(
-                    onTap: _pickImage,
-                    child: Container(
-                      width: double.infinity,
-                      height: 200,
-                      decoration: BoxDecoration(
-                        color: Colors.grey.shade200,
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: _selectedImage == null
-                          ? const Icon(Icons.add_a_photo, size: 40, color: Colors.teal)
-                          : Image.file(_selectedImage!, fit: BoxFit.cover),
+                  _buildCard(
+                    child: Row(
+                      children: [
+                        const Text("Balcony Available", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                        _buildCustomCheckbox(
+                          value: _balconyAvailable,
+                          onChanged: (value) {
+                            setState(() {
+                              _balconyAvailable = value!;
+                            });
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                  _buildCard(
+                    child: Row(
+                      children: [
+                        const Text("Room Available", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                        _buildCustomCheckbox(
+                          value: _isAvailable,
+                          onChanged: (value) {
+                            setState(() {
+                              _isAvailable = value!;
+                            });
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                  _buildCard(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text("Room Image", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                        GestureDetector(
+                          onTap: _pickImage,
+                          child: Container(
+                            width: double.infinity,
+                            height: 200,
+                            decoration: BoxDecoration(
+                              color: Colors.grey.shade200,
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: _selectedImage == null
+                                ? const Icon(Icons.add_a_photo, size: 40, color: Colors.teal)
+                                : Image.file(_selectedImage!, fit: BoxFit.cover),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ],
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -341,7 +306,12 @@ class _ManageRoomDetailsPageState extends State<ManageRoomDetailsPage> {
   Widget _buildTextField(String label, TextEditingController controller) {
     return TextField(
       controller: controller,
-      decoration: InputDecoration(labelText: label),
+      decoration: InputDecoration(
+        labelText: label,
+        filled: true,
+        fillColor: Colors.transparent, // Make the text field transparent
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+      ),
       keyboardType: TextInputType.number,
     );
   }
@@ -367,6 +337,8 @@ class _ManageRoomDetailsPageState extends State<ManageRoomDetailsPage> {
     return Checkbox(
       value: value,
       onChanged: onChanged,
+      checkColor: Colors.white, // White check color for better contrast
+      activeColor: Colors.transparent, // Make checkbox transparent
     );
   }
 }
