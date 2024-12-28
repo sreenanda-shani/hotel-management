@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:project1/hotel/user_details.dart';
 
 class BookingHistoryPage extends StatelessWidget {
   const BookingHistoryPage({super.key});
@@ -73,74 +74,60 @@ class BookingCard extends StatelessWidget {
       return _buildErrorCard("Unknown Hotel", "Hotel details are missing.");
     }
 
-    return FutureBuilder<DocumentSnapshot>(
-      future: FirebaseFirestore.instance.collection('hotels').doc(hotelId).get(),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator());
-        }
-        if (!snapshot.hasData || !snapshot.data!.exists) {
-          debugPrint("Hotel document not found for hotelId: $hotelId");
-          return _buildErrorCard(
-            "Unknown Hotel (ID: $hotelId)",
-            "Hotel details not found.",
-          );
-        }
+    // Get the name from the booking document
+    final bookingName = booking["name"] ?? "No Name Provided";
 
-        final hotelData = snapshot.data!.data() as Map<String, dynamic>;
-        final hotelName = hotelData["hotelName"] ?? "Unnamed Hotel";
-
-        return ClipRRect(
-          borderRadius: BorderRadius.circular(30), // Side oval shape for more curvature
-          child: Card(
-            elevation: 8, // Slightly increased elevation for depth
-            margin: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
-            shadowColor: Colors.black.withOpacity(0.3),
-            child: ListTile(
-              contentPadding: const EdgeInsets.all(16),
-              tileColor: Colors.white.withOpacity(0.85), // Slight transparency for softness
-              title: Text(
-                hotelName,
-                style: const TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black, // Black text for better visibility
-                ),
-              ),
-              subtitle: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const SizedBox(height: 5),
-                  Text(
-                    "Booking Date: ${formatDate(booking["bookingDate"])}",
-                    style: const TextStyle(fontSize: 14, color: Colors.black),
-                  ),
-                  Text(
-                    "Check-In: ${booking["checkIn"] ?? "N/A"} | Check-Out: ${booking["checkOut"] ?? "N/A"}",
-                    style: const TextStyle(fontSize: 14, color: Colors.black),
-                  ),
-                  Text(
-                    "Guests: ${booking["guests"] ?? 0} | Room: ${booking["roomNumber"] ?? "N/A"}",
-                    style: const TextStyle(fontSize: 14, color: Colors.black),
-                  ),
-                  Text(
-                    "Rent: \$${booking["rent"] ?? 0}",
-                    style: const TextStyle(fontSize: 14, color: Colors.black),
-                  ),
-                ],
-              ),
-              onTap: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text('Booking: $hotelName'),
-                    backgroundColor: Colors.blueGrey,
-                  ),
-                );
-              },
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(30), // Side oval shape for more curvature
+      child: Card(
+        elevation: 8, // Slightly increased elevation for depth
+        margin: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+        shadowColor: Colors.black.withOpacity(0.3),
+        child: ListTile(
+          contentPadding: const EdgeInsets.all(16),
+          tileColor: Colors.white.withOpacity(0.85), // Slight transparency for softness
+          title: Text(
+            bookingName,  // Use the booking name as the title
+            style: const TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: Colors.black, // Black text for better visibility
             ),
           ),
-        );
-      },
+          subtitle: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const SizedBox(height: 5),
+              Text(
+                "Booking Date: ${formatDate(booking["bookingDate"])}",
+                style: const TextStyle(fontSize: 14, color: Colors.black),
+              ),
+              Text(
+                "Check-In: ${formatDate(booking["checkIn"]) ?? "N/A"}",
+                style: const TextStyle(fontSize: 14, color: Colors.black),
+              ),
+              Text(
+                "Check-Out: ${formatDate(booking["checkOut"]) ?? "N/A"}",
+                style: const TextStyle(fontSize: 14, color: Colors.black),
+              ),
+              Text(
+                "Guests: ${booking["guests"] ?? 0} | Room: ${booking["roomNumber"] ?? "N/A"}",
+                style: const TextStyle(fontSize: 14, color: Colors.black),
+              ),
+              Text(
+                "Rent: \$${booking["rent"] ?? 0}",
+                style: const TextStyle(fontSize: 14, color: Colors.black),
+              ),
+            ],
+          ),
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => UserDetails(userName: booking["name"],)), // Missing semicolon added
+            );
+          },
+        ),
+      ),
     );
   }
 
@@ -167,9 +154,10 @@ class BookingCard extends StatelessWidget {
     );
   }
 
+  // Updated formatDate function to remove time
   String formatDate(Timestamp? timestamp) {
     if (timestamp == null) return "Unknown Date";
     final date = timestamp.toDate();
-    return "${date.day}/${date.month}/${date.year} at ${date.hour}:${date.minute}";
+    return "${date.day}/${date.month}/${date.year}"; // Only return date (no time)
   }
 }

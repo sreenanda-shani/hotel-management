@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:project1/hotel/hotel_registration.dart';
 import 'package:project1/hotel/hotelhome.dart';
+import 'package:project1/hotel/hotel_forgot_password.dart'; // Import Forgot Password Page
 
 class HotelLoginPage extends StatefulWidget {
   const HotelLoginPage({super.key});
@@ -236,6 +237,22 @@ class _HotelLoginPageState extends State<HotelLoginPage> {
                             "Don't have an account? Sign Up",
                             style: TextStyle(
                               color: Colors.black, // Change text color to black
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        GestureDetector(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => const HotelForgotPasswordPage()),
+                            );
+                          },
+                          child: const Text(
+                            "Forgot Password?",
+                            style: TextStyle(
+                              color: Colors.black,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
