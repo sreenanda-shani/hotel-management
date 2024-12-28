@@ -31,17 +31,20 @@ class _HotelHomeState extends State<HotelHome> {
         // Background image
         decoration: const BoxDecoration(
           image: DecorationImage(
-            image: AssetImage('asset/img4.webp'), // Replace with your image path
+            image:
+                AssetImage('asset/img4.webp'), // Replace with your image path
             fit: BoxFit.cover,
           ),
         ),
         child: Center(
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 40.0),
+            padding:
+                const EdgeInsets.symmetric(horizontal: 20.0, vertical: 40.0),
             child: Container(
               // Group container for navigation buttons
               decoration: BoxDecoration(
-                color: const Color.fromARGB(260, 202, 197, 197).withOpacity(0.85), // Slight transparency
+                color: const Color.fromARGB(260, 202, 197, 197)
+                    .withOpacity(0.85), // Slight transparency
                 borderRadius: BorderRadius.circular(20),
                 boxShadow: [
                   BoxShadow(
@@ -72,7 +75,8 @@ class _HotelHomeState extends State<HotelHome> {
                       onTap: () {
                         Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (context) => const BookingHistoryPage()),
+                          MaterialPageRoute(
+                              builder: (context) => const BookingHistoryPage()),
                         );
                       },
                     ),
@@ -84,7 +88,9 @@ class _HotelHomeState extends State<HotelHome> {
                       onTap: () {
                         Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (context) => const ManageHotelDetailsPage()),
+                          MaterialPageRoute(
+                              builder: (context) =>
+                                  const ManageHotelDetailsPage()),
                         );
                       },
                     ),
@@ -96,7 +102,9 @@ class _HotelHomeState extends State<HotelHome> {
                       onTap: () {
                         Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (context) => const ManageRoomDetailsPage()),
+                          MaterialPageRoute(
+                              builder: (context) =>
+                                  const ManageRoomDetailsPage()),
                         );
                       },
                     ),
@@ -136,7 +144,9 @@ class _HotelHomeState extends State<HotelHome> {
         onPressed: () {
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => const ChatScreenPage()), // Navigate to Chat Screen
+            MaterialPageRoute(
+                builder: (context) =>
+                    const ChatScreenPage()), // Navigate to Chat Screen
           );
         },
         backgroundColor: Colors.white,
@@ -146,11 +156,15 @@ class _HotelHomeState extends State<HotelHome> {
   }
 
   // Button Builder
-  Widget _buildNavigationButton(BuildContext context, {required IconData icon, required String label, required VoidCallback onTap}) {
+  Widget _buildNavigationButton(BuildContext context,
+      {required IconData icon,
+      required String label,
+      required VoidCallback onTap}) {
     return ElevatedButton.icon(
       onPressed: onTap,
       icon: Icon(icon, size: 28),
-      label: Text(label, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+      label: Text(label,
+          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
       style: ElevatedButton.styleFrom(
         backgroundColor: Colors.white,
         foregroundColor: Colors.black,
@@ -168,6 +182,25 @@ class _HotelHomeState extends State<HotelHome> {
 
 class ChatScreenPage extends StatelessWidget {
   const ChatScreenPage({super.key});
+
+  // Function to fetch the sender's name from Firestore
+  Future<String> fetchSenderName(String senderId) async {
+    try {
+      DocumentSnapshot userDoc = await FirebaseFirestore.instance
+          .collection(
+              'user') // Assuming the user information is in the 'users' collection
+          .doc(senderId)
+          .get();
+
+      if (userDoc.exists) {
+        return userDoc['name'] ??
+            'Unknown'; // Retrieve the name or 'Unknown' if not found
+      }
+    } catch (e) {
+      debugPrint('Error fetching sender name: $e');
+    }
+    return 'Unknown'; // Return 'Unknown' if an error occurs or user is not found
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -194,8 +227,10 @@ class ChatScreenPage extends StatelessWidget {
       body: StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance
             .collection('chats')
-            .where('receiverId', isEqualTo: currentUserId) // Filter by receiverId
-            .orderBy('timestamp', descending: true) // Order by timestamp for latest chats first
+            .where('receiverId',
+                isEqualTo: currentUserId) // Filter by receiverId
+            .orderBy('timestamp',
+                descending: true) // Order by timestamp for latest chats first
             .snapshots(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
@@ -226,19 +261,46 @@ class ChatScreenPage extends StatelessWidget {
             itemBuilder: (context, index) {
               final senderId = groupedChats.keys.elementAt(index);
               final senderChats = groupedChats[senderId]!;
-              final latestChat = senderChats.first; // Get the latest chat from this sender
+              final latestChat =
+                  senderChats.first; // Get the latest chat from this sender
 
               final message = latestChat['message'];
 
-              // Get the sender details (you can fetch sender info from another collection if needed)
-              return ListTile(
-                title: Text('Sender ID: $senderId'),
-                subtitle: Text(message),
-                leading: Icon(Icons.account_circle, size: 40),
-                trailing: Icon(Icons.chat_bubble_outline),
-                onTap: () {
-                  // Navigate to a chat detail screen or initiate a conversation
-                  // You can pass senderId or other details if needed.
+              // Fetch the sender's name using the fetchSenderName function
+              return FutureBuilder<String>(
+                future: fetchSenderName(senderId),
+                builder: (context, nameSnapshot) {
+                  if (nameSnapshot.connectionState == ConnectionState.waiting) {
+                    return const ListTile(
+                      title: Text('Loading...'),
+                      subtitle: Text('Fetching sender details'),
+                    );
+                  }
+
+                  if (nameSnapshot.hasError || !nameSnapshot.hasData) {
+                    return ListTile(
+                      title: const Text('Error loading sender details'),
+                      subtitle: Text(message),
+                    );
+                  }
+
+                  final senderName = nameSnapshot.data!;
+
+                  return ListTile(
+                    title: Text(senderName), // Display sender's name
+                    subtitle: Text(message), // Display the latest chat message
+                    leading: const Icon(Icons.account_circle, size: 40),
+                    trailing: const Icon(Icons.chat_bubble_outline),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) =>
+                              ChatScreen(senderId: senderId),
+                        ),
+                      );
+                    },
+                  );
                 },
               );
             },
@@ -248,4 +310,3 @@ class ChatScreenPage extends StatelessWidget {
     );
   }
 }
-
