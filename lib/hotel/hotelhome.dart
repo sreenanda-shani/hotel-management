@@ -258,7 +258,7 @@ class ChatScreenPage extends StatelessWidget {
               final senderId = groupedChats.keys.elementAt(index);
               final senderChats = groupedChats[senderId]!;
               final latestChat = senderChats.first; // Latest chat message
-              final message = latestChat['message'];
+              // final message = latestChat['message'];
 
               return FutureBuilder<String>(
                 future: fetchSenderName(senderId),
@@ -273,7 +273,7 @@ class ChatScreenPage extends StatelessWidget {
                   if (nameSnapshot.hasError || !nameSnapshot.hasData) {
                     return ListTile(
                       title: const Text('Error loading sender details'),
-                      subtitle: Text(message),
+                      // subtitle: Text(message),
                     );
                   }
 
@@ -284,12 +284,12 @@ class ChatScreenPage extends StatelessWidget {
                       senderName,
                       style: const TextStyle(fontWeight: FontWeight.bold),
                     ),
-                    subtitle: Text(
-                      message,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(color: Colors.grey[600]),
-                    ),
+                    // subtitle: Text(
+                    //   // message,
+                    //   maxLines: 1,
+                    //   overflow: TextOverflow.ellipsis,
+                    //   style: TextStyle(color: Colors.grey[600]),
+                    // ),
                     leading: CircleAvatar(
                       backgroundColor: Colors.grey[300],
                       child: const Icon(Icons.account_circle, color: Colors.white, size: 30),

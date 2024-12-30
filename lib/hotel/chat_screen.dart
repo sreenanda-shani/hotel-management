@@ -101,17 +101,11 @@ class _ChatScreenState extends State<ChatScreen> {
                               messageText,
                               style: const TextStyle(fontSize: 16, color: Colors.black87),
                             ),
-                            if (timestamp != null)
-                              Padding(
-                                padding: const EdgeInsets.only(top: 5),
-                                child: Text(
-                                  "${timestamp.hour}:${timestamp.minute < 10 ? '0' : ''}${timestamp.minute}",
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    color: Colors.grey.shade600,
-                                  ),
-                                ),
-                              ),
+                             if (isMe)
+                            Text(
+                              messageText,
+                              style: const TextStyle(fontSize: 16, color: Colors.black87),
+                            ),
                           ],
                         ),
                       ),
@@ -125,12 +119,6 @@ class _ChatScreenState extends State<ChatScreen> {
             padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 10.0),
             child: Row(
               children: [
-                IconButton(
-                  icon: const Icon(Icons.attach_file, color: Colors.grey),
-                  onPressed: () {
-                    // Add file attachment functionality
-                  },
-                ),
                 Expanded(
                   child: TextField(
                     controller: _messageController,

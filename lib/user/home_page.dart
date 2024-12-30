@@ -9,7 +9,7 @@ import 'package:project1/user/notification.dart';
 import 'package:project1/user/profile.dart';
 import 'package:project1/user/user_chat_screen.dart';
 import 'package:project1/user/user_hotelhomepage.dart';
-import 'package:project1/user/login_page.dart';  // Import login page
+import 'package:project1/user/login_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -20,65 +20,57 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   String searchQuery = '';
+  String sortBy = 'Name';
 
   @override
   Widget build(BuildContext context) {
-    // Get the current user info
     User? currentUser = FirebaseAuth.instance.currentUser;
 
-    // Define a default image
-    String defaultImage = "assets/default_profile_image.png"; // Corrected path to assets
-
-    // Fetch the user's name, email, and profile image URL (if available)
+    String defaultImage = "assets/default_profile_image.png";
     String userName = currentUser?.displayName ?? '';
     String userEmail = currentUser?.email ?? 'guest@example.com';
-    String userImageUrl = currentUser?.photoURL ?? defaultImage; // Use default image if null
+    String userImageUrl = currentUser?.photoURL ?? defaultImage;
 
     return Scaffold(
-      appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(120),
-        child: Container(
-          margin: const EdgeInsets.symmetric(horizontal: 20),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(30), // Rounded edges for the AppBar
-            color: Colors.transparent,
-          ),
-          child: AppBar(
-            backgroundColor: Colors.transparent,
-            elevation: 0,
-            flexibleSpace: Padding(
-              padding: const EdgeInsets.only(left: 50, right: 16, top:110), // Adjust the top padding here
-              child: Center(
-                child: TextField(
-                  onChanged: (query) {
-                    setState(() {
-                      searchQuery = query;
-                    });
-                  },
-                  decoration: InputDecoration(
-                    hintText: 'Search Hotels...',
-                    filled: true,
-                    fillColor: Colors.white,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(30),
-                      borderSide: BorderSide.none,
-                    ),
-                    prefixIcon: Icon(Icons.search, color: Colors.black), // Set the search icon color to black
-                    contentPadding: EdgeInsets.symmetric(vertical: 12), // Adjust padding
-                  ),
-                ),
-              ),
+      appBar: AppBar(
+        backgroundColor: const Color.fromARGB(255, 0, 123, 123),
+        elevation: 4,
+        toolbarHeight: 70, // Reduced height
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            ClipOval(
+            child:Image.asset('asset/download.png', height: 40,
+            width: 40,
+          fit: BoxFit.cover,),
             ),
-          ),
+             // App logo
+            const SizedBox(width: 8),
+            const Text(
+              'Aventra Luxe Connect',
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18,color: Colors.white),
+            ),
+          ],
         ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.person_3_rounded, color: Colors.white),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => ProfilePage()),
+              );
+            },
+          ),
+        ],
       ),
       drawer: Transform.translate(
-        offset: Offset(0, 50), // This shifts the drawer down by 50 pixels
+        offset: const Offset(0, 50),
         child: Drawer(
           child: Container(
             decoration: BoxDecoration(
               gradient: LinearGradient(
-                colors: [Colors.deepPurple.shade50, Colors.blueAccent.shade200],
+                colors: [Colors.deepPurple.shade50, const Color.fromARGB(124, 63, 209, 194)],
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
               ),
@@ -88,8 +80,8 @@ class _HomePageState extends State<HomePage> {
               children: [
                 DrawerHeader(
                   decoration: BoxDecoration(
-                    color: Colors.blueAccent.shade700, // Gradient color for the drawer header
-                    borderRadius: BorderRadius.only(
+                    color: const Color.fromARGB(159, 92, 205, 193),
+                    borderRadius: const BorderRadius.only(
                       bottomLeft: Radius.circular(30),
                       bottomRight: Radius.circular(30),
                     ),
@@ -116,47 +108,26 @@ class _HomePageState extends State<HomePage> {
                   ),
                 ),
                 _buildDrawerItem(Icons.person, "Profile", () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => ProfilePage()),
-                  );
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => ProfilePage()));
                 }),
                 _buildDrawerItem(Icons.search, "Search Hotel", () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => HotelDetailsPage()),
-                  );
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => HotelDetailsPage()));
                 }),
                 _buildDrawerItem(Icons.history, "Booking History", () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => BookingHistoryPage()),
-                  );
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => BookingHistoryPage()));
                 }),
                 _buildDrawerItem(Icons.favorite, "Favourites", () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => FavouritesPage()),
-                  );
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => FavouritesPage()));
                 }),
                 _buildDrawerItem(Icons.notifications, "Notifications", () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => NotificationPage()),
-                  );
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => NotificationPage()));
                 }),
                 _buildDrawerItem(Icons.feedback, "Feedback", () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => FeedbackPage()),
-                  );
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => FeedbackPage()));
                 }),
                 _buildDrawerItem(Icons.login, "Logout", () async {
                   await FirebaseAuth.instance.signOut();
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(builder: (context) => UserLoginPage()),
-                  );
+                  Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => UserLoginPage()));
                 }),
               ],
             ),
@@ -165,10 +136,44 @@ class _HomePageState extends State<HomePage> {
       ),
       body: SingleChildScrollView(
         child: Padding(
-          padding: const EdgeInsets.all(16.0),
+          padding: const EdgeInsets.symmetric(horizontal: 16.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              const SizedBox(height: 16),
+              Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(30),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey.withOpacity(0.5),
+                      spreadRadius: 2,
+                      blurRadius: 5,
+                      offset: const Offset(0, 3),
+                    ),
+                  ],
+                ),
+                child: TextField(
+                  onChanged: (query) {
+                    setState(() {
+                      searchQuery = query;
+                    });
+                  },
+                  decoration: InputDecoration(
+                    hintText: 'Search hotels...',
+                    hintStyle: TextStyle(color: Colors.grey[600]),
+                    filled: true,
+                    fillColor: Colors.white,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(30),
+                      borderSide: BorderSide.none,
+                    ),
+                    prefixIcon: const Icon(Icons.search, color: Colors.grey),
+                    contentPadding: const EdgeInsets.symmetric(vertical: 10),
+                  ),
+                ),
+              ),
               StreamBuilder<QuerySnapshot>(
                 stream: FirebaseFirestore.instance
                     .collection('hotels')
@@ -178,25 +183,22 @@ class _HomePageState extends State<HomePage> {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return const Center(child: CircularProgressIndicator());
                   }
-
                   if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
                     return const Center(child: Text('No approved hotels available.'));
                   }
-
-                  final hotels = snapshot.data!.docs;
-                  final filteredHotels = hotels.where((doc) {
+                  var hotels = snapshot.data!.docs;
+                  hotels = hotels.where((doc) {
                     final hotelData = doc.data() as Map<String, dynamic>;
-                    final hotelName = hotelData['location'] ?? '';
+                    final hotelName = hotelData['hotelName'] ?? '';
                     return hotelName.toLowerCase().contains(searchQuery.toLowerCase());
                   }).toList();
-
                   return Column(
-                    children: filteredHotels.map((doc) {
+                    children: hotels.map((doc) {
                       final hotelData = doc.data() as Map<String, dynamic>;
                       final hotelName = hotelData['hotelName'] ?? 'No name';
                       final description = hotelData['facilities'] ?? 'No description';
                       final imageUrl = hotelData['imageUrl'] ?? '';
-                      final rating = hotelData['rating'] ?? ''; // Removed '5 Stars' default text
+                      final rating = hotelData['rating'] ?? '';
                       final hotelId = doc.id;
 
                       return _buildHotelCard(
@@ -218,6 +220,8 @@ class _HomePageState extends State<HomePage> {
       ),
     );
   }
+
+
 
   Widget _buildDrawerItem(IconData icon, String title, VoidCallback onTap) {
     return ListTile(
@@ -326,7 +330,6 @@ class _HomePageState extends State<HomePage> {
                           ],
                         ),
                         const SizedBox(height: 4),
-                        // Removed the "5 Stars" label and now it's just the rating
                         if (hotelRating.isNotEmpty)
                           Text(
                             hotelRating,
