@@ -187,14 +187,12 @@ class ChatScreenPage extends StatelessWidget {
   Future<String> fetchSenderName(String senderId) async {
     try {
       DocumentSnapshot userDoc = await FirebaseFirestore.instance
-          .collection(
-              'user') // Assuming the user information is in the 'users' collection
+          .collection('user') // Assuming the user information is in the 'users' collection
           .doc(senderId)
           .get();
 
       if (userDoc.exists) {
-        return userDoc['name'] ??
-            'Unknown'; // Retrieve the name or 'Unknown' if not found
+        return userDoc['name'] ?? 'Unknown'; // Retrieve the name or 'Unknown' if not found
       }
     } catch (e) {
       debugPrint('Error fetching sender name: $e');
@@ -227,10 +225,8 @@ class ChatScreenPage extends StatelessWidget {
       body: StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance
             .collection('chats')
-            .where('receiverId',
-                isEqualTo: currentUserId) // Filter by receiverId
-            .orderBy('timestamp',
-                descending: true) // Order by timestamp for latest chats first
+            .where('receiverId', isEqualTo: currentUserId)
+            .orderBy('timestamp', descending: true)
             .snapshots(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
@@ -238,42 +234,39 @@ class ChatScreenPage extends StatelessWidget {
           }
 
           if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-            return const Center(child: Text('No chats available.'));
+            return const Center(
+              child: Text(
+                'No chats available.',
+                style: TextStyle(fontSize: 16),
+              ),
+            );
           }
 
           final chats = snapshot.data!.docs;
 
           // Group chats by senderId
-          final Map<String, List<Map<String, dynamic>>> groupedChats = {};
+          final Map<String, List<QueryDocumentSnapshot>> groupedChats = {};
 
           for (var chat in chats) {
             final senderId = chat['senderId'];
-            if (!groupedChats.containsKey(senderId)) {
-              groupedChats[senderId] = [];
-            }
-            // Correct data retrieval
-            groupedChats[senderId]!.add(chat.data() as Map<String, dynamic>);
+            groupedChats.putIfAbsent(senderId, () => []).add(chat);
           }
 
-          // Display a list tile for each sender
           return ListView.builder(
             itemCount: groupedChats.keys.length,
             itemBuilder: (context, index) {
               final senderId = groupedChats.keys.elementAt(index);
               final senderChats = groupedChats[senderId]!;
-              final latestChat =
-                  senderChats.first; // Get the latest chat from this sender
-
+              final latestChat = senderChats.first; // Latest chat message
               final message = latestChat['message'];
 
-              // Fetch the sender's name using the fetchSenderName function
               return FutureBuilder<String>(
                 future: fetchSenderName(senderId),
                 builder: (context, nameSnapshot) {
                   if (nameSnapshot.connectionState == ConnectionState.waiting) {
                     return const ListTile(
                       title: Text('Loading...'),
-                      subtitle: Text('Fetching sender details'),
+                      subtitle: Text('Fetching sender details...'),
                     );
                   }
 
@@ -287,16 +280,26 @@ class ChatScreenPage extends StatelessWidget {
                   final senderName = nameSnapshot.data!;
 
                   return ListTile(
-                    title: Text(senderName), // Display sender's name
-                    subtitle: Text(message), // Display the latest chat message
-                    leading: const Icon(Icons.account_circle, size: 40),
-                    trailing: const Icon(Icons.chat_bubble_outline),
+                    title: Text(
+                      senderName,
+                      style: const TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    subtitle: Text(
+                      message,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(color: Colors.grey[600]),
+                    ),
+                    leading: CircleAvatar(
+                      backgroundColor: Colors.grey[300],
+                      child: const Icon(Icons.account_circle, color: Colors.white, size: 30),
+                    ),
+                    trailing: const Icon(Icons.chat_bubble_outline, color: Colors.grey),
                     onTap: () {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) =>
-                              ChatScreen(senderId: senderId),
+                          builder: (context) => ChatScreen(senderId: senderId),
                         ),
                       );
                     },
