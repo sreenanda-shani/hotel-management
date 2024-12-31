@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 
-Future<void> makePredictionRequest({
+Future<String> makePredictionRequest({
   required int onsiterate,
   required int discount,
   required int maxoccupancy,
@@ -10,7 +10,7 @@ Future<void> makePredictionRequest({
   required int refrigerator,
   required int wifi,
 }) async {
-  const String apiUrl = 'https://4da4-2409-4073-10f-23c9-9bfd-990e-3630-ce6a.ngrok-free.app/predict'; // Replace with your Flask API URL
+  const String apiUrl = 'https://60fc-2409-4073-10f-23c9-b0f0-c017-3269-fa6b.ngrok-free.app/predict'; // Replace with your Flask API URL
 
   // Input data
   Map<String, dynamic> inputData = {
@@ -37,11 +37,16 @@ Future<void> makePredictionRequest({
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
       print('Predictions: ${data['predictions']}');
+      return data['predictions'].first;
     } else {
       print('Failed to get predictions. Status Code: ${response.statusCode}');
       print('Error: ${response.body}');
+
+      throw Exception(response.body);
     }
   } catch (e) {
+
+    rethrow;
     print('An error occurred: $e');
   }
 }

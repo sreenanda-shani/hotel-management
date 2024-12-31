@@ -17,6 +17,17 @@ class _ManageRoomDetailsPageState extends State<ManageRoomDetailsPage> {
   final TextEditingController _rentController = TextEditingController();
   final TextEditingController _maxPeopleController = TextEditingController();
 
+
+  String _selectedRoomType = 'Standard Room';
+
+// List of room types
+final List<String> _roomTypes = [
+  'Double Room', 'Twin Room', 'Single Room', 'Triple Room', 'Family Room', 
+  'Suite', 'Standard Room', 'Superior Room', 'Quadruple Room', 'Deluxe Room', 
+  'Vacation Home', 'Apartment', 'King Room', 'Guest Room', 'Studio', 
+  'House', 'Queen Room', 'Premium Room'
+];
+
   String _acType = 'AC';
   String _bedType = 'Single';
   bool _wifiAvailable = false;
@@ -107,6 +118,10 @@ class _ManageRoomDetailsPageState extends State<ManageRoomDetailsPage> {
   // Function to update room details
   Future<void> _updateRoomDetails() async {
     try {
+
+      setState(() {
+        _isLoading = true;
+      });
       // Upload image to Cloudinary if selected
       String? imageUrl;
       if (_selectedImage != null) {
@@ -125,6 +140,7 @@ class _ManageRoomDetailsPageState extends State<ManageRoomDetailsPage> {
         'balconyAvailable': _balconyAvailable,
         'imageUrl': imageUrl,  // Save the image URL
         'isAvailable': _isAvailable,
+        'roomType' : _selectedRoomType
       });
 
       if (mounted) {
@@ -132,10 +148,18 @@ class _ManageRoomDetailsPageState extends State<ManageRoomDetailsPage> {
             .showSnackBar(const SnackBar(content: Text('Room details updated successfully!')));
       }
     } catch (e) {
+
+       
       if (mounted) {
         ScaffoldMessenger.of(context)
             .showSnackBar(const SnackBar(content: Text('Error updating room details')));
       }
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+
+
     }
   }
 
@@ -245,21 +269,31 @@ class _ManageRoomDetailsPageState extends State<ManageRoomDetailsPage> {
                       ],
                     ),
                   ),
-                  _buildCard(
-                    child: Row(
-                      children: [
-                        const Text("Room Available", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                        _buildCustomCheckbox(
-                          value: _isAvailable,
-                          onChanged: (value) {
-                            setState(() {
-                              _isAvailable = value!;
-                            });
-                          },
-                        ),
-                      ],
-                    ),
+
+                   _buildCard(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text("Room Type", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                      DropdownButton<String>(
+                        value: _selectedRoomType,
+                        isExpanded: true,
+                        onChanged: (String? newValue) {
+                          setState(() {
+                            _selectedRoomType = newValue!;
+                          });
+                        },
+                        items: _roomTypes.map<DropdownMenuItem<String>>((String value) {
+                          return DropdownMenuItem<String>(
+                            value: value,
+                            child: Text(value),
+                          );
+                        }).toList(),
+                      ),
+                    ],
                   ),
+                ),
+                  
                   _buildCard(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
