@@ -18,7 +18,7 @@ class _ManageRoomDetailsPageState extends State<ManageRoomDetailsPage> {
   final TextEditingController _maxPeopleController = TextEditingController();
 
   String _acType = 'AC';
-  String _bedType = 'Single';
+  String _bedType = 'Single Bed';
   bool _wifiAvailable = false;
   bool _balconyAvailable = false;
   bool _isAvailable = true; // Added to store room availability status
@@ -32,6 +32,9 @@ class _ManageRoomDetailsPageState extends State<ManageRoomDetailsPage> {
     apiSecret: 'RHEoFrFCQw48apLQaSIV1vcAfcU',
     cloudName: 'dsjp0qqgo',
   );
+
+  // List of bed types
+  final List<String> _bedTypes = ['Single Bed', 'Double Bed', 'Suite', 'Standard', 'King', 'Queen'];
 
   // Function to upload image to Cloudinary
   Future<String?> _uploadImageToCloudinary(File imageFile) async {
@@ -74,7 +77,7 @@ class _ManageRoomDetailsPageState extends State<ManageRoomDetailsPage> {
               _rentController.text = data['rent'].toString() ?? '';
               _maxPeopleController.text = data['maxPeople'].toString() ?? ''; // Load max people field
               _acType = data['acType'] ?? 'AC';
-              _bedType = data['bedType'] ?? 'Single';
+              _bedType = data['bedType'] ?? 'Single Bed';
               _wifiAvailable = data['wifiAvailable'] ?? false;
               _balconyAvailable = data['balconyAvailable'] ?? false;
               _isAvailable = data['isAvailable'] ?? true;
@@ -123,7 +126,7 @@ class _ManageRoomDetailsPageState extends State<ManageRoomDetailsPage> {
         'bedType': _bedType,
         'wifiAvailable': _wifiAvailable,
         'balconyAvailable': _balconyAvailable,
-        'imageUrl': imageUrl,  // Save the image URL
+        'imageUrl': imageUrl, // Save the image URL
         'isAvailable': _isAvailable,
       });
 
@@ -151,6 +154,53 @@ class _ManageRoomDetailsPageState extends State<ManageRoomDetailsPage> {
     }
   }
 
+  Widget _buildCard({required Widget child}) {
+    return Card(
+      elevation: 10,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      margin: const EdgeInsets.symmetric(vertical: 12),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: child,
+      ),
+    );
+  }
+
+  Widget _buildTextField(String label, TextEditingController controller) {
+    return TextField(
+      controller: controller,
+      decoration: InputDecoration(
+        labelText: label,
+        filled: true,
+        fillColor: Colors.transparent,
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+      ),
+      keyboardType: TextInputType.number,
+    );
+  }
+
+  Widget _buildRadioTile(String value, String groupValue, Function(String?) onChanged) {
+    return Row(
+      children: [
+        Radio<String>(
+          value: value,
+          groupValue: groupValue,
+          onChanged: onChanged,
+        ),
+        Text(value),
+      ],
+    );
+  }
+
+  Widget _buildCustomCheckbox({required bool value, required void Function(bool?) onChanged}) {
+    return Checkbox(
+      value: value,
+      onChanged: onChanged,
+      checkColor: Colors.white,
+      activeColor: Colors.transparent,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     if (_isLoading) {
@@ -164,13 +214,13 @@ class _ManageRoomDetailsPageState extends State<ManageRoomDetailsPage> {
     }
 
     return Scaffold(
-      backgroundColor: Colors.transparent, // Set the background color to transparent
+      backgroundColor: Colors.transparent,
       appBar: AppBar(
-        backgroundColor: Colors.white, // Set the full AppBar background to white
-        foregroundColor: Colors.black, // Set the text color in AppBar to black
+        backgroundColor: Colors.white,
+        foregroundColor: Colors.black,
         title: const Text(
           "Manage Room Details",
-          style: TextStyle(color: Colors.black), // Set text color to black for contrast
+          style: TextStyle(color: Colors.black),
         ),
       ),
       floatingActionButton: FloatingActionButton(
@@ -182,14 +232,14 @@ class _ManageRoomDetailsPageState extends State<ManageRoomDetailsPage> {
         children: [
           Positioned.fill(
             child: Image.asset(
-              'asset/img4.webp', // Your background image here
+              'asset/img4.webp',
               fit: BoxFit.cover,
             ),
           ),
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: Container(
-              color: Colors.transparent, // Make container transparent
+              color: Colors.transparent,
               child: ListView(
                 children: [
                   _buildCard(child: _buildTextField("Room Number", _roomNumberController)),
@@ -200,8 +250,16 @@ class _ManageRoomDetailsPageState extends State<ManageRoomDetailsPage> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         const Text("AC Type", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                        _buildRadioTile('AC'),
-                        _buildRadioTile('Non-AC'),
+                        _buildRadioTile('AC', _acType, (newValue) {
+                          setState(() {
+                            _acType = newValue!;
+                          });
+                        }),
+                        _buildRadioTile('Non-AC', _acType, (newValue) {
+                          setState(() {
+                            _acType = newValue!;
+                          });
+                        }),
                       ],
                     ),
                   ),
@@ -210,8 +268,11 @@ class _ManageRoomDetailsPageState extends State<ManageRoomDetailsPage> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         const Text("Bed Type", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                        _buildRadioTile('Single Bed'),
-                        _buildRadioTile('Double Bed'),
+                        ..._bedTypes.map((bedType) => _buildRadioTile(bedType, _bedType, (newValue) {
+                              setState(() {
+                                _bedType = newValue!;
+                              });
+                            })),
                       ],
                     ),
                   ),
@@ -288,57 +349,6 @@ class _ManageRoomDetailsPageState extends State<ManageRoomDetailsPage> {
           ),
         ],
       ),
-    );
-  }
-
-  Widget _buildCard({required Widget child}) {
-    return Card(
-      elevation: 10,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      margin: const EdgeInsets.symmetric(vertical: 12),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: child,
-      ),
-    );
-  }
-
-  Widget _buildTextField(String label, TextEditingController controller) {
-    return TextField(
-      controller: controller,
-      decoration: InputDecoration(
-        labelText: label,
-        filled: true,
-        fillColor: Colors.transparent, // Make the text field transparent
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-      ),
-      keyboardType: TextInputType.number,
-    );
-  }
-
-  Widget _buildRadioTile(String value) {
-    return Row(
-      children: [
-        Radio<String>(
-          value: value,
-          groupValue: value == 'AC' ? _acType : _bedType,
-          onChanged: (newValue) {
-            setState(() {
-              value == 'AC' ? _acType = newValue! : _bedType = newValue!;
-            });
-          },
-        ),
-        Text(value),
-      ],
-    );
-  }
-
-  Widget _buildCustomCheckbox({required bool value, required void Function(bool?) onChanged}) {
-    return Checkbox(
-      value: value,
-      onChanged: onChanged,
-      checkColor: Colors.white, // White check color for better contrast
-      activeColor: Colors.transparent, // Make checkbox transparent
     );
   }
 }
