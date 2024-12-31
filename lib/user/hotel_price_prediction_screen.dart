@@ -1,3 +1,5 @@
+import 'dart:ffi';
+
 import 'package:flutter/material.dart';
 import 'package:project1/user/ai_user_screen.dart';
 import 'package:webview_flutter/webview_flutter.dart';
@@ -81,34 +83,14 @@ class _AiChatScreenState extends State<AiChatScreen> {
     return Scaffold(
       body: Column(
         children: [
-          SizedBox(height: 60,),
-          Padding(
-            padding: const EdgeInsets.all(20),
-            child: SizedBox(
-              height: 60,
-              child: ElevatedButton(
-                
-                
-                style: ElevatedButton.styleFrom(
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10)
-                  ),
-                  backgroundColor: Colors.blue
-                ),
-                
-                onPressed: () {
-              
-                Navigator.push(context, MaterialPageRoute(builder: (context) => RoomFeaturesScreen(),));
-              
-              
-                
-              }, child: Text('AI room recommandation')),
-            ),
-          )
-          ,Expanded(
-            child: WebViewWidget(controller: _controller),
+          ElevatedButton(onPressed: () {
 
-          )
+            Navigator.push(context, MaterialPageRoute(builder: (context) => PredictionScreen(),));
+
+
+            
+          }, child: Text('Explore with ai'))
+
         ],
       ),
     );
