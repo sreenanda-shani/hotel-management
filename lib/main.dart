@@ -19,5 +19,6 @@ Future<void> main() async {
     debugShowCheckedModeBanner: false,
     home: ChooseScreen()
   ));
+  debugPrint("hai");
 }
 

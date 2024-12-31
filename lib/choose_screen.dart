@@ -63,11 +63,7 @@ class ChooseScreen extends StatelessWidget {
                   title: 'Hotel',
                   icon: Icons.hotel,
                   onTap: () {
-                    print('Hotel selected');
-
-                                        Navigator.push(context, MaterialPageRoute(builder: (context) => HotelLoginPage(),));
-
-                    
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => HotelLoginPage(),));
                   },
                 ),
                 const SizedBox(height: 20),
@@ -78,20 +74,37 @@ class ChooseScreen extends StatelessWidget {
                     Navigator.push(context, MaterialPageRoute(builder: (context) => const UserLoginPage(),));
                   },
                 ),
-                const SizedBox(height: 20),
-                RoleCard(
-                  title: 'Admin',
-                  icon: Icons.admin_panel_settings,
-                  onTap: () {
-
-                    
-
-                                        Navigator.push(context, MaterialPageRoute(builder: (context) => const AdminLoginPage(),));
-
-                    print('Admin selected');
-                  },
-                ),
               ],
+            ),
+          ),
+          // Admin Text with Icon at the bottom center
+          Positioned(
+            bottom: 20,
+            left: MediaQuery.of(context).size.width * 0.5 - 50, // Adjusted position
+            child: GestureDetector(
+              onTap: () {
+                Navigator.push(context, MaterialPageRoute(builder: (context) => const AdminLoginPage(),));
+              },
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const SizedBox(width: 25),
+                  Icon(
+                    Icons.admin_panel_settings,
+                    color: const Color.fromARGB(186, 167, 162, 162),
+                    size: 13, // Smaller icon size
+                  ),
+                  const SizedBox(width: 2),
+                  const Text(
+                    'Admin',
+                    style: TextStyle(
+                      color: Color.fromARGB(165, 132, 132, 132),
+                      fontSize: 10, // Much smaller text size
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ],

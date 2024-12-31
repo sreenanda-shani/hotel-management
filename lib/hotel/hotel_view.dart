@@ -38,8 +38,9 @@ class _ViewRoomPageState extends State<ViewRoomPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text("View Room Details"),
-        backgroundColor: Colors.teal,
+        backgroundColor: Colors.white,
         elevation: 0,
+        iconTheme: const IconThemeData(color: Colors.black), // Change back arrow to black
       ),
       body: StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance
@@ -74,21 +75,33 @@ class _ViewRoomPageState extends State<ViewRoomPage> {
                   for (var room in roomsData)
                     Card(
                       elevation: 10,
-                      shadowColor: Colors.black.withOpacity(0.2),
+                      shadowColor: Colors.black.withOpacity(0.1),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                      color: Colors.teal.shade50,
                       margin: const EdgeInsets.symmetric(vertical: 10),
+                      color: Colors.transparent, // Set the background to transparent
                       child: Padding(
                         padding: const EdgeInsets.all(16.0),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
+                            // Image display
+                            room['imageUrl'] != null
+                                ? Image.network(room['imageUrl'], width: double.infinity, height: 200, fit: BoxFit.cover)
+                                : Container(
+                                    width: double.infinity,
+                                    height: 200,
+                                    color: Colors.grey.shade300,
+                                    child: const Icon(Icons.image, color: Colors.white),
+                                  ),
+
+                            const SizedBox(height: 8),
+
                             Text(
                               "Room Number: ${room['roomNumber']}",
                               style: TextStyle(
                                 fontSize: 24,
                                 fontWeight: FontWeight.bold,
-                                color: Colors.teal[800],
+                                color: Colors.black, // Set text color to black
                               ),
                             ),
                             const SizedBox(height: 8),
@@ -97,7 +110,15 @@ class _ViewRoomPageState extends State<ViewRoomPage> {
                               style: TextStyle(
                                 fontSize: 20,
                                 fontWeight: FontWeight.w500,
-                                color: Colors.teal[700],
+                                color: Colors.black, // Set text color to black
+                              ),
+                            ),
+                            Text(
+                              "Max People: ${room['maxPeople']}",
+                              style: TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.w500,
+                                color: Colors.black, // Set text color to black
                               ),
                             ),
                             const SizedBox(height: 8),
@@ -106,7 +127,7 @@ class _ViewRoomPageState extends State<ViewRoomPage> {
                               style: TextStyle(
                                 fontSize: 20,
                                 fontWeight: FontWeight.w500,
-                                color: Colors.teal[700],
+                                color: Colors.black, // Set text color to black
                               ),
                             ),
                             const SizedBox(height: 8),
@@ -115,7 +136,7 @@ class _ViewRoomPageState extends State<ViewRoomPage> {
                               style: TextStyle(
                                 fontSize: 20,
                                 fontWeight: FontWeight.w500,
-                                color: Colors.teal[700],
+                                color: Colors.black, // Set text color to black
                               ),
                             ),
                             const SizedBox(height: 8),
@@ -124,7 +145,7 @@ class _ViewRoomPageState extends State<ViewRoomPage> {
                               style: TextStyle(
                                 fontSize: 20,
                                 fontWeight: FontWeight.w500,
-                                color: Colors.teal[700],
+                                color: Colors.black, // Set text color to black
                               ),
                             ),
                             const SizedBox(height: 8),
@@ -133,7 +154,7 @@ class _ViewRoomPageState extends State<ViewRoomPage> {
                               style: TextStyle(
                                 fontSize: 20,
                                 fontWeight: FontWeight.w500,
-                                color: Colors.teal[700],
+                                color: Colors.black, // Set text color to black
                               ),
                             ),
                             const SizedBox(height: 20),
@@ -142,20 +163,20 @@ class _ViewRoomPageState extends State<ViewRoomPage> {
                               children: [
                                 ElevatedButton.icon(
                                   onPressed: () => _navigateToUpdatePage(room),
-                                  icon: const Icon(Icons.edit, color: Colors.white),
-                                  label: const Text("Update", style: TextStyle(color: Colors.white)),
+                                  icon: const Icon(Icons.edit, color: Colors.black), // Change icon color to black
+                                  label: const Text("Update", style: TextStyle(color: Colors.black)), // Change text color to black
                                   style: ElevatedButton.styleFrom(
-                                    backgroundColor: Colors.teal,
+                                    backgroundColor: Colors.white, // Set button color to white
                                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
                                   ),
                                 ),
                                 ElevatedButton.icon(
                                   onPressed: () => _removeRoom(room['id']),
-                                  icon: const Icon(Icons.delete, color: Colors.white),
-                                  label: const Text("Remove", style: TextStyle(color: Colors.white)),
+                                  icon: const Icon(Icons.delete, color: Colors.black), // Change icon color to black
+                                  label: const Text("Remove", style: TextStyle(color: Colors.black)), // Change text color to black
                                   style: ElevatedButton.styleFrom(
-                                    backgroundColor: Colors.red,
+                                    backgroundColor: Colors.white, // Set button color to white
                                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
                                   ),
@@ -188,6 +209,8 @@ class UpdateRoomPage extends StatefulWidget {
 class _UpdateRoomPageState extends State<UpdateRoomPage> {
   late TextEditingController _roomNumberController;
   late TextEditingController _rentController;
+  late TextEditingController _maxPeopleController;
+
   String _acType = 'AC';
   String _bedType = 'Double Bed';
   bool _wifiAvailable = true;
@@ -199,6 +222,7 @@ class _UpdateRoomPageState extends State<UpdateRoomPage> {
     super.initState();
     _roomNumberController = TextEditingController(text: widget.roomData['roomNumber'].toString());
     _rentController = TextEditingController(text: widget.roomData['rent'].toString());
+    _maxPeopleController = TextEditingController(text: widget.roomData['maxPeople'].toString()); // Correct controller for maxPeople
     _acType = widget.roomData['acType'];
     _bedType = widget.roomData['bedType'];
     _wifiAvailable = widget.roomData['wifiAvailable'];
@@ -211,6 +235,7 @@ class _UpdateRoomPageState extends State<UpdateRoomPage> {
       await FirebaseFirestore.instance.collection('rooms').doc(widget.roomData['id']).update({
         'roomNumber': int.tryParse(_roomNumberController.text) ?? 0,
         'rent': double.tryParse(_rentController.text) ?? 0.0,
+        'maxPeople' :  int.tryParse(_maxPeopleController.text) ?? 0,
         'acType': _acType,
         'bedType': _bedType,
         'wifiAvailable': _wifiAvailable,
@@ -230,7 +255,9 @@ class _UpdateRoomPageState extends State<UpdateRoomPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Update Room Details"),
-        backgroundColor: Colors.teal,
+        backgroundColor: Colors.white,
+        iconTheme: const IconThemeData(color: Colors.black), // Change back arrow to black
+        elevation: 0,
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -241,7 +268,7 @@ class _UpdateRoomPageState extends State<UpdateRoomPage> {
               Card(
                 elevation: 5,
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-                color: Colors.teal.shade50,
+                color: Colors.transparent, // Set to transparent
                 child: Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: Row(
@@ -266,7 +293,7 @@ class _UpdateRoomPageState extends State<UpdateRoomPage> {
               Card(
                 elevation: 5,
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-                color: Colors.teal.shade50,
+                color: Colors.transparent, // Set to transparent
                 child: Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: Row(
@@ -287,11 +314,36 @@ class _UpdateRoomPageState extends State<UpdateRoomPage> {
 
               const SizedBox(height: 20),
 
+              // Max People Field
+              Card(
+                elevation: 5,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+                color: Colors.transparent, // Set to transparent
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.people, color: Colors.teal),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: TextField(
+                          controller: _maxPeopleController,  // Correct controller
+                          decoration: const InputDecoration(labelText: 'Max People'),
+                          keyboardType: TextInputType.number,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 20),
+
               // AC Type Field
               Card(
                 elevation: 5,
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-                color: Colors.teal.shade50,
+                color: Colors.transparent, // Set to transparent
                 child: Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: Row(
@@ -325,7 +377,7 @@ class _UpdateRoomPageState extends State<UpdateRoomPage> {
               Card(
                 elevation: 5,
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-                color: Colors.teal.shade50,
+                color: Colors.transparent, // Set to transparent
                 child: Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: Row(
@@ -359,7 +411,7 @@ class _UpdateRoomPageState extends State<UpdateRoomPage> {
               Card(
                 elevation: 5,
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-                color: Colors.teal.shade50,
+                color: Colors.transparent, // Set to transparent
                 child: Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: Row(
@@ -388,7 +440,7 @@ class _UpdateRoomPageState extends State<UpdateRoomPage> {
               Card(
                 elevation: 5,
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-                color: Colors.teal.shade50,
+                color: Colors.transparent, // Set to transparent
                 child: Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: Row(
@@ -411,42 +463,17 @@ class _UpdateRoomPageState extends State<UpdateRoomPage> {
                 ),
               ),
 
-              const SizedBox(height: 20),
+              const SizedBox(height: 30),
 
-              // Room Availability Switch
-              Card(
-                elevation: 5,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-                color: Colors.teal.shade50,
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Row(
-                    children: [
-                      const Icon(Icons.check_circle, color: Colors.teal),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: SwitchListTile(
-                          title: const Text('Room Available'),
-                          value: _isAvailable,
-                          onChanged: (value) {
-                            setState(() {
-                              _isAvailable = value;
-                            });
-                          },
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-
-              const SizedBox(height: 20),
-
-              // Save Changes Button
+              // Update Room Button
               ElevatedButton(
                 onPressed: _updateRoomDetails,
-                child: const Text("Save Changes", style: TextStyle(color: Colors.white)),
-                style: ElevatedButton.styleFrom(backgroundColor: Colors.teal),
+                child: const Text('Update Room Details'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.white,  // Set background to white
+                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+                ),
               ),
             ],
           ),

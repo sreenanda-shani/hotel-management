@@ -2,14 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-class ForgotPasswordPage extends StatefulWidget {
-  const ForgotPasswordPage({super.key});
+class HotelForgotPasswordPage extends StatefulWidget {
+  const HotelForgotPasswordPage({super.key});
 
   @override
-  State<ForgotPasswordPage> createState() => _ForgotPasswordPageState();
+  State<HotelForgotPasswordPage> createState() => _HotelForgotPasswordPageState();
 }
 
-class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
+class _HotelForgotPasswordPageState extends State<HotelForgotPasswordPage> {
   final TextEditingController emailController = TextEditingController();
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
   final FirebaseFirestore firestore = FirebaseFirestore.instance;
@@ -26,14 +26,14 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
     }
 
     try {
-      // Check if the user exists in the Firestore
-      final userQuery = await firestore
-          .collection('user') // Replace with the correct collection name
-          .where('email', isEqualTo: email)
+      // Check if the hotel exists in the Firestore
+      final hotelQuery = await firestore
+          .collection('hotels') // Use the correct collection name
+          .where('contactEmail', isEqualTo: email) // Query the `contactEmail` field
           .get();
 
-      if (userQuery.docs.isNotEmpty) {
-        // User exists; send a password reset email
+      if (hotelQuery.docs.isNotEmpty) {
+        // Hotel exists; send a password reset email
         await _firebaseAuth.sendPasswordResetEmail(email: email);
 
         if (mounted) {
@@ -44,9 +44,9 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
           Navigator.of(context).pop();
         }
       } else {
-        // User does not exist
+        // Hotel does not exist
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-          content: Text('User not found. Please try again.'),
+          content: Text('Hotel not found. Please try again.'),
           backgroundColor: Colors.red,
         ));
       }
@@ -63,13 +63,14 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Forgot Password"),
+        backgroundColor: Colors.black, // Set the app bar background color
       ),
       body: Stack(
         children: [
           // Background Image
           Positioned.fill(
             child: Image.asset(
-              'asset/img4.webp', // Replace with your image path
+              'asset/img4.webp', // Replace with your background image path
               fit: BoxFit.cover,
             ),
           ),
@@ -98,21 +99,21 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                       width: 300,
                       child: TextField(
                         controller: emailController,
-                        style: const TextStyle(color: Colors.white),
+                        style: const TextStyle(color: Colors.black), // Set text color to black
                         decoration: InputDecoration(
                           labelText: 'Email',
-                          labelStyle: const TextStyle(color: Colors.white),
+                          labelStyle: const TextStyle(color: Colors.black),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(50),
                           ),
                           filled: true,
-                          fillColor: Colors.black.withOpacity(0.3),
+                          fillColor: Colors.white.withOpacity(0.9), // Light background for text field
                           focusedBorder: OutlineInputBorder(
                             borderSide: const BorderSide(color: Colors.green, width: 2.0),
                             borderRadius: BorderRadius.circular(50),
                           ),
                           enabledBorder: OutlineInputBorder(
-                            borderSide: const BorderSide(color: Colors.white),
+                            borderSide: const BorderSide(color: Colors.black),
                             borderRadius: BorderRadius.circular(50),
                           ),
                         ),
@@ -123,7 +124,16 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                     // Forgot Password Button
                     ElevatedButton(
                       onPressed: sendPasswordResetEmail,
-                      child: const Text('Forgot Password'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.black, // Set button background color
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                      ),
+                      child: const Text(
+                        'Forgot Password',
+                        style: TextStyle(color: Colors.white), // Set button text color to white
+                      ),
                     ),
                   ],
                 ),

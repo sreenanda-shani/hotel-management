@@ -11,7 +11,6 @@ class EditProfilePage extends StatefulWidget {
 
 class _EditProfilePageState extends State<EditProfilePage> {
   final TextEditingController _nameController = TextEditingController();
-  final TextEditingController _emailController = TextEditingController();
   final TextEditingController _addressController = TextEditingController();
   final TextEditingController _phoneController = TextEditingController();
   String _selectedGender = 'Male'; // Default gender
@@ -60,7 +59,6 @@ class _EditProfilePageState extends State<EditProfilePage> {
         // Set the text fields with fetched data
         setState(() {
           _nameController.text = data['name'] ?? '';
-          _emailController.text = data['email'] ?? '';
           _addressController.text = data['address'] ?? '';
           _phoneController.text = data['phone'] ?? '';
           _selectedGender = data['gender'] ?? 'Male';
@@ -82,7 +80,6 @@ class _EditProfilePageState extends State<EditProfilePage> {
     try {
       await _userCollection.doc(uid).update({
         'name': _nameController.text,
-        'email': _emailController.text,
         'address': _addressController.text,
         'phone': _phoneController.text,
         'gender': _selectedGender,
@@ -126,17 +123,6 @@ class _EditProfilePageState extends State<EditProfilePage> {
                 prefixIcon: Icon(Icons.person),
                 border: OutlineInputBorder(),
               ),
-            ),
-            const SizedBox(height: 16),
-            // Email Field
-            TextFormField(
-              controller: _emailController,
-              decoration: const InputDecoration(
-                labelText: 'Email',
-                prefixIcon: Icon(Icons.email),
-                border: OutlineInputBorder(),
-              ),
-              keyboardType: TextInputType.emailAddress,
             ),
             const SizedBox(height: 16),
             // Address Field
@@ -209,7 +195,6 @@ class _EditProfilePageState extends State<EditProfilePage> {
   void dispose() {
     // Dispose controllers when the page is destroyed
     _nameController.dispose();
-    _emailController.dispose();
     _addressController.dispose();
     _phoneController.dispose();
     super.dispose();
