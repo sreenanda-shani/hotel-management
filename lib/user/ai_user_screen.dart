@@ -8,10 +8,24 @@ class RoomFeaturesScreen extends StatefulWidget {
 class _RoomFeaturesScreenState extends State<RoomFeaturesScreen> {
   // Variables to hold selected values
   int? selectedMaxPeople;
-  bool? selectedWiFi;
-  bool? selectedRefrigerator;
+  int? selectedWiFi;
+  int? selectedRefrigerator;
   int? selectedDiscount;
-  bool? selectedAC;
+  int? selectedAC;
+  String? selectedRoomType;
+
+  final List<String> roomTypes = [
+    'Double Room',
+    'Twin Room',
+    'Single Room',
+    'Standard Double Room',
+    'Triple Room',
+    'Superior Double Room',
+    'Family Room',
+    'Junior Suite',
+    'Standard Twin Room',
+    'Double or Twin Room',
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -37,6 +51,25 @@ class _RoomFeaturesScreenState extends State<RoomFeaturesScreen> {
                 child: ListView(
                   children: [
                     _buildFeatureCard(
+                      title: "Room Type",
+                      child: DropdownButton<String>(
+                        value: selectedRoomType,
+                        isExpanded: true,
+                        hint: const Text("Select room type"),
+                        items: roomTypes.map((type) {
+                          return DropdownMenuItem<String>(
+                            value: type,
+                            child: Text(type),
+                          );
+                        }).toList(),
+                        onChanged: (value) {
+                          setState(() {
+                            selectedRoomType = value;
+                          });
+                        },
+                      ),
+                    ),
+                    _buildFeatureCard(
                       title: "Max People",
                       child: DropdownButton<int>(
                         value: selectedMaxPeople,
@@ -57,17 +90,17 @@ class _RoomFeaturesScreenState extends State<RoomFeaturesScreen> {
                     ),
                     _buildFeatureCard(
                       title: "WiFi Available",
-                      child: DropdownButton<bool>(
+                      child: DropdownButton<int>(
                         value: selectedWiFi,
                         isExpanded: true,
                         hint: const Text("Select WiFi availability"),
                         items: const [
-                          DropdownMenuItem<bool>(
-                            value: true,
+                          DropdownMenuItem<int>(
+                            value: 1,
                             child: Text("Yes"),
                           ),
-                          DropdownMenuItem<bool>(
-                            value: false,
+                          DropdownMenuItem<int>(
+                            value: 0,
                             child: Text("No"),
                           ),
                         ],
@@ -80,17 +113,17 @@ class _RoomFeaturesScreenState extends State<RoomFeaturesScreen> {
                     ),
                     _buildFeatureCard(
                       title: "Refrigerator Available",
-                      child: DropdownButton<bool>(
+                      child: DropdownButton<int>(
                         value: selectedRefrigerator,
                         isExpanded: true,
                         hint: const Text("Select refrigerator availability"),
                         items: const [
-                          DropdownMenuItem<bool>(
-                            value: true,
+                          DropdownMenuItem<int>(
+                            value: 1,
                             child: Text("Yes"),
                           ),
-                          DropdownMenuItem<bool>(
-                            value: false,
+                          DropdownMenuItem<int>(
+                            value: 0,
                             child: Text("No"),
                           ),
                         ],
@@ -122,17 +155,17 @@ class _RoomFeaturesScreenState extends State<RoomFeaturesScreen> {
                     ),
                     _buildFeatureCard(
                       title: "AC Available",
-                      child: DropdownButton<bool>(
+                      child: DropdownButton<int>(
                         value: selectedAC,
                         isExpanded: true,
                         hint: const Text("Select AC availability"),
                         items: const [
-                          DropdownMenuItem<bool>(
-                            value: true,
+                          DropdownMenuItem<int>(
+                            value: 1,
                             child: Text("Yes"),
                           ),
-                          DropdownMenuItem<bool>(
-                            value: false,
+                          DropdownMenuItem<int>(
+                            value: 0,
                             child: Text("No"),
                           ),
                         ],
@@ -154,8 +187,10 @@ class _RoomFeaturesScreenState extends State<RoomFeaturesScreen> {
                         selectedWiFi != null &&
                         selectedRefrigerator != null &&
                         selectedDiscount != null &&
-                        selectedAC != null) {
+                        selectedAC != null &&
+                        selectedRoomType != null) {
                       final roomFeatures = {
+                        "roomType": selectedRoomType,
                         "maxPeople": selectedMaxPeople,
                         "wifi": selectedWiFi,
                         "refrigerator": selectedRefrigerator,
