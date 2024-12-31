@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:http/http.dart' as http;
 
 Future<void> makePredictionRequest({
   required int onsiterate,
@@ -9,7 +10,7 @@ Future<void> makePredictionRequest({
   required int refrigerator,
   required int wifi,
 }) async {
-  const String apiUrl = 'http://127.0.0.1:5000/predict'; // Replace with your Flask API URL
+  const String apiUrl = 'https://4da4-2409-4073-10f-23c9-9bfd-990e-3630-ce6a.ngrok-free.app/predict'; // Replace with your Flask API URL
 
   // Input data
   Map<String, dynamic> inputData = {

@@ -85,11 +85,11 @@ class _AiChatScreenState extends State<AiChatScreen> {
         children: [
           ElevatedButton(onPressed: () {
 
-            Navigator.push(context, MaterialPageRoute(builder: (context) => RoomFeaturesScreen(),));
+            Navigator.push(context, MaterialPageRoute(builder: (context) => PredictionScreen(),));
 
 
             
-          }, child: Text('price'))
+          }, child: Text('Explore with ai'))
 
         ],
       ),
