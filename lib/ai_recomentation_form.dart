@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+/*import 'package:flutter/material.dart';
 import 'package:project1/api/ai_api.dart';
 
 class PredictionScreen extends StatefulWidget {
@@ -131,4 +131,4 @@ class _PredictionScreenState extends State<PredictionScreen> {
       ),
     );
   }
-}
+}*/

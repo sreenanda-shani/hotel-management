@@ -10,7 +10,7 @@ Future<String> makePredictionRequest({
   required int refrigerator,
   required int wifi,
 }) async {
-  const String apiUrl = 'https://60fc-2409-4073-10f-23c9-b0f0-c017-3269-fa6b.ngrok-free.app/predict'; // Replace with your Flask API URL
+  const String apiUrl = 'https://1130-103-181-40-86.ngrok-free.app/predict'; // Replace with your Flask API URL
 
   // Input data
   Map<String, dynamic> inputData = {

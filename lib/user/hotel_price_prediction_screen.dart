@@ -80,6 +80,11 @@ class _AiChatScreenState extends State<AiChatScreen> {
 
 
     return Scaffold(
+      appBar: AppBar(
+        title: const Text('AI'),
+        centerTitle: true,
+        backgroundColor: Colors.blue,
+      ),
       body: Column(
         children: [
           ElevatedButton(onPressed: () {

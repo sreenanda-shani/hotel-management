@@ -1,304 +1,287 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:project1/hotel/hotel_booking.dart';
-import 'package:project1/hotel/hotel_rooms.dart';
+import 'package:project1/choose_screen.dart';
+import 'package:project1/hotel/hotel_profile.dart';
 import 'package:project1/hotel/hotel_view.dart';
 import 'package:project1/hotel/hotelmanage.dart';
-import 'chat_screen.dart'; // Import the ChatScreenPage
+import 'package:project1/user/bookinghistory.dart';
+import 'package:project1/user/roombooking.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
-class HotelHome extends StatefulWidget {
-  const HotelHome({super.key});
+class HotelApp extends StatelessWidget {
+  const HotelApp({Key? key}) : super(key: key);
 
-  @override
-  State<HotelHome> createState() => _HotelHomeState();
-}
-
-class _HotelHomeState extends State<HotelHome> {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text(
-          "Hotel Management",
-          style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-        ),
-        centerTitle: true,
-        backgroundColor: Colors.black.withOpacity(0.7),
-        elevation: 0,
+    return MaterialApp(
+      title: 'Hotel App',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+        visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      body: Container(
-        // Background image
-        decoration: const BoxDecoration(
-          image: DecorationImage(
-            image:
-                AssetImage('asset/img4.webp'), // Replace with your image path
-            fit: BoxFit.cover,
-          ),
+      home: const HotelHome(),
+    );
+  }
+}
+
+class HotelHome extends StatelessWidget {
+  const HotelHome({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    // Create a GlobalKey for the ScaffoldState to open the drawer
+    final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+
+    return Scaffold(
+      key: _scaffoldKey, // Set the scaffold key here
+      appBar: AppBar(
+        backgroundColor: Colors.black,  // Set background color to black
+        foregroundColor: Colors.white,
+        leading: IconButton(
+          icon: const Icon(Icons.menu),
+          onPressed: () {
+            // Open the drawer (burger menu)
+            _scaffoldKey.currentState?.openDrawer(); // Open the drawer using the key
+          },
         ),
-        child: Center(
-          child: Padding(
-            padding:
-                const EdgeInsets.symmetric(horizontal: 20.0, vertical: 40.0),
-            child: Container(
-              // Group container for navigation buttons
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.account_circle),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => HotelProfile()),
+              );
+            },
+          ),
+        ],
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            ClipOval(
+              child: Image.asset(
+                'asset/download.png', // Replace with your logo asset path
+                height: 40,  // Adjust the size of the logo
+                width: 40,
+                fit: BoxFit.cover, // Ensure the image fits within the circle
+              ),
+            ),
+            const SizedBox(width: 8), // Space between logo and text
+            const Text(
+              'Hotel App',
+              style: TextStyle(
+                color: Colors.white, // Set text color to white
+              ),
+            ),
+          ],
+        ),
+      ),
+      // Add the Drawer (burger menu)
+      drawer: Drawer(
+        child: Column(
+          children: [
+            // Drawer Header with logo and hotel name
+            DrawerHeader(
               decoration: BoxDecoration(
-                color: const Color.fromARGB(260, 202, 197, 197)
-                    .withOpacity(0.85), // Slight transparency
-                borderRadius: BorderRadius.circular(20),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.2),
-                    blurRadius: 10,
-                    offset: const Offset(0, 5),
+                color: Colors.black, // Set background color for header
+              ),
+              child: Row(
+                children: [
+                  ClipOval(
+                    child: Image.asset(
+                      'asset/download.png', // Replace with your logo asset path
+                      height: 60,  // Adjust the size of the logo in the drawer
+                      width: 60,
+                      fit: BoxFit.cover, // Ensure the image fits within the circle
+                    ),
+                  ),
+                  const SizedBox(width: 16), // Space between logo and text
+                  const Text(
+                    'Hotel Name',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ],
               ),
-              child: Padding(
-                padding: const EdgeInsets.all(20.0),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Text(
-                      "Welcome to Hotel Management",
-                      style: TextStyle(
-                        fontSize: 22,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black,
-                      ),
-                    ),
-                    const SizedBox(height: 20),
-                    _buildNavigationButton(
-                      context,
-                      icon: Icons.book,
-                      label: "View Bookings",
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => const BookingHistoryPage()),
-                        );
-                      },
-                    ),
-                    const SizedBox(height: 15),
-                    _buildNavigationButton(
-                      context,
-                      icon: Icons.manage_accounts,
-                      label: "Manage Hotel Details",
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) =>
-                                  const ManageHotelDetailsPage()),
-                        );
-                      },
-                    ),
-                    const SizedBox(height: 15),
-                    _buildNavigationButton(
-                      context,
-                      icon: Icons.room_service,
-                      label: "Manage Rooms",
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) =>
-                                  const ManageRoomDetailsPage()),
-                        );
-                      },
-                    ),
-                    const SizedBox(height: 15),
-                    _buildNavigationButton(
-                      context,
-                      icon: Icons.room,
-                      label: "View Rooms",
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const ViewRoomPage(),
-                          ),
-                        );
-                      },
-                    ),
-                  ],
-                ),
-              ),
             ),
-          ),
+            // List of buttons inside the drawer
+            ListTile(
+              leading: const Icon(Icons.account_circle, color: Colors.black),
+              title: const Text('Profile'),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => HotelProfile()),
+                );
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.hotel, color: Colors.black),
+              title: const Text('View Rooms'),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => ViewRoomPage()),
+                );
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.exit_to_app, color: Colors.black),
+              title: const Text('Logout'),
+              onTap: () {
+                Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=> ChooseScreen()));
+                // Add your logout functionality here
+                // Example: Navigator.pop(context); // To close the drawer
+                // For actual logout logic, you might need to clear the user session
+              },
+            ),
+          ],
         ),
       ),
-      // Floating Action Button
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-                builder: (context) =>
-                    const ChatScreenPage()), // Navigate to Chat Screen
-          );
-        },
-        backgroundColor: Colors.white,
-        child: const Icon(Icons.chat, size: 30),
-      ),
-    );
-  }
 
-  // Button Builder
-  Widget _buildNavigationButton(BuildContext context,
-      {required IconData icon,
-      required String label,
-      required VoidCallback onTap}) {
-    return ElevatedButton.icon(
-      onPressed: onTap,
-      icon: Icon(icon, size: 28),
-      label: Text(label,
-          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-      style: ElevatedButton.styleFrom(
-        backgroundColor: Colors.white,
-        foregroundColor: Colors.black,
-        minimumSize: const Size(double.infinity, 60),
-        elevation: 5,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(15),
-        ),
-        padding: const EdgeInsets.symmetric(horizontal: 20),
-        shadowColor: Colors.black.withOpacity(0.2),
-      ),
-    );
-  }
-}
-
-class ChatScreenPage extends StatelessWidget {
-  const ChatScreenPage({super.key});
-
-  // Function to fetch the sender's name from Firestore
-  Future<String> fetchSenderName(String senderId) async {
-    try {
-      DocumentSnapshot userDoc = await FirebaseFirestore.instance
-          .collection('user') // Assuming the user information is in the 'users' collection
-          .doc(senderId)
-          .get();
-
-      if (userDoc.exists) {
-        return userDoc['name'] ?? 'Unknown'; // Retrieve the name or 'Unknown' if not found
-      }
-    } catch (e) {
-      debugPrint('Error fetching sender name: $e');
-    }
-    return 'Unknown'; // Return 'Unknown' if an error occurs or user is not found
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    // Get the current user's ID
-    final currentUserId = FirebaseAuth.instance.currentUser?.uid;
-
-    if (currentUserId == null) {
-      return Scaffold(
-        appBar: AppBar(
-          title: const Text('Chat Screen'),
-          backgroundColor: Colors.black.withOpacity(0.7),
-        ),
-        body: const Center(
-          child: Text('Please log in to view chats.'),
-        ),
-      );
-    }
-
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Chat Screen'),
-        backgroundColor: Colors.black.withOpacity(0.7),
-      ),
-      body: StreamBuilder<QuerySnapshot>(
-        stream: FirebaseFirestore.instance
-            .collection('chats')
-            .where('receiverId', isEqualTo: currentUserId)
-            .orderBy('timestamp', descending: true)
-            .snapshots(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          }
-
-          if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-            return const Center(
-              child: Text(
-                'No chats available.',
-                style: TextStyle(fontSize: 16),
-              ),
-            );
-          }
-
-          final chats = snapshot.data!.docs;
-
-          // Group chats by senderId
-          final Map<String, List<QueryDocumentSnapshot>> groupedChats = {};
-
-          for (var chat in chats) {
-            final senderId = chat['senderId'];
-            groupedChats.putIfAbsent(senderId, () => []).add(chat);
-          }
-
-          return ListView.builder(
-            itemCount: groupedChats.keys.length,
-            itemBuilder: (context, index) {
-              final senderId = groupedChats.keys.elementAt(index);
-              final senderChats = groupedChats[senderId]!;
-              final latestChat = senderChats.first; // Latest chat message
-              // final message = latestChat['message'];
-
-              return FutureBuilder<String>(
-                future: fetchSenderName(senderId),
-                builder: (context, nameSnapshot) {
-                  if (nameSnapshot.connectionState == ConnectionState.waiting) {
-                    return const ListTile(
-                      title: Text('Loading...'),
-                      subtitle: Text('Fetching sender details...'),
-                    );
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            // Row for Card Items
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                _buildCard(
+                  context,
+                  icon: Icons.book_online,
+                  title: 'View Bookings',
+                  subtitle: 'Check reservations',
+                  route: const BookingHistoryPage(),
+                ),
+                _buildCard(
+                  context,
+                  icon: Icons.room_preferences,
+                  title: 'View Rooms',
+                  subtitle: '',
+                  route: const ViewRoomPage(),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            const Text(
+              'Notifications',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 8),
+            // Notification Stream
+            Expanded(
+              child: StreamBuilder<QuerySnapshot>(
+                stream: FirebaseFirestore.instance.collection('notifications').snapshots(),
+                builder: (context, snapshot) {
+                  if (!snapshot.hasData) {
+                    return const Center(child: CircularProgressIndicator());
                   }
+                  final notifications = snapshot.data!.docs;
+                  List<Widget> notificationWidgets = [];
+                  for (var notification in notifications) {
+                    final message = notification['message'];
+                    final timestamp = notification['timestamp'];
 
-                  if (nameSnapshot.hasError || !nameSnapshot.hasData) {
-                    return const ListTile(
-                      title: Text('Error loading sender details'),
-                      // subtitle: Text(message),
-                    );
-                  }
-
-                  final senderName = nameSnapshot.data!;
-
-                  return ListTile(
-                    title: Text(
-                      senderName,
-                      style: const TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                    // subtitle: Text(
-                    //   // message,
-                    //   maxLines: 1,
-                    //   overflow: TextOverflow.ellipsis,
-                    //   style: TextStyle(color: Colors.grey[600]),
-                    // ),
-                    leading: CircleAvatar(
-                      backgroundColor: Colors.grey[300],
-                      child: const Icon(Icons.account_circle, color: Colors.white, size: 30),
-                    ),
-                    trailing: const Icon(Icons.chat_bubble_outline, color: Colors.grey),
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => ChatScreen(senderId: senderId),
+                    notificationWidgets.add(
+                      Card(
+                        elevation: 4,
+                        margin: const EdgeInsets.symmetric(vertical: 8),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
                         ),
-                      );
-                    },
+                        child: ListTile(
+                          leading: const Icon(Icons.notifications, size: 30, color: Colors.blueAccent),
+                          title: Text(message, style: const TextStyle(fontSize: 16)),
+                          subtitle: Text(
+                            timestamp.toDate().toString(),
+                            style: const TextStyle(fontSize: 12, color: Colors.grey),
+                          ),
+                        ),
+                      ),
+                    );
+                  }
+                  return ListView(
+                    children: notificationWidgets,
                   );
                 },
-              );
-            },
-          );
+              ),
+            ),
+          ],
+        ),
+      ),
+      bottomNavigationBar: BottomNavigationBar(
+        items: const [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home),
+            label: 'Home',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.room_preferences),
+            label: 'Manage rooms',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.account_circle),
+            label: 'Profile',
+          ),
+        ],
+        currentIndex: 0, // Set to 0 for Home page
+        selectedItemColor: Colors.blueAccent,
+        onTap: (index) {
+          if (index == 0) {
+            // Already on Home page
+          } else if (index == 1) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const ManageHotelDetailsPage()),
+            );
+          } else if (index == 2) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) =>  HotelProfile()),
+            );
+          }
         },
+      ),
+    );
+  }
+
+  // Helper method to build Card Widgets
+  Widget _buildCard(
+    BuildContext context, {
+    required IconData icon,
+    required String title,
+    required String subtitle,
+    required Widget route,
+  }) {
+    return Container(
+      height: 180,
+      width: 200,
+      child: Card(
+        elevation: 8,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+        child: ListTile(
+          leading: Icon(icon, size: 40, color: Colors.blueAccent),
+          title: Text(
+            title,
+            style: const TextStyle(
+                fontSize: 16, fontWeight: FontWeight.bold, color: Colors.blueAccent),
+          ),
+          subtitle: Text(
+            subtitle,
+            style: const TextStyle(fontSize: 12),
+          ),
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => route),
+            );
+          },
+        ),
       ),
     );
   }

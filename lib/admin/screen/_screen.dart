@@ -39,11 +39,6 @@ class _AdminUserScreenState extends State<AdminUserScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      floatingActionButton:  FloatingActionButton(
-        onPressed: () {
-          
-        
-      },),
       
       // Body changes based on the selected index
       body: _pages[_selectedIndex],

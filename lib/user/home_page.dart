@@ -1,15 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter_speed_dial/flutter_speed_dial.dart';
+import 'package:project1/user/ai_user_screen.dart';
 import 'package:project1/user/bookinghistory.dart';
 import 'package:project1/user/favuorite.dart';
 import 'package:project1/user/feedback.dart';
 import 'package:project1/user/hotel_details.dart';
+import 'package:project1/user/hotel_price_prediction_screen.dart';
+import 'package:project1/user/new_ai_screen.dart';
 import 'package:project1/user/notification.dart';
 import 'package:project1/user/profile.dart';
 import 'package:project1/user/user_chat_screen.dart';
 import 'package:project1/user/user_hotelhomepage.dart';
 import 'package:project1/user/login_page.dart';
+
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -20,7 +25,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   String searchQuery = '';
-  String sortBy = 'Name';
+  String sortBy = 'location';
 
   @override
   Widget build(BuildContext context) {
@@ -32,6 +37,42 @@ class _HomePageState extends State<HomePage> {
     String userImageUrl = currentUser?.photoURL ?? defaultImage;
 
     return Scaffold(
+      floatingActionButton: SpeedDial(
+        icon: Icons.message,
+        activeIcon: Icons.close,
+        backgroundColor: Colors.teal,
+        foregroundColor: Colors.white,
+        buttonSize: const Size(56.0, 56.0),
+        childrenButtonSize: const Size(56.0, 56.0),
+        children: [
+          SpeedDialChild(
+            child: const Icon(Icons.chat),
+            label: 'AiChatScreen',
+            backgroundColor: Colors.blue,
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const AiChatScreen(),
+                ),
+              );
+            },
+          ),
+          SpeedDialChild(
+            child: const Icon(Icons.chat_bubble),
+            label: 'AiChatPage',
+            backgroundColor: Colors.green,
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const AiChatPage(),
+                ),
+              );
+            },
+          ),
+        ],
+      ),
       appBar: AppBar(
         backgroundColor: const Color.fromARGB(255, 0, 123, 123),
         elevation: 4,
@@ -110,9 +151,7 @@ class _HomePageState extends State<HomePage> {
                 _buildDrawerItem(Icons.person, "Profile", () {
                   Navigator.push(context, MaterialPageRoute(builder: (context) => const ProfilePage()));
                 }),
-                _buildDrawerItem(Icons.search, "Search Hotel", () {
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => const HotelDetailsPage()));
-                }),
+                
                 _buildDrawerItem(Icons.history, "Booking History", () {
                   Navigator.push(context, MaterialPageRoute(builder: (context) => const BookingHistoryPage()));
                 }),
@@ -189,8 +228,8 @@ class _HomePageState extends State<HomePage> {
                   var hotels = snapshot.data!.docs;
                   hotels = hotels.where((doc) {
                     final hotelData = doc.data() as Map<String, dynamic>;
-                    final hotelName = hotelData['hotelName'] ?? '';
-                    return hotelName.toLowerCase().contains(searchQuery.toLowerCase());
+                    final location = hotelData['location'] ?? '';
+                    return location.toLowerCase().contains(searchQuery.toLowerCase());
                   }).toList();
                   return Column(
                     children: hotels.map((doc) {

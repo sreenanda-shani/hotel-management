@@ -34,13 +34,7 @@ class _BottomNavBarScreenState extends State<BottomNavBarScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      floatingActionButton: FloatingActionButton(
-        child: const Icon(Icons.message),
-        onPressed: () {
-
-          Navigator.push(context, MaterialPageRoute(builder: (context) => const AiChatScreen(),));
-        
-      },),
+      
       body: WillPopScope(
         onWillPop: () async {
           // If we are not on the home page, navigate to the home page
