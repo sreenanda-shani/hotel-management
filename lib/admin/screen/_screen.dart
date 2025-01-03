@@ -25,7 +25,6 @@ class _AdminUserScreenState extends State<AdminUserScreen> {
     const AnalyticsScreen(),
     const UserSearchPage(),
     const AdminHotelManagementScreen(),
-    const NotificationScreen(),
    const AdminFeedback(),
   ];
 
@@ -56,10 +55,6 @@ class _AdminUserScreenState extends State<AdminUserScreen> {
           BottomNavigationBarItem(
             icon: Icon(Icons.hotel),
             label: 'Hotel Management',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.notifications),
-            label: 'Notification',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.feedback),

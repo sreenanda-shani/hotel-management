@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 class UserChatScreen extends StatefulWidget {
   UserChatScreen({super.key, required this.hotelId});
 
-  String hotelId;
+  final String hotelId;
 
   @override
   State<UserChatScreen> createState() => _UserChatScreenState();
@@ -36,8 +36,8 @@ class _UserChatScreenState extends State<UserChatScreen> {
       await _firestore.collection('chats').add({
         'message': _messageController.text,
         'senderId': _currentUserId,
+        'receiverId': widget.hotelId,
         'timestamp': FieldValue.serverTimestamp(),
-        'receiverId': widget.hotelId, // The receiverId is the hotelId
       });
       _messageController.clear();
     }
@@ -58,8 +58,9 @@ class _UserChatScreenState extends State<UserChatScreen> {
             child: StreamBuilder<QuerySnapshot>(
               stream: _firestore
                   .collection('chats')
-                  .where('receiverId', isEqualTo: widget.hotelId) // Filter by hotelId (receiver)
-                  .orderBy('timestamp')
+                  .where('receiverId', whereIn: [widget.hotelId, _currentUserId]) // Show messages where the receiver is either the hotel or the user
+                  .where('senderId', whereIn: [widget.hotelId, _currentUserId]) // Show messages where the sender is either the hotel or the user
+                  .orderBy('timestamp', descending: false)
                   .snapshots(),
               builder: (context, snapshot) {
                 if (!snapshot.hasData) {
@@ -68,6 +69,7 @@ class _UserChatScreenState extends State<UserChatScreen> {
 
                 var messages = snapshot.data!.docs;
                 List<Widget> messageWidgets = [];
+
                 for (var message in messages) {
                   var messageText = message['message'];
                   var messageSender = message['senderId'];
@@ -92,9 +94,9 @@ class _UserChatScreenState extends State<UserChatScreen> {
                           ),
                           child: Text(
                             messageText,
-                            style: TextStyle(
+                            style: const TextStyle(
                               fontSize: 16,
-                              color: isSentByUser ? Colors.black : Colors.black,
+                              color: Colors.black,
                             ),
                           ),
                         ),

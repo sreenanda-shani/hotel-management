@@ -1,5 +1,7 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:project1/choose_screen.dart';
+import 'package:project1/hotel/chat_screen.dart';
 import 'package:project1/hotel/hotel_profile.dart';
 import 'package:project1/hotel/hotel_view.dart';
 import 'package:project1/hotel/hotelmanage.dart';
@@ -29,19 +31,17 @@ class HotelHome extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Create a GlobalKey for the ScaffoldState to open the drawer
     final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
     return Scaffold(
-      key: _scaffoldKey, // Set the scaffold key here
+      key: _scaffoldKey,
       appBar: AppBar(
-        backgroundColor: Colors.black,  // Set background color to black
+        backgroundColor: Colors.black,
         foregroundColor: Colors.white,
         leading: IconButton(
           icon: const Icon(Icons.menu),
           onPressed: () {
-            // Open the drawer (burger menu)
-            _scaffoldKey.currentState?.openDrawer(); // Open the drawer using the key
+            _scaffoldKey.currentState?.openDrawer();
           },
         ),
         actions: [
@@ -60,42 +60,40 @@ class HotelHome extends StatelessWidget {
           children: [
             ClipOval(
               child: Image.asset(
-                'asset/download.png', // Replace with your logo asset path
-                height: 40,  // Adjust the size of the logo
+                'asset/download.png',
+                height: 40,
                 width: 40,
-                fit: BoxFit.cover, // Ensure the image fits within the circle
+                fit: BoxFit.cover,
               ),
             ),
-            const SizedBox(width: 8), // Space between logo and text
+            const SizedBox(width: 8),
             const Text(
               'Hotel App',
               style: TextStyle(
-                color: Colors.white, // Set text color to white
+                color: Colors.white,
               ),
             ),
           ],
         ),
       ),
-      // Add the Drawer (burger menu)
       drawer: Drawer(
         child: Column(
           children: [
-            // Drawer Header with logo and hotel name
             DrawerHeader(
               decoration: BoxDecoration(
-                color: Colors.black, // Set background color for header
+                color: Colors.black,
               ),
               child: Row(
                 children: [
                   ClipOval(
                     child: Image.asset(
-                      'asset/download.png', // Replace with your logo asset path
-                      height: 60,  // Adjust the size of the logo in the drawer
+                      'asset/download.png',
+                      height: 60,
                       width: 60,
-                      fit: BoxFit.cover, // Ensure the image fits within the circle
+                      fit: BoxFit.cover,
                     ),
                   ),
-                  const SizedBox(width: 16), // Space between logo and text
+                  const SizedBox(width: 16),
                   const Text(
                     'Hotel Name',
                     style: TextStyle(
@@ -107,7 +105,6 @@ class HotelHome extends StatelessWidget {
                 ],
               ),
             ),
-            // List of buttons inside the drawer
             ListTile(
               leading: const Icon(Icons.account_circle, color: Colors.black),
               title: const Text('Profile'),
@@ -132,22 +129,20 @@ class HotelHome extends StatelessWidget {
               leading: const Icon(Icons.exit_to_app, color: Colors.black),
               title: const Text('Logout'),
               onTap: () {
-                Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=> ChooseScreen()));
-                // Add your logout functionality here
-                // Example: Navigator.pop(context); // To close the drawer
-                // For actual logout logic, you might need to clear the user session
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (context) => ChooseScreen()),
+                );
               },
             ),
           ],
         ),
       ),
-
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            // Row for Card Items
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
@@ -173,10 +168,11 @@ class HotelHome extends StatelessWidget {
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
-            // Notification Stream
             Expanded(
               child: StreamBuilder<QuerySnapshot>(
-                stream: FirebaseFirestore.instance.collection('notifications').snapshots(),
+                stream: FirebaseFirestore.instance
+                    .collection('notifications')
+                    .snapshots(),
                 builder: (context, snapshot) {
                   if (!snapshot.hasData) {
                     return const Center(child: CircularProgressIndicator());
@@ -195,11 +191,16 @@ class HotelHome extends StatelessWidget {
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: ListTile(
-                          leading: const Icon(Icons.notifications, size: 30, color: Colors.blueAccent),
-                          title: Text(message, style: const TextStyle(fontSize: 16)),
+                          leading: const Icon(
+                              Icons.notifications,
+                              size: 30,
+                              color: Colors.blueAccent),
+                          title: Text(message,
+                              style: const TextStyle(fontSize: 16)),
                           subtitle: Text(
                             timestamp.toDate().toString(),
-                            style: const TextStyle(fontSize: 12, color: Colors.grey),
+                            style: const TextStyle(
+                                fontSize: 12, color: Colors.grey),
                           ),
                         ),
                       ),
@@ -229,28 +230,37 @@ class HotelHome extends StatelessWidget {
             label: 'Profile',
           ),
         ],
-        currentIndex: 0, // Set to 0 for Home page
+        currentIndex: 0,
         selectedItemColor: Colors.blueAccent,
         onTap: (index) {
           if (index == 0) {
-            // Already on Home page
           } else if (index == 1) {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => const ManageHotelDetailsPage()),
+              MaterialPageRoute(
+                  builder: (context) => const ManageHotelDetailsPage()),
             );
           } else if (index == 2) {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) =>  HotelProfile()),
+              MaterialPageRoute(builder: (context) => HotelProfile()),
             );
           }
         },
       ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) =>  ChatList()),
+          );
+        },
+        backgroundColor: Colors.blueAccent,
+        child: const Icon(Icons.chat),
+      ),
     );
   }
 
-  // Helper method to build Card Widgets
   Widget _buildCard(
     BuildContext context, {
     required IconData icon,
@@ -269,7 +279,9 @@ class HotelHome extends StatelessWidget {
           title: Text(
             title,
             style: const TextStyle(
-                fontSize: 16, fontWeight: FontWeight.bold, color: Colors.blueAccent),
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: Colors.blueAccent),
           ),
           subtitle: Text(
             subtitle,
@@ -282,6 +294,87 @@ class HotelHome extends StatelessWidget {
             );
           },
         ),
+      ),
+    );
+  }
+}
+
+
+class ChatList extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    final currentUserId = FirebaseAuth.instance.currentUser?.uid;
+
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Chat List'),
+      ),
+      body: StreamBuilder<QuerySnapshot>(
+        stream: FirebaseFirestore.instance.collection('chats').snapshots(),
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          final chatDocs = snapshot.data!.docs;
+          final Set<String> displayedUsers = {}; // To track unique users
+          List<Widget> chatWidgets = [];
+
+          for (var chat in chatDocs) {
+            if (chat['receiverId'] == currentUserId) {
+              final senderId = chat['senderId'];
+
+              if (!displayedUsers.contains(senderId)) {
+                displayedUsers.add(senderId);
+
+                chatWidgets.add(
+                  FutureBuilder<DocumentSnapshot>(
+                    future: FirebaseFirestore.instance
+                        .collection('user')
+                        .doc(senderId)
+                        .get(),
+                    builder: (context, userSnapshot) {
+                      if (!userSnapshot.hasData) {
+                        return const ListTile(
+                          title: Text('Loading...'),
+                        );
+                      }
+
+                      final userName = userSnapshot.data!['name'];
+
+                      return ListTile(
+                        leading: const Icon(Icons.person, color: Colors.blue),
+                        title: Text(userName),
+                        subtitle: Text(chat['message'] ?? ''),
+                        onTap: () {
+                          // Navigate to ChatScreen and pass the senderId
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => ChatScreen(
+                                senderId: senderId,
+                              ),
+                            ),
+                          );
+                        },
+                      );
+                    },
+                  ),
+                );
+              }
+            }
+          }
+
+          if (chatWidgets.isEmpty) {
+            return const Center(
+              child: Text('No chats available'),
+            );
+          }
+
+          return ListView(
+            children: chatWidgets,
+          );
+        },
       ),
     );
   }
