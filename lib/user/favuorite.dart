@@ -144,9 +144,9 @@ class _FavouritesPageState extends State<FavouritesPage> {
                                 ),
                               ),
                               const SizedBox(height: 4),
-                              Text(
+                              const Text(
                                 "Type: Hotel", // You can modify this to be dynamic if needed
-                                style: const TextStyle(fontSize: 14, color: Colors.grey),
+                                style: TextStyle(fontSize: 14, color: Colors.grey),
                               ),
                               const SizedBox(height: 8),
                               // Location

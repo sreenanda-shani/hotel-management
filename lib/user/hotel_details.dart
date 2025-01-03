@@ -11,7 +11,7 @@ class HotelDetailsPage extends StatefulWidget {
 }
 
 class _HotelDetailsPageState extends State<HotelDetailsPage> {
-  TextEditingController _searchController = TextEditingController();
+  final TextEditingController _searchController = TextEditingController();
   late FirebaseFirestore _firestore;
   late CollectionReference _hotelCollection;
   List<Map<String, dynamic>> _hotels = [];

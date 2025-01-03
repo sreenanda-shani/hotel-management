@@ -4,6 +4,8 @@ import 'package:project1/api/ai_api.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class PredictionScreen extends StatefulWidget {
+  const PredictionScreen({super.key});
+
   @override
   _PredictionScreenState createState() => _PredictionScreenState();
 }
@@ -25,7 +27,7 @@ class _PredictionScreenState extends State<PredictionScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Hotel Prediction'),
+        title: const Text('Hotel Prediction'),
         backgroundColor: Colors.teal,
       ),
       body: Padding(
@@ -106,17 +108,17 @@ class _PredictionScreenState extends State<PredictionScreen> {
                   });
                 }
               },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.teal,
+                padding: const EdgeInsets.symmetric(vertical: 16.0),
+                textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              ),
               child: isLoading
-                  ? CircularProgressIndicator(color: Colors.white)
-                  : Text(
+                  ? const CircularProgressIndicator(color: Colors.white)
+                  : const Text(
                       'Get Prediction',
                       style: TextStyle(color: Colors.white),
                     ),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.teal,
-                padding: EdgeInsets.symmetric(vertical: 16.0),
-                textStyle: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-              ),
             ),
           ],
         ),
@@ -133,7 +135,7 @@ class _PredictionScreenState extends State<PredictionScreen> {
         keyboardType: TextInputType.number,
         decoration: InputDecoration(
           labelText: label,
-          border: OutlineInputBorder(),
+          border: const OutlineInputBorder(),
           filled: true,
           fillColor: Colors.grey[200],
         ),
@@ -149,11 +151,11 @@ class _PredictionScreenState extends State<PredictionScreen> {
         value: value,
         decoration: InputDecoration(
           labelText: label,
-          border: OutlineInputBorder(),
+          border: const OutlineInputBorder(),
           filled: true,
           fillColor: Colors.grey[200],
         ),
-        items: [
+        items: const [
           DropdownMenuItem(
             value: 0,
             child: Text('False'),
@@ -207,7 +209,7 @@ class _PredictionScreenState extends State<PredictionScreen> {
 class RoomListPage extends StatelessWidget {
   final List<Map<String, dynamic>> roomData;
 
-  const RoomListPage({Key? key, required this.roomData}) : super(key: key);
+  const RoomListPage({super.key, required this.roomData});
 
   // Helper function to launch Google Maps with latitude and longitude
   void _launchMaps(double latitude, double longitude) async {
@@ -224,11 +226,11 @@ class RoomListPage extends StatelessWidget {
     print(roomData);
     return Scaffold(
       appBar: AppBar(
-        title: Text('Room List'),
+        title: const Text('Room List'),
         backgroundColor: Colors.teal,
       ),
       body: roomData.isEmpty
-          ? Center(
+          ? const Center(
               child: Text(
                 'No rooms found',
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
@@ -241,7 +243,7 @@ class RoomListPage extends StatelessWidget {
                 final hotelDetails = room['hotelDetails'];
 
                 return Card(
-                  margin: EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+                  margin: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
                   elevation: 5,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12.0),
@@ -253,18 +255,18 @@ class RoomListPage extends StatelessWidget {
                       children: [
                         Row(
                           children: [
-                            Icon(Icons.hotel, color: Colors.teal, size: 24),
-                            SizedBox(width: 8),
+                            const Icon(Icons.hotel, color: Colors.teal, size: 24),
+                            const SizedBox(width: 8),
                             Text(
                               'Room Type: ${room['roomType']}',
-                              style: TextStyle(
+                              style: const TextStyle(
                                 fontSize: 18,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
                           ],
                         ),
-                        SizedBox(height: 8),
+                        const SizedBox(height: 8),
                         Text(
                           'Rent: ₹${room['rent']}',
                           style: TextStyle(fontSize: 16, color: Colors.grey[800]),
@@ -273,25 +275,25 @@ class RoomListPage extends StatelessWidget {
                           'Max People: ${room['maxPeople']}',
                           style: TextStyle(fontSize: 16, color: Colors.grey[800]),
                         ),
-                        SizedBox(height: 8),
+                        const SizedBox(height: 8),
                         if (hotelDetails != null) ...[
                           Row(
                             children: [
-                              Icon(Icons.apartment, color: Colors.teal, size: 20),
-                              SizedBox(width: 8),
+                              const Icon(Icons.apartment, color: Colors.teal, size: 20),
+                              const SizedBox(width: 8),
                               Text(
                                 'Hotel Name: ${hotelDetails['hotelName']}',
-                                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+                                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
                               ),
                             ],
                           ),
                           Row(
                             children: [
-                              Icon(Icons.location_on, color: Colors.teal, size: 20),
-                              SizedBox(width: 8),
+                              const Icon(Icons.location_on, color: Colors.teal, size: 20),
+                              const SizedBox(width: 8),
                               Text(
                                 'Location: ${hotelDetails['location']}',
-                                style: TextStyle(fontSize: 16),
+                                style: const TextStyle(fontSize: 16),
                               ),
                             ],
                           ),
@@ -303,8 +305,8 @@ class RoomListPage extends StatelessWidget {
                                 double.parse(hotelDetails['lat']),
                                 double.parse(hotelDetails['log']),
                               ),
-                              icon: Icon(Icons.directions, color: Colors.white),
-                              label: Text('Route',style: TextStyle(color: Colors.white),),
+                              icon: const Icon(Icons.directions, color: Colors.white),
+                              label: const Text('Route',style: TextStyle(color: Colors.white),),
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: Colors.teal,
                                 shape: RoundedRectangleBorder(

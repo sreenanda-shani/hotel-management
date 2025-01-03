@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:project1/admin/screen/admin_hotel_details_screen.dart';
 
 class AdminHotelManagementScreen extends StatefulWidget {
-  const AdminHotelManagementScreen({Key? key}) : super(key: key);
+  const AdminHotelManagementScreen({super.key});
 
   @override
   _AdminHotelManagementScreenState createState() =>

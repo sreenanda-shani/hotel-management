@@ -5,14 +5,14 @@ import 'package:project1/admin/screen/admin_hotel_management.dart';
 import 'package:project1/choose_screen.dart';
 
 class AdminHomePage extends StatelessWidget {
-  const AdminHomePage({Key? key}) : super(key: key);
+  const AdminHomePage({super.key});
 
   // Function to handle logout
   void _logout(BuildContext context) async {
     await FirebaseAuth.instance.signOut();
     Navigator.pushReplacement(
       context,
-      MaterialPageRoute(builder: (context) => ChooseScreen()),
+      MaterialPageRoute(builder: (context) => const ChooseScreen()),
     );
   }
 
@@ -97,14 +97,14 @@ class AdminHomePage extends StatelessWidget {
                 () {
                   // Navigate to Hotel Management Screen
 
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => AdminHotelManagementScreen(),));
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => const AdminHotelManagementScreen(),));
                 },
               ),
               _buildMenuButton(
                 'User View',
                 Icons.people,
                 () {
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => AdminUserScreen(),));
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => const AdminUserScreen(),));
                 },
               ),
               _buildMenuButton(

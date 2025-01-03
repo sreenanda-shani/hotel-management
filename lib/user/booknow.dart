@@ -64,7 +64,7 @@ class _BookNowPageState extends State<BookNowPage> {
             // Displaying hotel facilities
             Text(
               'Facilities: $hotelFacilities',
-              style: TextStyle(
+              style: const TextStyle(
                 color: Colors.orange,
                 fontWeight: FontWeight.bold,
               ),

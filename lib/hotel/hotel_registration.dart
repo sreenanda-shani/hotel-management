@@ -4,7 +4,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
-import 'package:permission_handler/permission_handler.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 
@@ -91,8 +90,8 @@ class _HotelRegistrationPageState extends State<HotelRegistrationPage> {
 
   // Method to pick image
   Future<void> _pickImage({ bool isDocument  = false}) async {
-    final ImagePicker _picker = ImagePicker();
-    final XFile? image = await _picker.pickImage(source: ImageSource.gallery); // You can also use ImageSource.camera
+    final ImagePicker picker = ImagePicker();
+    final XFile? image = await picker.pickImage(source: ImageSource.gallery); // You can also use ImageSource.camera
 
     if (image != null) {
       setState(() {
@@ -447,7 +446,7 @@ class _HotelRegistrationPageState extends State<HotelRegistrationPage> {
                 ),
                 const SizedBox(height: 16),
 
-                Text('logo'),
+                const Text('logo'),
                 // Hotel Image Picker
                 GestureDetector(
                   onTap: _pickImage,
@@ -462,7 +461,7 @@ class _HotelRegistrationPageState extends State<HotelRegistrationPage> {
                 ),
                 const SizedBox(height: 20),
 
-                Text('Document'),
+                const Text('Document'),
 
                  GestureDetector(
                   onTap: (){
@@ -504,7 +503,7 @@ class _HotelRegistrationPageState extends State<HotelRegistrationPage> {
                           // Navigate to Hotel Login
                           Navigator.push(
                             context,
-                            MaterialPageRoute(builder: (context) =>  HotelLoginPage()),
+                            MaterialPageRoute(builder: (context) =>  const HotelLoginPage()),
                           );
                         },
                         child: const Text("Login"),

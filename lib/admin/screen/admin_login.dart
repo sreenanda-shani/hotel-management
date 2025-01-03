@@ -2,7 +2,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:project1/admin/screen/_screen.dart';
-import 'package:project1/admin/screen/admin_home_page.dart';
 
 class AdminLoginPage extends StatefulWidget {
   const AdminLoginPage({super.key});
@@ -44,7 +43,7 @@ class _AdminLoginPageState extends State<AdminLoginPage> {
         if (querySnapshot.docs.isNotEmpty) {
           // Successfully logged in as admin, navigate to admin dashboard
           Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) {
-            return  AdminUserScreen(); // Navigate to the admin dashboard
+            return  const AdminUserScreen(); // Navigate to the admin dashboard
           }));
         } else {
           // If the email is not found in the admin collection

@@ -1,4 +1,3 @@
-import 'dart:ffi';
 
 import 'package:flutter/material.dart';
 import 'package:project1/user/ai_user_screen.dart';
@@ -85,11 +84,11 @@ class _AiChatScreenState extends State<AiChatScreen> {
         children: [
           ElevatedButton(onPressed: () {
 
-            Navigator.push(context, MaterialPageRoute(builder: (context) => PredictionScreen(),));
+            Navigator.push(context, MaterialPageRoute(builder: (context) => const PredictionScreen(),));
 
 
             
-          }, child: Text('Explore with ai'))
+          }, child: const Text('Explore with ai'))
 
         ],
       ),

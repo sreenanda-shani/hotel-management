@@ -58,7 +58,7 @@ class _HomePageState extends State<HomePage> {
             onPressed: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => ProfilePage()),
+                MaterialPageRoute(builder: (context) => const ProfilePage()),
               );
             },
           ),
@@ -79,9 +79,9 @@ class _HomePageState extends State<HomePage> {
               padding: EdgeInsets.zero,
               children: [
                 DrawerHeader(
-                  decoration: BoxDecoration(
-                    color: const Color.fromARGB(159, 92, 205, 193),
-                    borderRadius: const BorderRadius.only(
+                  decoration: const BoxDecoration(
+                    color: Color.fromARGB(159, 92, 205, 193),
+                    borderRadius: BorderRadius.only(
                       bottomLeft: Radius.circular(30),
                       bottomRight: Radius.circular(30),
                     ),
@@ -108,26 +108,26 @@ class _HomePageState extends State<HomePage> {
                   ),
                 ),
                 _buildDrawerItem(Icons.person, "Profile", () {
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => ProfilePage()));
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => const ProfilePage()));
                 }),
                 _buildDrawerItem(Icons.search, "Search Hotel", () {
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => HotelDetailsPage()));
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => const HotelDetailsPage()));
                 }),
                 _buildDrawerItem(Icons.history, "Booking History", () {
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => BookingHistoryPage()));
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => const BookingHistoryPage()));
                 }),
                 _buildDrawerItem(Icons.favorite, "Favourites", () {
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => FavouritesPage()));
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => const FavouritesPage()));
                 }),
                 _buildDrawerItem(Icons.notifications, "Notifications", () {
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => NotificationPage()));
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => const NotificationPage()));
                 }),
                 _buildDrawerItem(Icons.feedback, "Feedback", () {
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => FeedbackPage()));
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => const FeedbackPage()));
                 }),
                 _buildDrawerItem(Icons.login, "Logout", () async {
                   await FirebaseAuth.instance.signOut();
-                  Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => UserLoginPage()));
+                  Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const UserLoginPage()));
                 }),
               ],
             ),
@@ -228,7 +228,7 @@ class _HomePageState extends State<HomePage> {
       leading: Icon(icon, color: Colors.blueAccent),
       title: Text(
         title,
-        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black), // Set color to black
+        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black), // Set color to black
       ),
       onTap: onTap,
     );
@@ -365,9 +365,9 @@ class _HomePageState extends State<HomePage> {
                                 style: TextStyle(color: Colors.white), // Text color is white
                               ),
                             ),
-                            Spacer(),
+                            const Spacer(),
                             TextButton.icon(
-                              icon: Icon(Icons.message, color: Colors.black), // Icon color black
+                              icon: const Icon(Icons.message, color: Colors.black), // Icon color black
                               onPressed: () {
                                 Navigator.push(
                                   context,

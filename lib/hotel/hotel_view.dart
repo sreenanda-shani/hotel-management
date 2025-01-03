@@ -3,7 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class ViewRoomPage extends StatefulWidget {
-  const ViewRoomPage({super.key, required Map<String, Object> roomData});
+  const ViewRoomPage({super.key});
 
   @override
   _ViewRoomPageState createState() => _ViewRoomPageState();
@@ -98,7 +98,7 @@ class _ViewRoomPageState extends State<ViewRoomPage> {
 
                             Text(
                               "Room Number: ${room['roomNumber']}",
-                              style: TextStyle(
+                              style: const TextStyle(
                                 fontSize: 24,
                                 fontWeight: FontWeight.bold,
                                 color: Colors.black, // Set text color to black
@@ -107,7 +107,7 @@ class _ViewRoomPageState extends State<ViewRoomPage> {
                             const SizedBox(height: 8),
                             Text(
                               "Rent: \$${room['rent']}",
-                              style: TextStyle(
+                              style: const TextStyle(
                                 fontSize: 20,
                                 fontWeight: FontWeight.w500,
                                 color: Colors.black, // Set text color to black
@@ -115,7 +115,7 @@ class _ViewRoomPageState extends State<ViewRoomPage> {
                             ),
                             Text(
                               "Max People: ${room['maxPeople']}",
-                              style: TextStyle(
+                              style: const TextStyle(
                                 fontSize: 20,
                                 fontWeight: FontWeight.w500,
                                 color: Colors.black, // Set text color to black
@@ -124,7 +124,7 @@ class _ViewRoomPageState extends State<ViewRoomPage> {
                             const SizedBox(height: 8),
                             Text(
                               "AC Type: ${room['acType']}",
-                              style: TextStyle(
+                              style: const TextStyle(
                                 fontSize: 20,
                                 fontWeight: FontWeight.w500,
                                 color: Colors.black, // Set text color to black
@@ -133,7 +133,7 @@ class _ViewRoomPageState extends State<ViewRoomPage> {
                             const SizedBox(height: 8),
                             Text(
                               "Bed Type: ${room['bedType']}",
-                              style: TextStyle(
+                              style: const TextStyle(
                                 fontSize: 20,
                                 fontWeight: FontWeight.w500,
                                 color: Colors.black, // Set text color to black
@@ -142,7 +142,7 @@ class _ViewRoomPageState extends State<ViewRoomPage> {
                             const SizedBox(height: 8),
                             Text(
                               "Wi-Fi Available: ${room['wifiAvailable'] ? 'Yes' : 'No'}",
-                              style: TextStyle(
+                              style: const TextStyle(
                                 fontSize: 20,
                                 fontWeight: FontWeight.w500,
                                 color: Colors.black, // Set text color to black
@@ -151,7 +151,7 @@ class _ViewRoomPageState extends State<ViewRoomPage> {
                             const SizedBox(height: 8),
                             Text(
                               "Balcony Available: ${room['balconyAvailable'] ? 'Yes' : 'No'}",
-                              style: TextStyle(
+                              style: const TextStyle(
                                 fontSize: 20,
                                 fontWeight: FontWeight.w500,
                                 color: Colors.black, // Set text color to black
@@ -304,7 +304,7 @@ class _UpdateRoomPageState extends State<UpdateRoomPage> {
                         child: TextField(
                           controller: _rentController,
                           decoration: const InputDecoration(labelText: 'Rent'),
-                          keyboardType: TextInputType.numberWithOptions(decimal: true),
+                          keyboardType: const TextInputType.numberWithOptions(decimal: true),
                         ),
                       ),
                     ],
@@ -468,12 +468,12 @@ class _UpdateRoomPageState extends State<UpdateRoomPage> {
               // Update Room Button
               ElevatedButton(
                 onPressed: _updateRoomDetails,
-                child: const Text('Update Room Details'),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.white,  // Set background to white
                   padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
                 ),
+                child: const Text('Update Room Details'),
               ),
             ],
           ),

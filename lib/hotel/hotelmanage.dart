@@ -125,7 +125,7 @@ class _ManageHotelDetailsPageState extends State<ManageHotelDetailsPage> {
         ],
       ),
       body: Container(
-        decoration: BoxDecoration(
+        decoration: const BoxDecoration(
           image: DecorationImage(
             image: AssetImage('asset/img4.webp'), // Add your background image path here
             fit: BoxFit.cover,
@@ -143,7 +143,7 @@ class _ManageHotelDetailsPageState extends State<ManageHotelDetailsPage> {
                   BoxShadow(
                     color: Colors.black.withOpacity(0.2),
                     blurRadius: 8,
-                    offset: Offset(0, 4),
+                    offset: const Offset(0, 4),
                   ),
                 ],
               ),

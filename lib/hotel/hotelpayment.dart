@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:razorpay_flutter/razorpay_flutter.dart';
 
 class PaymentPage extends StatefulWidget {
+  const PaymentPage({super.key});
+
   @override
   _PaymentPageState createState() => _PaymentPageState();
 }
@@ -64,7 +66,7 @@ class _PaymentPageState extends State<PaymentPage> {
     // Check if it's a payment cancellation
     if (response.code == 1) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Payment was cancelled by the user')),
+        const SnackBar(content: Text('Payment was cancelled by the user')),
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(

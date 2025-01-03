@@ -5,13 +5,14 @@ import 'package:project1/admin/screen/notification.dart';
 import 'package:project1/admin/usersearchpage.dart';
 
 import 'analytics_screen.dart';
-import 'hotel_management_screen.dart';
 
 
 
 
 
 class AdminUserScreen extends StatefulWidget {
+  const AdminUserScreen({super.key});
+
   @override
   _AdminUserScreenState createState() => _AdminUserScreenState();
 }
@@ -21,10 +22,10 @@ class _AdminUserScreenState extends State<AdminUserScreen> {
 
   // List of pages for each navigation item
   final List<Widget> _pages = [
-    AnalyticsScreen(),
-    UserSearchPage(),
-    AdminHotelManagementScreen(),
-    NotificationScreen(),
+    const AnalyticsScreen(),
+    const UserSearchPage(),
+    const AdminHotelManagementScreen(),
+    const NotificationScreen(),
    const AdminFeedback(),
   ];
 

@@ -117,17 +117,7 @@ class _HotelHomeState extends State<HotelHome> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => ViewRoomPage(
-                              roomData: {
-                                'id': 'dummyId',
-                                'roomNumber': 101,
-                                'rent': 100.0,
-                                'acType': 'AC',
-                                'bedType': 'Double Bed',
-                                'wifiAvailable': true,
-                                'balconyAvailable': false,
-                              },
-                            ),
+                            builder: (context) => const ViewRoomPage(),
                           ),
                         );
                       },
@@ -271,8 +261,8 @@ class ChatScreenPage extends StatelessWidget {
                   }
 
                   if (nameSnapshot.hasError || !nameSnapshot.hasData) {
-                    return ListTile(
-                      title: const Text('Error loading sender details'),
+                    return const ListTile(
+                      title: Text('Error loading sender details'),
                       // subtitle: Text(message),
                     );
                   }

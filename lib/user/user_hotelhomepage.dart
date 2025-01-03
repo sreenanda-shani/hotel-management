@@ -5,8 +5,7 @@ import 'package:project1/user/AvailableRooms.dart'; // Import AvailableRoomsPage
 class UserHotelDetailsScreen extends StatelessWidget {
   final String hotelDocumentId; // Accept hotel document ID
 
-  const UserHotelDetailsScreen({Key? key, required this.hotelDocumentId})
-      : super(key: key);
+  const UserHotelDetailsScreen({super.key, required this.hotelDocumentId});
 
   @override
   Widget build(BuildContext context) {

@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:project1/api/ai_api.dart';
 
 class PredictionScreen extends StatefulWidget {
+  const PredictionScreen({super.key});
+
   @override
   _PredictionScreenState createState() => _PredictionScreenState();
 }
@@ -20,7 +22,7 @@ class _PredictionScreenState extends State<PredictionScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Hotel Prediction'),
+        title: const Text('Hotel Prediction'),
         backgroundColor: Colors.teal,
       ),
       body: Padding(
@@ -73,12 +75,12 @@ class _PredictionScreenState extends State<PredictionScreen> {
                   wifi: wifi,
                 );
               },
-              child: Text('Get Prediction'),
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.teal, // Set button color
-                padding: EdgeInsets.symmetric(vertical: 16.0),
-                textStyle: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                padding: const EdgeInsets.symmetric(vertical: 16.0),
+                textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
               ),
+              child: const Text('Get Prediction'),
             ),
           ],
         ),
@@ -95,7 +97,7 @@ class _PredictionScreenState extends State<PredictionScreen> {
         keyboardType: TextInputType.number,
         decoration: InputDecoration(
           labelText: label,
-          border: OutlineInputBorder(),
+          border: const OutlineInputBorder(),
           filled: true,
           fillColor: Colors.grey[200],
         ),
@@ -111,11 +113,11 @@ class _PredictionScreenState extends State<PredictionScreen> {
         value: value,
         decoration: InputDecoration(
           labelText: label,
-          border: OutlineInputBorder(),
+          border: const OutlineInputBorder(),
           filled: true,
           fillColor: Colors.grey[200],
         ),
-        items: [
+        items: const [
           DropdownMenuItem(
             value: 0,
             child: Text('False'),

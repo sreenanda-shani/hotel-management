@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:project1/user/favuorite.dart';
 import 'package:project1/user/home_page.dart';
-import 'package:project1/user/hotel_details.dart';
 import 'package:project1/user/hotel_price_prediction_screen.dart';
 import 'package:project1/user/notification.dart';
 import 'package:project1/user/profile.dart';
 
 class BottomNavBarScreen extends StatefulWidget {
+  const BottomNavBarScreen({super.key});
+
   @override
   _BottomNavBarScreenState createState() => _BottomNavBarScreenState();
 }
@@ -17,10 +18,10 @@ class _BottomNavBarScreenState extends State<BottomNavBarScreen> {
 
   // List of screens for each tab
   final List<Widget> _screens = [
-    HomePage(),
-    FavouritesPage(),
-    NotificationPage(),
-  ProfilePage(),
+    const HomePage(),
+    const FavouritesPage(),
+    const NotificationPage(),
+  const ProfilePage(),
   ];
 
   // Function to handle bottom navigation item tap
@@ -34,10 +35,10 @@ class _BottomNavBarScreenState extends State<BottomNavBarScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       floatingActionButton: FloatingActionButton(
-        child: Icon(Icons.message),
+        child: const Icon(Icons.message),
         onPressed: () {
 
-          Navigator.push(context, MaterialPageRoute(builder: (context) => AiChatScreen(),));
+          Navigator.push(context, MaterialPageRoute(builder: (context) => const AiChatScreen(),));
         
       },),
       body: WillPopScope(

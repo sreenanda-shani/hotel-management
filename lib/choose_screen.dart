@@ -63,7 +63,7 @@ class ChooseScreen extends StatelessWidget {
                   title: 'Hotel',
                   icon: Icons.hotel,
                   onTap: () {
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => HotelLoginPage(),));
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => const HotelLoginPage(),));
                   },
                 ),
                 const SizedBox(height: 20),
@@ -85,17 +85,17 @@ class ChooseScreen extends StatelessWidget {
               onTap: () {
                 Navigator.push(context, MaterialPageRoute(builder: (context) => const AdminLoginPage(),));
               },
-              child: Row(
+              child: const Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const SizedBox(width: 25),
+                  SizedBox(width: 25),
                   Icon(
                     Icons.admin_panel_settings,
-                    color: const Color.fromARGB(186, 167, 162, 162),
+                    color: Color.fromARGB(186, 167, 162, 162),
                     size: 13, // Smaller icon size
                   ),
-                  const SizedBox(width: 2),
-                  const Text(
+                  SizedBox(width: 2),
+                  Text(
                     'Admin',
                     style: TextStyle(
                       color: Color.fromARGB(165, 132, 132, 132),
