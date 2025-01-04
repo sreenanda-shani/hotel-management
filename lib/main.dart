@@ -9,7 +9,6 @@ import 'package:project1/hotel/hotelhome.dart';
 import 'package:project1/user/new_ai_screen.dart';
 
 
-
 const apiKey = 'AIzaSyCD8u6ra1ix2Ttbjsfb6GyCFGYxxWGG48g';
 
 Future<void> main() async {

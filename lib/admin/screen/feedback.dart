@@ -10,6 +10,7 @@ class AdminFeedback extends StatefulWidget {
 
 class _AdminFeedbackState extends State<AdminFeedback> {
   final List<Map<String, dynamic>> _feedbacks = []; // Local list to store feedbacks
+  bool _isLoading = true; // Add a loading state to track data fetching
 
   // Fetch feedback data from Firestore
   void fetchFeedbacks() async {
@@ -42,9 +43,14 @@ class _AdminFeedbackState extends State<AdminFeedback> {
       }
 
       // Update the UI with the fetched feedbacks
-      setState(() {});
+      setState(() {
+        _isLoading = false; // Set loading to false once data is fetched
+      });
     } catch (e) {
       print('Error fetching feedbacks: $e');
+      setState(() {
+        _isLoading = false; // Stop loading even if there is an error
+      });
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Failed to fetch feedbacks')),
       );
@@ -60,37 +66,47 @@ class _AdminFeedbackState extends State<AdminFeedback> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('User Feedbacks')),
+      appBar: AppBar(
+        title: const Text(
+          'User feedbacks',
+          style: TextStyle(color: Colors.white),
+        ),
+        backgroundColor: Colors.teal,
+        elevation: 4,
+        centerTitle: true,
+      ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: _feedbacks.isEmpty
-            ? const Center(child: Text('No feedbacks available.'))
-            : ListView.builder(
-                itemCount: _feedbacks.length,
-                itemBuilder: (context, index) {
-                  final feedback = _feedbacks[index];
-                  final userName = feedback['userName'];
-                  final feedbackMessage = feedback['feedback'];
-                  final timestamp = feedback['timestamp'];
+        child: _isLoading // Check the loading state
+            ? const Center(child: CircularProgressIndicator()) // Show loading spinner if data is being fetched
+            : _feedbacks.isEmpty
+                ? const Center(child: Text('No feedbacks available.'))
+                : ListView.builder(
+                    itemCount: _feedbacks.length,
+                    itemBuilder: (context, index) {
+                      final feedback = _feedbacks[index];
+                      final userName = feedback['userName'];
+                      final feedbackMessage = feedback['feedback'];
+                      final timestamp = feedback['timestamp'];
 
-                  // Convert Firestore Timestamp to DateTime
-                  String formattedTime = timestamp != null
-                      ? (timestamp as Timestamp).toDate().toLocal().toString() // Format timestamp to local time
-                      : 'Unknown time';
+                      // Convert Firestore Timestamp to DateTime
+                      String formattedTime = timestamp != null
+                          ? (timestamp as Timestamp).toDate().toLocal().toString() // Format timestamp to local time
+                          : 'Unknown time';
 
-                  return Card(
-                    margin: const EdgeInsets.symmetric(vertical: 8.0),
-                    child: ListTile(
-                      title: Text(userName), // Displaying the user's name
-                      subtitle: Text(feedbackMessage), // Displaying the feedback message
-                      trailing: Text(
-                        formattedTime, // Displaying formatted timestamp
-                        style: const TextStyle(fontSize: 12),
-                      ),
-                    ),
-                  );
-                },
-              ),
+                      return Card(
+                        margin: const EdgeInsets.symmetric(vertical: 8.0),
+                        child: ListTile(
+                          title: Text(userName), // Displaying the user's name
+                          subtitle: Text(feedbackMessage), // Displaying the feedback message
+                          trailing: Text(
+                            formattedTime, // Displaying formatted timestamp
+                            style: const TextStyle(fontSize: 12),
+                          ),
+                        ),
+                      );
+                    },
+                  ),
       ),
     );
   }

@@ -9,6 +9,7 @@ import 'package:project1/user/bookinghistory.dart';
 import 'package:project1/user/roombooking.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:intl/intl.dart';
 
 class HotelApp extends StatelessWidget {
   const HotelApp({Key? key}) : super(key: key);
@@ -26,13 +27,36 @@ class HotelApp extends StatelessWidget {
   }
 }
 
-class HotelHome extends StatelessWidget {
+class HotelHome extends StatefulWidget {
   const HotelHome({Key? key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
-    final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  _HotelHomeState createState() => _HotelHomeState();
+}
 
+class _HotelHomeState extends State<HotelHome> {
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  final PageController _pageController = PageController();
+  int _selectedIndex = 0;
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
+
+  void _onPageChanged(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+  }
+
+  void _onTap(int index) {
+    _pageController.jumpToPage(index);
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(
@@ -171,7 +195,7 @@ class HotelHome extends StatelessWidget {
             Expanded(
               child: StreamBuilder<QuerySnapshot>(
                 stream: FirebaseFirestore.instance
-                    .collection('notifications')
+                    .collection('hotelnotifications')
                     .snapshots(),
                 builder: (context, snapshot) {
                   if (!snapshot.hasData) {
@@ -182,6 +206,10 @@ class HotelHome extends StatelessWidget {
                   for (var notification in notifications) {
                     final message = notification['message'];
                     final timestamp = notification['timestamp'];
+                    String formattedTime = timestamp != null
+                        ? DateFormat('yyyy-MM-dd HH:mm')
+                            .format(timestamp.toDate())
+                        : 'Unknown time';
 
                     notificationWidgets.add(
                       Card(
@@ -198,7 +226,7 @@ class HotelHome extends StatelessWidget {
                           title: Text(message,
                               style: const TextStyle(fontSize: 16)),
                           subtitle: Text(
-                            timestamp.toDate().toString(),
+                            formattedTime,
                             style: const TextStyle(
                                 fontSize: 12, color: Colors.grey),
                           ),
@@ -230,33 +258,31 @@ class HotelHome extends StatelessWidget {
             label: 'Profile',
           ),
         ],
-        currentIndex: 0,
+        currentIndex: _selectedIndex,
         selectedItemColor: Colors.blueAccent,
-        onTap: (index) {
-          if (index == 0) {
-          } else if (index == 1) {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                  builder: (context) => const ManageHotelDetailsPage()),
-            );
-          } else if (index == 2) {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => HotelProfile()),
-            );
-          }
-        },
+        onTap: _onTap,
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) =>  ChatList()),
+            MaterialPageRoute(builder: (context) => ChatList()),
           );
         },
         backgroundColor: Colors.blueAccent,
         child: const Icon(Icons.chat),
+      ),
+      body: PageView(
+        controller: _pageController,
+        onPageChanged: _onPageChanged,
+        children: <Widget>[
+          // Home screen content
+          Container(),
+          // Manage Rooms content
+          ManageHotelDetailsPage(),
+          // Profile screen content
+          HotelProfile(),
+        ],
       ),
     );
   }
@@ -298,6 +324,7 @@ class HotelHome extends StatelessWidget {
     );
   }
 }
+
 
 
 class ChatList extends StatelessWidget {

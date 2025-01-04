@@ -54,7 +54,13 @@ class _UserSearchPageState extends State<UserSearchPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("User Search"),
+        title: const Text(
+          'User Search',
+          style: TextStyle(color: Colors.white),
+        ),
+        backgroundColor: Colors.teal,
+        elevation: 4,
+        centerTitle: true,
       ),
       body: Column(
         children: [

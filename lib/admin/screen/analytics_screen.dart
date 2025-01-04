@@ -1,5 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:project1/admin/screen/hotelnotifications.dart';
+import 'package:project1/admin/screen/usernotification.dart';
 
 class AnalyticsScreen extends StatefulWidget {
   const AnalyticsScreen({super.key});
@@ -13,6 +15,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
   int totalNotifications = 0;
   int totalBookings = 0;
   int totalComplaints = 0;
+  int totalhotelNotifications = 0;
 
   @override
   void initState() {
@@ -34,7 +37,16 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
       QuerySnapshot notificationSnapshot =
           await FirebaseFirestore.instance.collection('notifications').get();
       setState(() {
-        totalNotifications = notificationSnapshot.size; // Count of notification documents
+        totalNotifications =
+            notificationSnapshot.size; // Count of notification documents
+      });
+
+       // Fetch total notifications
+      QuerySnapshot hotelnotificationSnapshot =
+          await FirebaseFirestore.instance.collection('hotelnotifications').get();
+      setState(() {
+        totalhotelNotifications =
+           hotelnotificationSnapshot.size; // Count of notification documents
       });
 
       // Fetch total bookings
@@ -48,9 +60,9 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
       QuerySnapshot complaintSnapshot =
           await FirebaseFirestore.instance.collection('complaints').get();
       setState(() {
-        totalComplaints = complaintSnapshot.size; // Count of complaint documents
+        totalComplaints =
+            complaintSnapshot.size; // Count of complaint documents
       });
-
     } catch (e) {
       print('Error fetching analytics data: $e');
       ScaffoldMessenger.of(context).showSnackBar(
@@ -63,52 +75,105 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Analytics', style: TextStyle(color: Colors.white)),
+        title: const Text(
+          'Analytics',
+          style: TextStyle(color: Colors.white),
+        ),
         backgroundColor: Colors.teal,
         elevation: 4,
         centerTitle: true,
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: ListView(
+        child: Column(
           children: [
-            const SizedBox(height: 20),
-            _buildCard(
-              icon: Icons.person,
-              iconColor: Colors.blue,
-              title: 'Total Users',
-              value: totalUsers.toString(),
+            // Notification Buttons
+             Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                ElevatedButton.icon(
+                  onPressed: () {
+                    // Navigate to another page
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) =>
+                              NotificationScreen()), // Replace AnotherPage() with your target page widget
+                    );
+                  },
+                  icon: const Icon(Icons.notifications, color: Colors.teal),
+                  label: const Text('User Notifications', style: TextStyle(color: Colors.teal),),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color.fromARGB(255, 240, 240, 240),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 25),
+                  ),
+                ),
+                ElevatedButton.icon(
+                  onPressed: () {
+                    // Navigate to another page
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) =>
+                              HotelNotificationScreen()), // Replace AnotherPage() with your target page widget
+                    );
+                  },
+                  icon: const Icon(Icons.notifications_active,
+                      color: Colors.teal),
+                  label: const Text('Hotel Notifications',style: TextStyle(color: Colors.teal),),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color.fromARGB(255, 240, 240, 240),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 25),
+                  ),
+                ),
+              ],
             ),
-            const SizedBox(height: 16),
-            _buildCard(
-              icon: Icons.notifications,
-              iconColor: Colors.orange,
-              title: 'Total Notifications Sent',
-              value: totalNotifications.toString(),
-            ),
-            const SizedBox(height: 16),
-            _buildCard(
-              icon: Icons.book_online,
-              iconColor: Colors.green,
-              title: 'Total Bookings',
-              value: totalBookings.toString(),
-            ),
-            const SizedBox(height: 16),
-            _buildCard(
-              icon: Icons.feedback,
-              iconColor: Colors.red,
-              title: 'Total Complaints',
-              value: totalComplaints.toString(),
-            ),
-            const SizedBox(height: 20),
-            const Text(
-              'More analytics features coming soon...',
-              style: TextStyle(
-                fontSize: 16,
-                fontStyle: FontStyle.italic,
-                color: Colors.black54,
+                  const SizedBox(height: 20),
+            Expanded(
+              child: ListView(
+                children: [
+                  const SizedBox(height: 20),
+                  _buildCard(
+                    icon: Icons.person,
+                    iconColor: Colors.blue,
+                    title: 'Total Users',
+                    value: totalUsers.toString(),
+                  ),
+                  const SizedBox(height: 16),
+                  _buildCard(
+                    icon: Icons.notifications,
+                    iconColor: Colors.orange,
+                    title: 'Total Notifications Sent(User)',
+                    value: totalNotifications.toString(),
+                  ),
+                   const SizedBox(height: 16),
+                  _buildCard(
+                    icon: Icons.notifications,
+                    iconColor: Colors.orange,
+                    title: 'Total Notifications Sent(Hotel)',
+                    value: totalhotelNotifications.toString(),
+                  ),
+                  const SizedBox(height: 16),
+                  _buildCard(
+                    icon: Icons.book_online,
+                    iconColor: Colors.green,
+                    title: 'Total Bookings',
+                    value: totalBookings.toString(),
+                  ),
+                  const SizedBox(height: 16),
+                  _buildCard(
+                    icon: Icons.feedback,
+                    iconColor: Colors.red,
+                    title: 'Total Complaints',
+                    value: totalComplaints.toString(),
+                  ),
+                ],
               ),
             ),
+      
+           
           ],
         ),
       ),
@@ -128,7 +193,8 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
         borderRadius: BorderRadius.circular(12),
       ),
       child: ListTile(
-        contentPadding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+        contentPadding:
+            const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
         leading: CircleAvatar(
           backgroundColor: iconColor.withOpacity(0.2),
           child: Icon(icon, color: iconColor, size: 32),

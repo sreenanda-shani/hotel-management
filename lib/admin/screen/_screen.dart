@@ -1,14 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:project1/admin/screen/admin_hotel_management.dart';
 import 'package:project1/admin/screen/feedback.dart';
-import 'package:project1/admin/screen/notification.dart';
 import 'package:project1/admin/usersearchpage.dart';
-
-import 'analytics_screen.dart';
-
-
-
-
+import 'package:project1/admin/screen/analytics_screen.dart';
 
 class AdminUserScreen extends StatefulWidget {
   const AdminUserScreen({super.key});
@@ -25,7 +19,7 @@ class _AdminUserScreenState extends State<AdminUserScreen> {
     const AnalyticsScreen(),
     const UserSearchPage(),
     const AdminHotelManagementScreen(),
-   const AdminFeedback(),
+    const AdminFeedback(),
   ];
 
   // This function is triggered when a navigation item is tapped
@@ -38,7 +32,6 @@ class _AdminUserScreenState extends State<AdminUserScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      
       // Body changes based on the selected index
       body: _pages[_selectedIndex],
       bottomNavigationBar: BottomNavigationBar(
@@ -51,7 +44,6 @@ class _AdminUserScreenState extends State<AdminUserScreen> {
             icon: Icon(Icons.person),
             label: 'User Details',
           ),
-          
           BottomNavigationBarItem(
             icon: Icon(Icons.hotel),
             label: 'Hotel Management',
@@ -60,7 +52,6 @@ class _AdminUserScreenState extends State<AdminUserScreen> {
             icon: Icon(Icons.feedback),
             label: 'Feedback',
           ),
-         
         ],
         currentIndex: _selectedIndex,
         selectedItemColor: Colors.blue,
