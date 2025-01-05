@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:project1/api/ai_api.dart';
+import 'package:project1/user/user_hotelhomepage.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class PredictionScreen extends StatefulWidget {
@@ -22,6 +23,7 @@ class _PredictionScreenState extends State<PredictionScreen> {
 
   String? predict;
   bool isLoading = false;
+  var rooms;
 
   @override
   Widget build(BuildContext context) {
@@ -98,7 +100,7 @@ class _PredictionScreenState extends State<PredictionScreen> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => RoomListPage(roomData: rooms),
+                      builder: (context) => RoomListPage(roomData: rooms,prediction:predict),
                     ),
                   );
                 } catch (e) {
@@ -208,8 +210,9 @@ class _PredictionScreenState extends State<PredictionScreen> {
 
 class RoomListPage extends StatelessWidget {
   final List<Map<String, dynamic>> roomData;
+  final dynamic prediction;
 
-  const RoomListPage({super.key, required this.roomData});
+  const RoomListPage({super.key, required this.roomData,required this.prediction});
 
   // Helper function to launch Google Maps with latitude and longitude
   void _launchMaps(double latitude, double longitude) async {
@@ -228,12 +231,19 @@ class RoomListPage extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Room List'),
         backgroundColor: Colors.teal,
+        
       ),
       body: roomData.isEmpty
-          ? const Center(
-              child: Text(
-                'No rooms found',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          ?  Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text('The Ai recommented room type  : ${prediction.toString()}'),
+                  Text(
+                    'No rooms found in your budget or type',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                ],
               ),
             )
           : ListView.builder(
@@ -298,8 +308,34 @@ class RoomListPage extends StatelessWidget {
                             ],
                           ),
                           
-                          Align(
-                            alignment: Alignment.centerRight,
+                          Row(
+                            children: [
+                              Expanded(
+                                child: ElevatedButton.icon(
+                                  onPressed: () {
+                                    print(hotelDetails);
+                                     Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => UserHotelDetailsScreen(
+                                      hotelDocumentId: roomData[index]['hotelId'],
+                                    ),
+                                  ),
+                                );
+                                  },
+                                  icon: const Icon(Icons.book, color: Colors.white),
+                                  label: const Text('Book now',style: TextStyle(color: Colors.white),),
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.teal,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(8.0),
+                                    ),
+                                  ),
+                                ),
+                              ),
+
+                              SizedBox(width: 10,),
+                                Expanded(
                             child: ElevatedButton.icon(
                               onPressed: () => _launchMaps(
                                 double.parse(hotelDetails['lat']),
@@ -315,6 +351,13 @@ class RoomListPage extends StatelessWidget {
                               ),
                             ),
                           ),
+                       
+                            ],
+                          ),
+                        
+                       
+                       
+                       
                         ],
                       ],
                     ),

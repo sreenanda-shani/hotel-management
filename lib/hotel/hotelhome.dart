@@ -272,18 +272,7 @@ class _HotelHomeState extends State<HotelHome> {
         backgroundColor: Colors.blueAccent,
         child: const Icon(Icons.chat),
       ),
-      body: PageView(
-        controller: _pageController,
-        onPageChanged: _onPageChanged,
-        children: <Widget>[
-          // Home screen content
-          Container(),
-          // Manage Rooms content
-          ManageHotelDetailsPage(),
-          // Profile screen content
-          HotelProfile(),
-        ],
-      ),
+     
     );
   }
 

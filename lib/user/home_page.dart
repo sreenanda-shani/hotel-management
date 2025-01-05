@@ -14,6 +14,7 @@ import 'package:project1/user/profile.dart';
 import 'package:project1/user/user_chat_screen.dart';
 import 'package:project1/user/user_hotelhomepage.dart';
 import 'package:project1/user/login_page.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 
 class HomePage extends StatefulWidget {
@@ -50,12 +51,8 @@ class _HomePageState extends State<HomePage> {
             label: 'AiChatScreen',
             backgroundColor: Colors.blue,
             onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const AiChatScreen(),
-                ),
-              );
+                          Navigator.push(context, MaterialPageRoute(builder: (context) => const PredictionScreen(),));
+
             },
           ),
           SpeedDialChild(
@@ -404,6 +401,32 @@ class _HomePageState extends State<HomePage> {
                                 style: TextStyle(color: Colors.white), // Text color is white
                               ),
                             ),
+                            SizedBox(width: 5,),
+                            ElevatedButton(
+                              onPressed: () {
+                                print(hotelData);
+                                // Define the latitude and longitude
+    String destinationLat = hotelData['lat']; // Replace with your destination latitude
+    String destinationLng = hotelData['log']; // Replace with your destination longitude
+
+    // Build the Google Maps URL
+    String googleMapsUrl =
+        "https://www.google.com/maps/dir/?api=1&destination=$destinationLat,$destinationLng&travelmode=driving";
+
+    // Launch Google Maps
+    _launchURL(googleMapsUrl);
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.black, // Set button color to black
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                              ),
+                              child: const Text(
+                                "Route",
+                                style: TextStyle(color: Colors.white), // Text color is white
+                              ),
+                            ),
                             const Spacer(),
                             TextButton.icon(
                               icon: const Icon(Icons.message, color: Colors.black), // Icon color black
@@ -430,4 +453,14 @@ class _HomePageState extends State<HomePage> {
       },
     );
   }
+
+
+  // Define the _launchURL function
+void _launchURL(String url) async {
+  if (await canLaunch(url)) {
+    await launch(url);
+  } else {
+    throw 'Could not launch $url';
+  }
+}
 }
