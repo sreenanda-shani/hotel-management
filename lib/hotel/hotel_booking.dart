@@ -12,7 +12,7 @@ class hotelbooking extends StatelessWidget {
       appBar: AppBar(
         title: const Text(
           "Booking History",
-          style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+          style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold,color: Colors.white),
         ),
         centerTitle: true,
         backgroundColor: Colors.blueGrey.shade900,

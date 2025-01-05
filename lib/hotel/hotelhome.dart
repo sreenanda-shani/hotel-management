@@ -4,8 +4,10 @@ import 'package:project1/choose_screen.dart';
 import 'package:project1/hotel/chat_screen.dart';
 import 'package:project1/hotel/hotel_booking.dart';
 import 'package:project1/hotel/hotel_profile.dart';
+import 'package:project1/hotel/hotel_rooms.dart';
 import 'package:project1/hotel/hotel_view.dart';
 import 'package:project1/hotel/hotelmanage.dart';
+import 'package:project1/hotel/recommentation_screen.dart';
 import 'package:project1/user/bookinghistory.dart';
 import 'package:project1/user/roombooking.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -193,8 +195,7 @@ class _HotelHomeState extends State<HotelHome> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            Wrap(
               children: [
                 _buildCard(
                   context,
@@ -209,6 +210,20 @@ class _HotelHomeState extends State<HotelHome> {
                   title: 'View Rooms',
                   subtitle: '',
                   route: const ViewRoomPage(),
+                ),
+                _buildCard(
+                  context,
+                  icon: Icons.room_preferences,
+                  title: 'Add rooms',
+                  subtitle: '',
+                  route:  AddRoomScreen(),
+                ),
+                 _buildCard(
+                  context,
+                  icon: Icons.report,
+                  title: 'Report',
+                  subtitle: '',
+                  route:  AiRecomentationScreen(),
                 ),
               ],
             ),
@@ -303,41 +318,84 @@ class _HotelHomeState extends State<HotelHome> {
   
 
   Widget _buildCard(
-    BuildContext context, {
-    required IconData icon,
-    required String title,
-    required String subtitle,
-    required Widget route,
-  }) {
-    return Container(
-      height: 140,  // Reduced height of the cards
-      width: 160,   // Reduced width of the cards
-      child: Card(
-        elevation: 6,  // Slightly reduced elevation
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-        child: ListTile(
-          leading: Icon(icon, size: 35, color: Colors.blueAccent),  // Slightly smaller icon size
-          title: Text(
+  BuildContext context, {
+  required IconData icon,
+  required String title,
+  required String subtitle,
+  required Widget route,
+}) {
+  return GestureDetector(
+    onTap: () {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => route),
+      );
+    },
+    child: Container(
+     // Increased height for better visuals
+
+     width: MediaQuery.of(context).size.width/2.5,
+     padding: EdgeInsets.symmetric(vertical: 20),
+      
+      margin: const EdgeInsets.all(8.0),
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          colors: [Colors.tealAccent, Colors.teal],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.1),
+            blurRadius: 10,
+            spreadRadius: 2,
+            offset: const Offset(0, 5),
+          ),
+        ],
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.2),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              icon,
+              size: 40,
+              color: Colors.white,
+            ),
+          ),
+          const SizedBox(height: 12),
+          Text(
             title,
             style: const TextStyle(
-                fontSize: 14,  // Reduced font size for the title
-                fontWeight: FontWeight.bold,
-                color: Colors.blueAccent),
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+            ),
+            textAlign: TextAlign.center,
           ),
-          subtitle: Text(
+          const SizedBox(height: 6),
+          Text(
             subtitle,
-            style: const TextStyle(fontSize: 10),  // Reduced font size for subtitle
+            style: const TextStyle(
+              fontSize: 12,
+              color: Colors.white70,
+            ),
+            textAlign: TextAlign.center,
           ),
-          onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => route),
-            );
-          },
-        ),
+        ],
       ),
-    );
-  }
+    ),
+  );
+}
+
+
+
 }
 
 class ChatList extends StatelessWidget {

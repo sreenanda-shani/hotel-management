@@ -7,12 +7,14 @@ class RoomBookingPage extends StatefulWidget {
   final String hotelId;
   final int roomNumber;
   final double rent;
+  final String roomId;
 
   const RoomBookingPage({
     super.key,
     required this.hotelId,
     required this.roomNumber,
     required this.rent,
+    required this.roomId,
   });
 
   @override
@@ -52,10 +54,16 @@ class _RoomBookingPageState extends State<RoomBookingPage> {
       DateTime checkInDate = DateFormat('yyyy-MM-dd').parse(_checkInController.text.trim());
       DateTime checkOutDate = DateFormat('yyyy-MM-dd').parse(_checkOutController.text.trim());
 
+      // Calculate the total rent based on the number of days between check-in and check-out
+      int daysStay = checkOutDate.difference(checkInDate).inDays;
+      double totalRent = daysStay * widget.rent;
+
       final bookingData = {
         'hotelId': widget.hotelId,
         'roomNumber': widget.roomNumber,
+        'roomid': widget.roomId,
         'rent': widget.rent,
+        'totalRent': totalRent, // Add total rent field
         'name': _nameController.text.trim(),
         'mobile': _mobileController.text.trim(),
         'email': _emailController.text.trim(),
@@ -68,6 +76,11 @@ class _RoomBookingPageState extends State<RoomBookingPage> {
 
       // Save the booking to Firestore
       await FirebaseFirestore.instance.collection('booking').add(bookingData);
+
+      // Update the room availability to false
+      await FirebaseFirestore.instance.collection('rooms').doc(widget.roomId).update({
+        'isAvailable': false, // Set room availability to false
+      });
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Booking confirmed for room ${widget.roomNumber}!')),

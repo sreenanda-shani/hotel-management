@@ -11,18 +11,7 @@ class ViewRoomPage extends StatefulWidget {
 
 class _ViewRoomPageState extends State<ViewRoomPage> {
 
-  Future<void> _removeRoom(String roomId) async {
-    try {
-      await FirebaseFirestore.instance.collection('rooms').doc(roomId).delete();
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Room removed successfully!')),
-      );
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Error removing room')),
-      );
-    }
-  }
+  
 
   void _navigateToUpdatePage(Map<String, dynamic> roomData) {
     Navigator.push(
@@ -33,169 +22,301 @@ class _ViewRoomPageState extends State<ViewRoomPage> {
     );
   }
 
+@override
+Widget build(BuildContext context) {
+  return Scaffold(
+    appBar: AppBar(
+      title: const Text("View Rooms"),
+      backgroundColor: Colors.white,
+      elevation: 0,
+      iconTheme: const IconThemeData(color: Colors.black), // Back arrow in black
+    ),
+    body: StreamBuilder<QuerySnapshot>(
+      stream: FirebaseFirestore.instance
+          .collection('rooms')
+          .where('hotelId', isEqualTo: FirebaseAuth.instance.currentUser!.uid)
+          .snapshots(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        }
+
+        if (snapshot.hasError) {
+          return const Center(child: Text('Error fetching room details'));
+        }
+
+        if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+          return const Center(child: Text('No rooms found'));
+        }
+
+        var roomsData = snapshot.data!.docs.map((doc) {
+          return {
+            ...doc.data() as Map<String, dynamic>,
+            'id': doc.id, // Add the document ID
+          };
+        }).toList();
+
+        return Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: GridView.builder(
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2, // Number of columns
+              crossAxisSpacing: 10, // Space between columns
+              mainAxisSpacing: 10, // Space between rows
+              childAspectRatio: 1.5, // Adjusted for taller cards
+            ),
+            itemCount: roomsData.length,
+            itemBuilder: (context, index) {
+              final room = roomsData[index];
+              final isAvailable = room['isAvailable'] as bool;
+
+              return GestureDetector(
+                onTap: () {
+                  _navigateToDetailsPage(room);
+                },
+                child: Card(
+                  color: isAvailable ? Colors.teal : Colors.redAccent, // Background color
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(15),
+                  ),
+                  elevation: 5,
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.hotel,
+                          size: 40,
+                          color: Colors.white, // Icon color
+                        ),
+                        const SizedBox(height: 10),
+                        Text(
+                          "Room ${room['roomNumber']}",
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white, // Text color
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              );
+            },
+          ),
+        );
+      },
+    ),
+  );
+}
+
+void _navigateToDetailsPage(Map<String, dynamic> room) {
+  Navigator.push(
+    context,
+    MaterialPageRoute(
+      builder: (context) => RoomDetailsPage(room: room),
+    ),
+  );
+}
+
+
+
+
+
+ 
+
+}
+
+class RoomDetailsPage extends StatefulWidget {
+  final Map<String, dynamic> room;
+  
+  const RoomDetailsPage({super.key, required this.room,});
+
+  @override
+  State<RoomDetailsPage> createState() => _RoomDetailsPageState();
+}
+
+class _RoomDetailsPageState extends State<RoomDetailsPage> {
+  Future<void> _removeRoom(String roomId) async {
+    try {
+      await FirebaseFirestore.instance.collection('rooms').doc(roomId).delete();
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Room removed successfully!')),
+      );
+      Navigator.pop(context);
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Error removing room')),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("View Room Details"),
+        title: const Text(
+          "Room Details",
+          style: TextStyle(color: Colors.black),
+        ),
         backgroundColor: Colors.white,
+        iconTheme: const IconThemeData(color: Colors.black),
         elevation: 0,
-        iconTheme: const IconThemeData(color: Colors.black), // Change back arrow to black
       ),
-      body: StreamBuilder<QuerySnapshot>(
-        stream: FirebaseFirestore.instance
-            .collection('rooms')
-            .where('hotelId', isEqualTo: FirebaseAuth.instance.currentUser!.uid)
-            .snapshots(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          }
-
-          if (snapshot.hasError) {
-            return const Center(child: Text('Error fetching room details'));
-          }
-
-          if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-            return const Center(child: Text('No rooms found'));
-          }
-
-          var roomsData = snapshot.data!.docs.map((doc) {
-            return {
-              ...doc.data() as Map<String, dynamic>,
-              'id': doc.id,  // Add the document ID
-            };
-          }).toList();
-
-          return Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: SingleChildScrollView(
-              child: Column(
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Image(image: NetworkImage(widget.room['imageUrl']),width: MediaQuery.of(context).size.width,height: MediaQuery.of(context).size.height/3,fit: BoxFit.cover,),
+              const SizedBox(height: 30),
+              Row(
                 children: [
-                  for (var room in roomsData)
-                    Card(
-                      elevation: 10,
-                      shadowColor: Colors.black.withOpacity(0.1),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                      margin: const EdgeInsets.symmetric(vertical: 10),
-                      color: Colors.transparent, // Set the background to transparent
-                      child: Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            // Image display
-                            room['imageUrl'] != null
-                                ? Image.network(room['imageUrl'], width: double.infinity, height: 200, fit: BoxFit.cover)
-                                : Container(
-                                    width: double.infinity,
-                                    height: 200,
-                                    color: Colors.grey.shade300,
-                                    child: const Icon(Icons.image, color: Colors.white),
-                                  ),
-
-                            const SizedBox(height: 8),
-
-                            Text(
-                              "Room Number: ${room['roomNumber']}",
-                              style: const TextStyle(
-                                fontSize: 24,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.black, // Set text color to black
-                              ),
-                            ),
-                            const SizedBox(height: 8),
-                            Text(
-                              "Rent: \$${room['rent']}",
-                              style: const TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.w500,
-                                color: Colors.black, // Set text color to black
-                              ),
-                            ),
-                            Text(
-                              "Max People: ${room['maxPeople']}",
-                              style: const TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.w500,
-                                color: Colors.black, // Set text color to black
-                              ),
-                            ),
-                            const SizedBox(height: 8),
-                            Text(
-                              "AC Type: ${room['acType']}",
-                              style: const TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.w500,
-                                color: Colors.black, // Set text color to black
-                              ),
-                            ),
-                            const SizedBox(height: 8),
-                            Text(
-                              "Bed Type: ${room['bedType']}",
-                              style: const TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.w500,
-                                color: Colors.black, // Set text color to black
-                              ),
-                            ),
-                            const SizedBox(height: 8),
-                            Text(
-                              "Wi-Fi Available: ${room['wifiAvailable'] ? 'Yes' : 'No'}",
-                              style: const TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.w500,
-                                color: Colors.black, // Set text color to black
-                              ),
-                            ),
-                            const SizedBox(height: 8),
-                            Text(
-                              "Balcony Available: ${room['balconyAvailable'] ? 'Yes' : 'No'}",
-                              style: const TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.w500,
-                                color: Colors.black, // Set text color to black
-                              ),
-                            ),
-                            const SizedBox(height: 20),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                ElevatedButton.icon(
-                                  onPressed: () => _navigateToUpdatePage(room),
-                                  icon: const Icon(Icons.edit, color: Colors.black), // Change icon color to black
-                                  label: const Text("Update", style: TextStyle(color: Colors.black)), // Change text color to black
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: Colors.white, // Set button color to white
-                                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-                                  ),
-                                ),
-                                ElevatedButton.icon(
-                                  onPressed: () => _removeRoom(room['id']),
-                                  icon: const Icon(Icons.delete, color: Colors.black), // Change icon color to black
-                                  label: const Text("Remove", style: TextStyle(color: Colors.black)), // Change text color to black
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: Colors.white, // Set button color to white
-                                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
+                  const Icon(Icons.meeting_room, size: 30, color: Colors.teal),
+                  const SizedBox(width: 10),
+                  Text(
+                    "Room Number: ${widget.room['roomNumber']}",
+                    style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                  ),
                 ],
               ),
-            ),
-          );
-        },
+              const Divider(height: 30, thickness: 1),
+              _buildRoomDetail(Icons.attach_money, "Rent", "\$${widget.room['rent']}"),
+              _buildRoomDetail(Icons.group, "Max People", "${widget.room['maxPeople']}"),
+              _buildRoomDetail(Icons.ac_unit, "AC Type", widget.room['acType']),
+              _buildRoomDetail(Icons.bed, "Bed Type", widget.room['bedType']),
+              _buildRoomDetail(Icons.wifi, "Wi-Fi", widget.room['wifiAvailable'] ? 'Available' : 'Not Available'),
+              _buildRoomDetail(Icons.balcony, "Balcony", widget.room['balconyAvailable'] ? 'Available' : 'Not Available'),
+              _buildRoomDetail(Icons.check_circle, "Availability", widget.room['isAvailable'] ? 'Available' : 'Not Available'),
+              const SizedBox(height: 30),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  Expanded(
+                    child: ElevatedButton.icon(
+                      onPressed: () {
+                        Navigator.push(context, MaterialPageRoute(builder: (context) => UpdateRoomPage(roomData: widget.room),));
+                      },
+                      style: ElevatedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                        backgroundColor: Colors.blue,
+                      ),
+                      icon: const Icon(Icons.edit, color: Colors.white),
+                      label: const Text(
+                        "Update",
+                        style: TextStyle(fontSize: 16, color: Colors.white),
+                      ),
+                    ),
+                  ),
+                  SizedBox(width: 10,),
+                  Expanded(
+                    child: ElevatedButton.icon(
+                      onPressed: () {
+                        _removeRoom(widget.room['id']);
+                      },
+                      style: ElevatedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                        backgroundColor: Colors.red,
+                      ),
+                      icon: const Icon(Icons.delete, color: Colors.white),
+                      label: const Text(
+                        "Delete",
+                        style: TextStyle(fontSize: 16, color: Colors.white),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 20),
+              SizedBox(
+                width: MediaQuery.of(context).size.width,
+                child: ElevatedButton(
+                  onPressed: () {
+                    Navigator.pop(context); // Go back
+                  },
+                  style: ElevatedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 12),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                    backgroundColor: Colors.teal,
+                  ),
+                  child: const Text(
+                    "Back",
+                    style: TextStyle(fontSize: 18, color: Colors.white),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
+
+  // Helper method to create a detailed row with icon, title, and value
+  Widget _buildRoomDetail(IconData icon, String title, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: Row(
+        children: [
+          Icon(icon, size: 24, color: Colors.teal),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              "$title: $value",
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _updateRoom(BuildContext context) {
+    // Navigate to update room screen or trigger update logic
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text("Update room functionality not implemented yet")),
+    );
+  }
+
+  void _deleteRoom(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text("Confirm Delete"),
+          content: const Text("Are you sure you want to delete this room?"),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: const Text("Cancel"),
+            ),
+            TextButton(
+              onPressed: () {
+                // Add logic to delete the room
+                Navigator.pop(context);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text("Room deleted successfully")),
+                );
+              },
+              child: const Text("Delete", style: TextStyle(color: Colors.red)),
+            ),
+          ],
+        );
+      },
+    );
+  }
 }
+
+
+
 
 class UpdateRoomPage extends StatefulWidget {
   final Map<String, dynamic> roomData;

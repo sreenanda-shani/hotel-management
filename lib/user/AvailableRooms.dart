@@ -11,8 +11,9 @@ class AvailableRoomsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.blueAccent,
+        backgroundColor: Colors.teal, // Teal AppBar
         title: const Text("Available Rooms"),
+        elevation: 4,
       ),
       body: FutureBuilder<List<Room>>(
         future: _fetchAvailableRooms(hotelId), // Fetch rooms using hotelId
@@ -49,6 +50,7 @@ class AvailableRoomsPage extends StatelessWidget {
       List<Room> rooms = snapshot.docs.map((doc) {
         var data = doc.data() as Map<String, dynamic>;
         return Room(
+          roomId: doc.id,
           roomNumber: data['roomNumber'],
           acType: data['acType'],
           balconyAvailable: data['balconyAvailable'],
@@ -75,8 +77,10 @@ class Room {
   final double rent;
   final bool isAvailable;
   final bool wifiAvailable;
+  final String roomId;
 
   Room({
+    required this.roomId,
     required this.roomNumber,
     required this.acType,
     required this.balconyAvailable,
@@ -104,11 +108,28 @@ class _RoomTileState extends State<RoomTile> {
   Widget build(BuildContext context) {
     return Card(
       margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+      elevation: 6,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
+      color: Colors.white, // Soft teal background for the room tile
       child: ExpansionTile(
-        title: Text('Room ${widget.room.roomNumber}'),
-        subtitle: Text(widget.room.isAvailable ? 'Available' : 'Not Available'),
+        title: Text(
+          'Room ${widget.room.roomNumber}',
+          style: const TextStyle(
+            color: Colors.teal, // Title color in teal
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        subtitle: Text(
+          widget.room.isAvailable ? 'Available' : 'Not Available',
+          style: TextStyle(
+            color: widget.room.isAvailable ? Colors.green : Colors.red,
+          ),
+        ),
         trailing: Icon(
           _isExpanded ? Icons.expand_less : Icons.expand_more,
+          color: Colors.teal,
         ),
         onExpansionChanged: (bool expanding) {
           setState(() {
@@ -129,10 +150,17 @@ class _RoomTileState extends State<RoomTile> {
               ],
             ),
           ),
-          // Book Now button
+          // Book Now button with teal accent
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.teal, // Button color teal
+                padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 32),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
               onPressed: () {
                 // Navigate to RoomBookingPage with room details and hotelId
                 Navigator.push(
@@ -142,11 +170,15 @@ class _RoomTileState extends State<RoomTile> {
                       hotelId: widget.hotelId,
                       roomNumber: widget.room.roomNumber,
                       rent: widget.room.rent,
+                      roomId:widget.room.roomId
                     ),
                   ),
                 );
               },
-              child: const Text("Book Now"),
+              child: const Text(
+                "Book Now",
+                style: TextStyle(color: Colors.white, fontSize: 16),
+              ),
             ),
           ),
         ],
