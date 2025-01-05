@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:project1/user/hotel_feedback.dart';
 
 class BookingHistoryPage extends StatefulWidget {
   const BookingHistoryPage({super.key});
@@ -166,19 +167,43 @@ class _BookingHistoryPageState extends State<BookingHistoryPage> {
             ),
             const SizedBox(height: 12),
 
-            ElevatedButton(
-              onPressed: () {
-                // Navigate to detailed page or take action
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => BookingDetailsPage(
-                      bookingId: booking['bookingId'],
-                    ),
+            // Row with View Details and Provide Feedback buttons
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                ElevatedButton(
+                  onPressed: () {
+                    // Navigate to Booking Details Page
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => BookingDetailsPage(
+                          bookingId: booking['bookingId'],
+                        ),
+                      ),
+                    );
+                  },
+                  child: const Text("View Details"),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    // Navigate to Hotel Feedback Page
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => HotelFeedback(
+                          hotelId: booking['hotelId'],
+                          hotelName: hotelName,
+                        ),
+                      ),
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.teal,
                   ),
-                );
-              },
-              child: const Text("View Details"),
+                  child: const Text("Provide Feedback"),
+                ),
+              ],
             ),
           ],
         ),
@@ -187,6 +212,7 @@ class _BookingHistoryPageState extends State<BookingHistoryPage> {
   }
 }
 
+// Booking Details Page
 class BookingDetailsPage extends StatelessWidget {
   final String bookingId;
 
@@ -200,10 +226,7 @@ class BookingDetailsPage extends StatelessWidget {
         title: const Text("Booking Details"),
       ),
       body: FutureBuilder<DocumentSnapshot>(
-        future: FirebaseFirestore.instance
-            .collection('booking')
-            .doc(bookingId)
-            .get(),
+        future: FirebaseFirestore.instance.collection('booking').doc(bookingId).get(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());

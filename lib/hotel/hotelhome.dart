@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:project1/choose_screen.dart';
 import 'package:project1/hotel/chat_screen.dart';
+import 'package:project1/hotel/hotel_booking.dart';
 import 'package:project1/hotel/hotel_profile.dart';
 import 'package:project1/hotel/hotel_view.dart';
 import 'package:project1/hotel/hotelmanage.dart';
@@ -52,7 +53,32 @@ class _HotelHomeState extends State<HotelHome> {
   }
 
   void _onTap(int index) {
-    _pageController.jumpToPage(index);
+    setState(() {
+      _selectedIndex = index;
+    });
+
+    // Navigate based on the index
+    switch (index) {
+      case 0:
+        // Home (You can add the navigation logic here if needed)
+        break;
+      case 1:
+        // Navigate to the ManageHotelDetailsPage
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => ManageHotelDetailsPage()),
+        );
+        break;
+      case 2:
+        // Navigate to the HotelProfilePage
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => HotelProfile()),
+        );
+        break;
+      default:
+        break;
+    }
   }
 
   @override
@@ -153,7 +179,7 @@ class _HotelHomeState extends State<HotelHome> {
               leading: const Icon(Icons.exit_to_app, color: Colors.black),
               title: const Text('Logout'),
               onTap: () {
-                Navigator.pushReplacement(
+                Navigator.push(
                   context,
                   MaterialPageRoute(builder: (context) => ChooseScreen()),
                 );
@@ -175,7 +201,7 @@ class _HotelHomeState extends State<HotelHome> {
                   icon: Icons.book_online,
                   title: 'View Bookings',
                   subtitle: 'Check reservations',
-                  route: const BookingHistoryPage(),
+                  route: const hotelbooking(),
                 ),
                 _buildCard(
                   context,
@@ -260,7 +286,7 @@ class _HotelHomeState extends State<HotelHome> {
         ],
         currentIndex: _selectedIndex,
         selectedItemColor: Colors.blueAccent,
-        onTap: _onTap,
+        onTap: _onTap, // Calls the updated onTap method
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
@@ -272,9 +298,9 @@ class _HotelHomeState extends State<HotelHome> {
         backgroundColor: Colors.blueAccent,
         child: const Icon(Icons.chat),
       ),
-     
     );
   }
+  
 
   Widget _buildCard(
     BuildContext context, {
@@ -284,23 +310,23 @@ class _HotelHomeState extends State<HotelHome> {
     required Widget route,
   }) {
     return Container(
-      height: 180,
-      width: 200,
+      height: 140,  // Reduced height of the cards
+      width: 160,   // Reduced width of the cards
       child: Card(
-        elevation: 8,
+        elevation: 6,  // Slightly reduced elevation
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
         child: ListTile(
-          leading: Icon(icon, size: 40, color: Colors.blueAccent),
+          leading: Icon(icon, size: 35, color: Colors.blueAccent),  // Slightly smaller icon size
           title: Text(
             title,
             style: const TextStyle(
-                fontSize: 16,
+                fontSize: 14,  // Reduced font size for the title
                 fontWeight: FontWeight.bold,
                 color: Colors.blueAccent),
           ),
           subtitle: Text(
             subtitle,
-            style: const TextStyle(fontSize: 12),
+            style: const TextStyle(fontSize: 10),  // Reduced font size for subtitle
           ),
           onTap: () {
             Navigator.push(
@@ -313,8 +339,6 @@ class _HotelHomeState extends State<HotelHome> {
     );
   }
 }
-
-
 
 class ChatList extends StatelessWidget {
   @override
@@ -344,7 +368,7 @@ class ChatList extends StatelessWidget {
                 displayedUsers.add(senderId);
 
                 chatWidgets.add(
-                  FutureBuilder<DocumentSnapshot>(
+                  FutureBuilder<DocumentSnapshot>( 
                     future: FirebaseFirestore.instance
                         .collection('user')
                         .doc(senderId)

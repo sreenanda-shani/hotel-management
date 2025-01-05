@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:project1/hotel/user_details.dart';
 
-class BookingHistoryPage extends StatelessWidget {
-  const BookingHistoryPage({super.key});
+class hotelbooking extends StatelessWidget {
+  const hotelbooking({super.key});
 
   @override
   Widget build(BuildContext context) {
