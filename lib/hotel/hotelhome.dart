@@ -393,9 +393,6 @@ class _HotelHomeState extends State<HotelHome> {
     ),
   );
 }
-
-
-
 }
 
 class ChatList extends StatelessWidget {
