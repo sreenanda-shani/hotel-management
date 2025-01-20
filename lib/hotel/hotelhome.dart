@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:project1/choose_screen.dart';
+import 'package:project1/hotel/add_staff.dart';
 import 'package:project1/hotel/chat_screen.dart';
 import 'package:project1/hotel/hotel_booking.dart';
 import 'package:project1/hotel/hotel_profile.dart';
@@ -8,27 +9,13 @@ import 'package:project1/hotel/hotel_rooms.dart';
 import 'package:project1/hotel/hotel_view.dart';
 import 'package:project1/hotel/hotelmanage.dart';
 import 'package:project1/hotel/recommentation_screen.dart';
+import 'package:project1/hotel/view_staff.dart';
 import 'package:project1/user/bookinghistory.dart';
 import 'package:project1/user/roombooking.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
 
-class HotelApp extends StatelessWidget {
-  const HotelApp({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Hotel App',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-        visualDensity: VisualDensity.adaptivePlatformDensity,
-      ),
-      home: const HotelHome(),
-    );
-  }
-}
 
 class HotelHome extends StatefulWidget {
   const HotelHome({Key? key}) : super(key: key);
@@ -59,20 +46,16 @@ class _HotelHomeState extends State<HotelHome> {
       _selectedIndex = index;
     });
 
-    // Navigate based on the index
     switch (index) {
       case 0:
-        // Home (You can add the navigation logic here if needed)
         break;
       case 1:
-        // Navigate to the ManageHotelDetailsPage
         Navigator.push(
           context,
           MaterialPageRoute(builder: (context) => ManageHotelDetailsPage()),
         );
         break;
       case 2:
-        // Navigate to the HotelProfilePage
         Navigator.push(
           context,
           MaterialPageRoute(builder: (context) => HotelProfile()),
@@ -216,14 +199,28 @@ class _HotelHomeState extends State<HotelHome> {
                   icon: Icons.room_preferences,
                   title: 'Add rooms',
                   subtitle: '',
-                  route:  AddRoomScreen(),
+                  route: AddRoomScreen(),
                 ),
-                 _buildCard(
+                _buildCard(
                   context,
                   icon: Icons.report,
                   title: 'Report',
                   subtitle: '',
-                  route:  AiRecomentationScreen(),
+                  route: AiRecomentationScreen(),
+                ),
+                _buildCard(
+                  context,
+                  icon: Icons.person_add,
+                  title: 'Add Staff',
+                  subtitle: 'Add new staff members',
+                  route: AddStaffPage(),
+                ),
+                _buildCard(
+                  context,
+                  icon: Icons.group,
+                  title: 'View Staff',
+                  subtitle: 'View all staff details',
+                  route: ViewStaffPage(hotelId: '',),
                 ),
               ],
             ),
@@ -301,7 +298,7 @@ class _HotelHomeState extends State<HotelHome> {
         ],
         currentIndex: _selectedIndex,
         selectedItemColor: Colors.blueAccent,
-        onTap: _onTap, // Calls the updated onTap method
+        onTap: _onTap,
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
@@ -315,87 +312,80 @@ class _HotelHomeState extends State<HotelHome> {
       ),
     );
   }
-  
 
   Widget _buildCard(
-  BuildContext context, {
-  required IconData icon,
-  required String title,
-  required String subtitle,
-  required Widget route,
-}) {
-  return GestureDetector(
-    onTap: () {
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => route),
-      );
-    },
-    child: Container(
-     // Increased height for better visuals
-
-     width: MediaQuery.of(context).size.width/2.5,
-     padding: EdgeInsets.symmetric(vertical: 20),
-      
-      margin: const EdgeInsets.all(8.0),
-      decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [Colors.tealAccent, Colors.teal],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
+    BuildContext context, {
+    required IconData icon,
+    required String title,
+    required String subtitle,
+    required Widget route,
+  }) {
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => route),
+        );
+      },
+      child: Container(
+        width: MediaQuery.of(context).size.width / 2.5,
+        padding: EdgeInsets.symmetric(vertical: 20),
+        margin: const EdgeInsets.all(8.0),
+        decoration: BoxDecoration(
+          gradient: const LinearGradient(
+            colors: [Colors.tealAccent, Colors.teal],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.1),
+              blurRadius: 10,
+              spreadRadius: 2,
+              offset: const Offset(0, 5),
+            ),
+          ],
         ),
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.1),
-            blurRadius: 10,
-            spreadRadius: 2,
-            offset: const Offset(0, 5),
-          ),
-        ],
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.2),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                icon,
+                size: 40,
+                color: Colors.white,
+              ),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              title,
+              style: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 6),
+            Text(
+              subtitle,
+              style: const TextStyle(
+                fontSize: 12,
+                color: Colors.white70,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
       ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.2),
-              shape: BoxShape.circle,
-            ),
-            child: Icon(
-              icon,
-              size: 40,
-              color: Colors.white,
-            ),
-          ),
-          const SizedBox(height: 12),
-          Text(
-            title,
-            style: const TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
-            ),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 6),
-          Text(
-            subtitle,
-            style: const TextStyle(
-              fontSize: 12,
-              color: Colors.white70,
-            ),
-            textAlign: TextAlign.center,
-          ),
-        ],
-      ),
-    ),
-  );
-}
-
-
-
+    );
+  }
 }
 
 class ChatList extends StatelessWidget {

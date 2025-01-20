@@ -1,12 +1,17 @@
 
-
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gemini/flutter_gemini.dart';
 import 'package:project1/choose_screen.dart';
 import 'package:project1/firebase_options.dart';
+import 'package:project1/hotel/add_staff.dart';
 import 'package:project1/hotel/fetchfeedbacks.dart';
 import 'package:project1/hotel/hotelhome.dart';
+import 'package:project1/hotel/view_staff.dart';
+import 'package:project1/staff/staff_home.dart';
+import 'package:project1/staff/staff_login.dart';
+import 'package:project1/staff/staff_profile.dart';
+import 'package:project1/staff/staff_registration.dart';
 import 'package:project1/user/new_ai_screen.dart';
 
 
@@ -19,9 +24,9 @@ Future<void> main() async {
 );
 
   Gemini.init(apiKey: apiKey);
-  runApp(const MaterialApp(
+  runApp(MaterialApp(
     debugShowCheckedModeBanner: false,
-    home: ChooseScreen()
+    home: ViewStaffPage(hotelId: '',)
   ));
   debugPrint("hai");
 }
