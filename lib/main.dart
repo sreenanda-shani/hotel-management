@@ -11,7 +11,6 @@ import 'package:project1/hotel/view_staff.dart';
 import 'package:project1/staff/staff_home.dart';
 import 'package:project1/staff/staff_login.dart';
 import 'package:project1/staff/staff_profile.dart';
-import 'package:project1/staff/staff_registration.dart';
 import 'package:project1/user/new_ai_screen.dart';
 
 
@@ -26,7 +25,7 @@ Future<void> main() async {
   Gemini.init(apiKey: apiKey);
   runApp(MaterialApp(
     debugShowCheckedModeBanner: false,
-    home: ViewStaffPage(hotelId: '',)
+    home: ChooseScreen()
   ));
   debugPrint("hai");
 }
