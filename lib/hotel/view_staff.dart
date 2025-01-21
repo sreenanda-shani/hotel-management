@@ -1,17 +1,42 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-class ViewStaffPage extends StatelessWidget {
+class ViewStaffPage extends StatefulWidget {
   final String hotelId;
 
   const ViewStaffPage({super.key, required this.hotelId});
 
+  @override
+  _ViewStaffPageState createState() => _ViewStaffPageState();
+}
+
+class _ViewStaffPageState extends State<ViewStaffPage> {
+  // Define the list of roles
+  final List<String> roles = [
+    'Receptionist',
+    'Room Cleaning',
+    'Manager',
+    'Concierge',
+    'Chef',
+    'Waiter/Waitress',
+    'Security',
+    'Maintenance',
+    'Event Coordinator',
+    'Bellhop',
+    'Front Desk Supervisor',
+    'Housekeeper',
+    'Food and Beverage Manager',
+    'Spa Therapist',
+    'Valet Parking Attendant',
+  ];
+
+  // Fetch staff details from Firestore
   Future<List<Map<String, dynamic>>> fetchStaffDetails(String hotelId) async {
     try {
-      // Query Firestore to get staff where staffId matches hotelId
+      // Query Firestore to get staff where hotelUid matches the provided hotelId
       QuerySnapshot querySnapshot = await FirebaseFirestore.instance
           .collection('staff')
-          .where('staffId', isEqualTo: hotelId)
+          .where('hotelUid', isEqualTo: hotelId) // Matching on hotelUid
           .get();
 
       // Map the results to a list of maps
@@ -23,6 +48,18 @@ class ViewStaffPage extends StatelessWidget {
     }
   }
 
+  // Update the staff's role in Firestore
+  Future<void> updateRoleInFirestore(String staffId, String newRole) async {
+    try {
+      await FirebaseFirestore.instance
+          .collection('staff')
+          .doc(staffId)
+          .update({'role': newRole});
+    } catch (e) {
+      print('Error updating role: $e');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -30,7 +67,7 @@ class ViewStaffPage extends StatelessWidget {
         title: const Text('View Staff Details'),
       ),
       body: FutureBuilder<List<Map<String, dynamic>>>(
-        future: fetchStaffDetails(hotelId),
+        future: fetchStaffDetails(widget.hotelId),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
@@ -48,13 +85,14 @@ class ViewStaffPage extends StatelessWidget {
             );
           }
 
-          // Extract staff details
           final staffList = snapshot.data!;
 
           return ListView.builder(
             itemCount: staffList.length,
             itemBuilder: (context, index) {
               final staff = staffList[index];
+              String? selectedRole = staff['role']; // Current role for the staff
+
               return Card(
                 margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 child: Padding(
@@ -79,6 +117,30 @@ class ViewStaffPage extends StatelessWidget {
                       Text(
                         'Created At: ${(staff['createdAt'] as Timestamp?)?.toDate().toString() ?? 'N/A'}',
                         style: const TextStyle(fontSize: 12, color: Colors.grey),
+                      ),
+                      const SizedBox(height: 16),
+
+                      // Dropdown button for role selection
+                      DropdownButton<String>(
+                        value: selectedRole,
+                        onChanged: (String? newRole) async {
+                          if (newRole != null && newRole != selectedRole) {
+                            // Update role in Firestore
+                            await updateRoleInFirestore(staff['id'], newRole);
+
+                            // Update the local state
+                            setState(() {
+                              selectedRole = newRole;
+                            });
+                          }
+                        },
+                        items: roles.map<DropdownMenuItem<String>>((String role) {
+                          return DropdownMenuItem<String>(
+                            value: role,
+                            child: Text(role),
+                          );
+                        }).toList(),
+                        hint: const Text('Select Role'),
                       ),
                     ],
                   ),

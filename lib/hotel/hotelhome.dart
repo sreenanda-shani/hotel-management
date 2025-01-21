@@ -220,7 +220,7 @@ class _HotelHomeState extends State<HotelHome> {
                   icon: Icons.group,
                   title: 'View Staff',
                   subtitle: 'View all staff details',
-                  route: ViewStaffPage(hotelId: '',),
+                  route: ViewStaffPage(hotelId: FirebaseAuth.instance.currentUser!.uid,),
                 ),
               ],
             ),

@@ -26,7 +26,7 @@ Future<void> main() async {
   Gemini.init(apiKey: apiKey);
   runApp(MaterialApp(
     debugShowCheckedModeBanner: false,
-    home: StaffLoginPage()
+    home: ChooseScreen()
   ));
   debugPrint("hai");
 }

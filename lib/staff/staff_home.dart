@@ -1,5 +1,6 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart'; // Import FirebaseAuth
 import 'package:project1/staff/staff_feedback.dart';
 import 'package:project1/staff/staff_notifications.dart';
 import 'package:project1/staff/staff_profile.dart';
@@ -13,13 +14,47 @@ class StaffHomeScreen extends StatefulWidget {
 
 class _StaffHomeScreenState extends State<StaffHomeScreen> {
   int _selectedIndex = 0;
+  String staffRole = 'Loading...'; // Variable to hold the staff role
 
-  final List<Widget> _pages = [
-    const StaffHomeScreen(), // Home screen (same screen for now)
-    const StaffNotifications(), // Notifications page
-    const StaffFeedbackPage(), // Feedback page
-    const StaffProfile(), // Staff Profile page
-  ];
+  // Fetch role from Firestore based on the current user's UID
+  Future<void> fetchStaffRole() async {
+    try {
+      // Get the current user's UID
+      User? currentUser = FirebaseAuth.instance.currentUser;
+
+      if (currentUser != null) {
+        // Query the staff collection for the document with the current user's UID
+        DocumentSnapshot staffDoc = await FirebaseFirestore.instance
+            .collection('staff')
+            .doc(currentUser.uid) // Document ID is the UID of the current user
+            .get();
+
+        if (staffDoc.exists) {
+          // Get the role field from the document
+          String fetchedRole = staffDoc['role'] ?? 'No role found';
+
+          setState(() {
+            staffRole = fetchedRole; // Update the role in the state
+          });
+        } else {
+          setState(() {
+            staffRole = 'Staff not found';
+          });
+        }
+      }
+    } catch (e) {
+      setState(() {
+        staffRole = 'Error fetching role';
+      });
+      print('Error fetching staff details: $e');
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    fetchStaffRole(); // Fetch staff role when the screen is initialized
+  }
 
   void _onItemTapped(int index) {
     if (index != _selectedIndex) {
@@ -27,16 +62,6 @@ class _StaffHomeScreenState extends State<StaffHomeScreen> {
         _selectedIndex = index;
       });
     }
-  }
-
-  // Fetch notifications from Firestore
-  Stream<List<Notification>> _getNotifications() {
-    return FirebaseFirestore.instance
-        .collection('staffnoti')
-        .snapshots()
-        .map((snapshot) => snapshot.docs
-            .map((doc) => Notification.fromFirestore(doc))
-            .toList());
   }
 
   @override
@@ -163,7 +188,7 @@ class _StaffHomeScreenState extends State<StaffHomeScreen> {
                   padding: const EdgeInsets.all(16.0),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: const [
+                    children: [
                       Text(
                         'Welcome Back, Staff!',
                         style: TextStyle(
@@ -171,7 +196,7 @@ class _StaffHomeScreenState extends State<StaffHomeScreen> {
                             fontWeight: FontWeight.bold,
                             color: Colors.white),
                       ),
-                      Icon(
+                      const Icon(
                         Icons.sentiment_satisfied,
                         color: Colors.white,
                       ),
@@ -179,39 +204,44 @@ class _StaffHomeScreenState extends State<StaffHomeScreen> {
                   ),
                 ),
                 const SizedBox(height: 16),
-                const Center(
-                  child: Text(
-                    'No specific role or task assigned!',
-                    style: TextStyle(fontSize: 18, color: Colors.white),
+
+                // Display the role inside a card
+                Center(
+                  child: Card(
+                    elevation: 8,
+                    color: const Color.fromARGB(255, 5, 11, 22),
+                    shadowColor: Colors.black.withOpacity(0.5),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(15),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(24.0),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            'Your Role:',
+                            style: TextStyle(
+                              fontSize: 22,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
+                          const SizedBox(height: 10),
+                          Text(
+                            '$staffRole',
+                            style: TextStyle(
+                              fontSize: 18,
+                              color: Colors.white,
+                              fontStyle: FontStyle.italic,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
                 ),
                 const SizedBox(height: 16),
-                // StreamBuilder for displaying notifications
-                StreamBuilder<List<Notification>>(
-                  stream: _getNotifications(),
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return const Center(child: CircularProgressIndicator());
-                    } else if (snapshot.hasError) {
-                      return const Center(child: Text('Error loading notifications'));
-                    } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                      return const Center(child: Text('No notifications'));
-                    } else {
-                      final notifications = snapshot.data!;
-                      return ListView.builder(
-                        shrinkWrap: true,
-                        itemCount: notifications.length,
-                        itemBuilder: (context, index) {
-                          final notification = notifications[index];
-                          return ListTile(
-                            title: Text(notification.title),
-                            subtitle: Text(notification.message),
-                          );
-                        },
-                      );
-                    }
-                  },
-                ),
               ],
             ),
           ),
@@ -242,20 +272,6 @@ class _StaffHomeScreenState extends State<StaffHomeScreen> {
         unselectedItemColor: Colors.grey,
         backgroundColor: Colors.black,
       ),
-    );
-  }
-}
-
-class Notification {
-  final String title;
-  final String message;
-
-  Notification({required this.title, required this.message});
-
-  factory Notification.fromFirestore(DocumentSnapshot doc) {
-    return Notification(
-      title: doc['title'],
-      message: doc['message'],
     );
   }
 }

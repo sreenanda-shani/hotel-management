@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
@@ -19,6 +20,7 @@ class _AddStaffPageState extends State<AddStaffPage> {
   bool loading = false;
   bool _isPasswordVisible = false;
   String? selectedRole = 'Receptionist'; // Default role is Receptionist
+  String? hotelUid;  // Variable to store the current hotel UID
 
   // Add Staff handler function to process form data
   Future<void> addStaffHandler() async {
@@ -49,17 +51,42 @@ class _AddStaffPageState extends State<AddStaffPage> {
       return;
     }
 
+    // Retrieve the hotelUid from Firestore (assuming the hotel data is stored in the "hotels" collection)
+    final firebaseAuth = FirebaseAuth.instance;
+    String currentUserUid = firebaseAuth.currentUser!.uid;
+
     try {
-      // Add staff data to Firestore
-      await FirebaseFirestore.instance.collection('staff').doc(staffId).set({
+      // Get the hotel UID associated with the current authenticated user
+      DocumentSnapshot hotelDoc = await FirebaseFirestore.instance.collection('hotels').doc(currentUserUid).get();
+
+      if (hotelDoc.exists) {
+        hotelUid = hotelDoc.id; // Assuming the document ID is the hotel UID
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Hotel not found for the current user')),
+        );
+        setState(() {
+          loading = false;
+        });
+        return;
+      }
+
+      // Create a new user for the staff
+      final user = await firebaseAuth.createUserWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+
+      // Add staff data to Firestore (do not store the password here)
+      await FirebaseFirestore.instance.collection('staff').doc(user.user?.uid).set({
         'fullName': fullName,
         'email': email,
-        'password': password, // Note: Don't store plain passwords in production
         'phone': phone,
         'address': address,
         'role': role,
         'staffId': staffId,
         'createdAt': FieldValue.serverTimestamp(),
+        'hotelUid': hotelUid, // Store the hotelUid in the staff document
       });
 
       ScaffoldMessenger.of(context).showSnackBar(

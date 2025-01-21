@@ -91,7 +91,7 @@ class _StaffProfileState extends State<StaffProfile> {
                     // Staff Name and Role
                     Center(
                       child: Text(
-                        profileData['name'] ?? 'N/A',
+                        profileData['fullName'] ?? 'N/A',
                         style: const TextStyle(
                           fontSize: 24,
                           fontWeight: FontWeight.bold,
@@ -111,7 +111,7 @@ class _StaffProfileState extends State<StaffProfile> {
                     _buildBox(
                       title: 'Personal Information',
                       children: [
-                        _buildProfileItem('Full Name', profileData['name'] ?? 'N/A'),
+                        _buildProfileItem('Full Name', profileData['fullName'] ?? 'N/A'),
                         _buildProfileItem('Phone Number', profileData['phone'] ?? 'N/A'),
                         _buildProfileItem('Email Address', profileData['email'] ?? 'N/A'),
                         _buildProfileItem('Address', profileData['address'] ?? 'N/A'),
