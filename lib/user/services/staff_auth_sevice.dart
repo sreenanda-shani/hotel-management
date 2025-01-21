@@ -13,7 +13,6 @@ class StaffAuthService {
     required String password,
     required String staffID,
     required String phone,
-    required String department,
     required String role, // Added role field
     required BuildContext context, required String staffId, required String address,
   }) async {

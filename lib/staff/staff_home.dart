@@ -1,8 +1,8 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:project1/staff/staff_feedback.dart';
 import 'package:project1/staff/staff_notifications.dart';
 import 'package:project1/staff/staff_profile.dart';
-
 
 class StaffHomeScreen extends StatefulWidget {
   const StaffHomeScreen({Key? key}) : super(key: key);
@@ -15,19 +15,28 @@ class _StaffHomeScreenState extends State<StaffHomeScreen> {
   int _selectedIndex = 0;
 
   final List<Widget> _pages = [
-    const StaffHomeScreen(), // Home screen
-    StaffNotifications(), // Notifications page
-    StaffFeedbackPage(), // Feedback page
+    const StaffHomeScreen(), // Home screen (same screen for now)
+    const StaffNotifications(), // Notifications page
+    const StaffFeedbackPage(), // Feedback page
     const StaffProfile(), // Staff Profile page
   ];
 
   void _onItemTapped(int index) {
     if (index != _selectedIndex) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => _pages[index]),
-      );
+      setState(() {
+        _selectedIndex = index;
+      });
     }
+  }
+
+  // Fetch notifications from Firestore
+  Stream<List<Notification>> _getNotifications() {
+    return FirebaseFirestore.instance
+        .collection('staffnoti')
+        .snapshots()
+        .map((snapshot) => snapshot.docs
+            .map((doc) => Notification.fromFirestore(doc))
+            .toList());
   }
 
   @override
@@ -96,7 +105,7 @@ class _StaffHomeScreenState extends State<StaffHomeScreen> {
               leading: const Icon(Icons.person),
               title: const Text('Profile'),
               onTap: () {
-                Navigator.push(
+                Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(builder: (context) => const StaffProfile()),
                 );
@@ -106,9 +115,9 @@ class _StaffHomeScreenState extends State<StaffHomeScreen> {
               leading: const Icon(Icons.notifications),
               title: const Text('Notifications'),
               onTap: () {
-                Navigator.push(
+                Navigator.pushReplacement(
                   context,
-                  MaterialPageRoute(builder: (context) => StaffNotifications()),
+                  MaterialPageRoute(builder: (context) => const StaffNotifications()),
                 );
               },
             ),
@@ -116,9 +125,9 @@ class _StaffHomeScreenState extends State<StaffHomeScreen> {
               leading: const Icon(Icons.feedback),
               title: const Text('Feedback'),
               onTap: () {
-                Navigator.push(
+                Navigator.pushReplacement(
                   context,
-                  MaterialPageRoute(builder: (context) => StaffFeedbackPage()),
+                  MaterialPageRoute(builder: (context) => const StaffFeedbackPage()),
                 );
               },
             ),
@@ -176,6 +185,33 @@ class _StaffHomeScreenState extends State<StaffHomeScreen> {
                     style: TextStyle(fontSize: 18, color: Colors.white),
                   ),
                 ),
+                const SizedBox(height: 16),
+                // StreamBuilder for displaying notifications
+                StreamBuilder<List<Notification>>(
+                  stream: _getNotifications(),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const Center(child: CircularProgressIndicator());
+                    } else if (snapshot.hasError) {
+                      return const Center(child: Text('Error loading notifications'));
+                    } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                      return const Center(child: Text('No notifications'));
+                    } else {
+                      final notifications = snapshot.data!;
+                      return ListView.builder(
+                        shrinkWrap: true,
+                        itemCount: notifications.length,
+                        itemBuilder: (context, index) {
+                          final notification = notifications[index];
+                          return ListTile(
+                            title: Text(notification.title),
+                            subtitle: Text(notification.message),
+                          );
+                        },
+                      );
+                    }
+                  },
+                ),
               ],
             ),
           ),
@@ -206,6 +242,20 @@ class _StaffHomeScreenState extends State<StaffHomeScreen> {
         unselectedItemColor: Colors.grey,
         backgroundColor: Colors.black,
       ),
+    );
+  }
+}
+
+class Notification {
+  final String title;
+  final String message;
+
+  Notification({required this.title, required this.message});
+
+  factory Notification.fromFirestore(DocumentSnapshot doc) {
+    return Notification(
+      title: doc['title'],
+      message: doc['message'],
     );
   }
 }

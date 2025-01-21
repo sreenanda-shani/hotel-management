@@ -48,16 +48,18 @@ class _StaffProfileState extends State<StaffProfile> {
               return const Center(child: CircularProgressIndicator());
             } else if (snapshot.hasError) {
               return const Center(child: Text('Error loading data.'));
-            } else if (!snapshot.hasData || snapshot.data == null) {
-              return const Center(child: Text('No data found.'));
+            } else if (!snapshot.hasData || snapshot.data == null || !snapshot.data!.exists) {
+              return const Center(child: Text('No profile data found.'));
             } else {
-              final profileData = snapshot.data!.data() as Map<String, dynamic>;
+              final profileData = snapshot.data!.data() as Map<String, dynamic>? ?? {};
+              print('Document Data: $profileData');
+
               return SingleChildScrollView(
                 padding: const EdgeInsets.all(16.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Profile Picture with Shadow and Edit Icon
+                    // Profile Picture with Shadow and Placeholder
                     Center(
                       child: Stack(
                         alignment: Alignment.bottomRight,
@@ -105,34 +107,25 @@ class _StaffProfileState extends State<StaffProfile> {
                     ),
                     const SizedBox(height: 30),
 
-                    // First Box: Personal Information
+                    // Personal Information Section
                     _buildBox(
                       title: 'Personal Information',
                       children: [
-                        _buildProfileItem(
-                            'Full Name', profileData['name'] ?? 'N/A'),
-                        _buildProfileItem(
-                            'Phone Number', profileData['phone'] ?? 'N/A'),
-                        _buildProfileItem(
-                            'Email Address', profileData['email'] ?? 'N/A'),
-                        _buildProfileItem(
-                            'Address', profileData['address'] ?? 'N/A'),    
+                        _buildProfileItem('Full Name', profileData['name'] ?? 'N/A'),
+                        _buildProfileItem('Phone Number', profileData['phone'] ?? 'N/A'),
+                        _buildProfileItem('Email Address', profileData['email'] ?? 'N/A'),
+                        _buildProfileItem('Address', profileData['address'] ?? 'N/A'),
                       ],
                     ),
-
                     const SizedBox(height: 20),
 
-                    // Second Box: Staff Details
+                    // Staff Details Section
                     _buildBox(
                       title: 'Staff Details',
                       children: [
                         _buildProfileItem('Role', profileData['role'] ?? 'N/A'),
                       ],
                     ),
-
-                    const SizedBox(height: 20),
-
-                    
                   ],
                 ),
               );
@@ -202,7 +195,6 @@ class _StaffProfileState extends State<StaffProfile> {
   }
 
   void _editProfilePicture() {
-    // Logic to handle profile picture update (e.g., opening a file picker or camera)
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
           content: Text('Edit Profile Picture feature coming soon!')),

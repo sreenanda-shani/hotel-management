@@ -7,6 +7,7 @@ import 'package:project1/firebase_options.dart';
 import 'package:project1/hotel/add_staff.dart';
 import 'package:project1/hotel/fetchfeedbacks.dart';
 import 'package:project1/hotel/hotelhome.dart';
+import 'package:project1/hotel/staff_noti.dart';
 import 'package:project1/hotel/view_staff.dart';
 import 'package:project1/staff/staff_home.dart';
 import 'package:project1/staff/staff_login.dart';
@@ -25,7 +26,7 @@ Future<void> main() async {
   Gemini.init(apiKey: apiKey);
   runApp(MaterialApp(
     debugShowCheckedModeBanner: false,
-    home: ChooseScreen()
+    home: StaffLoginPage()
   ));
   debugPrint("hai");
 }
