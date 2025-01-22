@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:project1/staff/staff_edit_profile.dart';
+import 'package:project1/staff/staff_edit_profile.dart'; // Import the StaffEditProfile page
 
 class StaffProfile extends StatefulWidget {
   const StaffProfile({super.key});
@@ -31,9 +31,10 @@ class _StaffProfileState extends State<StaffProfile> {
             IconButton(
               icon: const Icon(Icons.edit),
               onPressed: () {
-                Navigator.push(context, MaterialPageRoute(builder: (context) {
-                  return const StaffEditProfile();
-                }));
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const StaffEditProfile()),
+                ); // Navigate to StaffEditProfile page
               },
             ),
           ],

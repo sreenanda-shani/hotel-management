@@ -37,7 +37,8 @@ class StaffFeedbackPage extends StatelessWidget {
               onPressed: () async {
                 String feedback = feedbackController.text.trim();
                 if (feedback.isNotEmpty) {
-                  await FirebaseFirestore.instance.collection('staff_feedbacks').add({
+                  // Now saving feedback to the 'stafffeedback' collection
+                  await FirebaseFirestore.instance.collection('stafffeedback').add({
                     'staffId': FirebaseAuth.instance.currentUser?.uid,
                     'feedback': feedback,
                     'timestamp': FieldValue.serverTimestamp(),

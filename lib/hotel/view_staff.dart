@@ -12,7 +12,6 @@ class ViewStaffPage extends StatefulWidget {
 }
 
 class _ViewStaffPageState extends State<ViewStaffPage> {
-  // Define the list of roles
   final List<String> roles = [
     'Receptionist',
     'Room Cleaning',
@@ -34,18 +33,33 @@ class _ViewStaffPageState extends State<ViewStaffPage> {
   // Fetch staff details from Firestore
   Future<List<Map<String, dynamic>>> fetchStaffDetails(String hotelId) async {
     try {
-      // Query Firestore to get staff where hotelUid matches the provided hotelId
       QuerySnapshot querySnapshot = await FirebaseFirestore.instance
           .collection('staff')
-          .where('hotelUid', isEqualTo: hotelId) // Matching on hotelUid
+          .where('hotelUid', isEqualTo: hotelId)
           .get();
 
-      // Map the results to a list of maps
       return querySnapshot.docs
           .map((doc) => {"id": doc.id, ...doc.data() as Map<String, dynamic>})
           .toList();
     } catch (e) {
       throw Exception('Error fetching staff details: $e');
+    }
+  }
+
+  // Fetch feedback for a particular staff member
+  Future<List<Map<String, dynamic>>> fetchFeedback(String staffId) async {
+    try {
+      QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+          .collection('stafffeedback')
+          .where('staffId', isEqualTo: staffId)
+          .get();
+
+      return querySnapshot.docs
+          .map((doc) => {"id": doc.id, ...doc.data() as Map<String, dynamic>})
+          .toList();
+    } catch (e) {
+      print('Error fetching feedback: $e');
+      return [];
     }
   }
 
@@ -58,6 +72,99 @@ class _ViewStaffPageState extends State<ViewStaffPage> {
           .update({'role': newRole});
     } catch (e) {
       print('Error updating role: $e');
+    }
+  }
+
+  // Send notification to a staff member
+  Future<void> sendNotification(String staffId, String notificationMessage) async {
+    try {
+      await FirebaseFirestore.instance.collection('staffpersonalnoti').add({
+        'staffId': staffId,
+        'notification': notificationMessage,
+        'timestamp': FieldValue.serverTimestamp(),
+      });
+    } catch (e) {
+      print('Error sending notification: $e');
+    }
+  }
+
+  // Show dialog for sending notification
+  void _showNotificationDialog(String staffId) {
+    final TextEditingController _controller = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Send Notification'),
+          content: TextField(
+            controller: _controller,
+            maxLines: 3,
+            decoration: const InputDecoration(hintText: 'Enter your notification message'),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Close the dialog
+              },
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () async {
+                final notificationMessage = _controller.text.trim();
+                if (notificationMessage.isNotEmpty) {
+                  await sendNotification(staffId, notificationMessage);
+                  Navigator.of(context).pop(); // Close the dialog
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Notification sent successfully')),
+                  );
+                }
+              },
+              child: const Text('Send'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  // Show confirmation dialog before deleting staff
+  void _showDeleteDialog(String staffId) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Delete Staff'),
+          content: const Text('Are you sure you want to delete this staff member?'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Close the dialog
+              },
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () async {
+                await deleteStaff(staffId);
+                Navigator.of(context).pop(); // Close the dialog
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Staff deleted successfully')),
+                );
+              },
+              child: const Text('Delete'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  // Delete the staff from Firestore
+  Future<void> deleteStaff(String staffId) async {
+    try {
+      await FirebaseFirestore.instance.collection('staff').doc(staffId).delete();
+    } catch (e) {
+      print('Error deleting staff: $e');
     }
   }
 
@@ -143,6 +250,61 @@ class _ViewStaffPageState extends State<ViewStaffPage> {
                         }).toList(),
                         hint: const Text('Select Role'),
                       ),
+
+                      const SizedBox(height: 8),
+
+                      // Row for notification button and delete button
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          // Notification button for each staff
+                          ElevatedButton(
+                            onPressed: () => _showNotificationDialog(staff['id']),
+                            child: const Text('Send Notification'),
+                          ),
+
+                          // Delete button for each staff
+                          ElevatedButton(
+                            onPressed: () => _showDeleteDialog(staff['id']),
+                            child: const Text('Delete Staff'),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.red, // Red color for delete button
+                            ),
+                          ),
+                          
+                          // Feedback Icon button for each staff
+                          IconButton(
+                            icon: const Icon(Icons.feedback),
+                            onPressed: () async {
+                              final feedback = await fetchFeedback(staff['id']);
+                              // Handle feedback (show it in a dialog or other UI)
+                              showDialog(
+                                context: context,
+                                builder: (BuildContext context) {
+                                  return AlertDialog(
+                                    title: const Text('Feedback'),
+                                    content: feedback.isNotEmpty
+                                        ? Column(
+                                            children: feedback
+                                                .map((f) => Text(f['feedback']))
+                                                .toList(),
+                                          )
+                                        : const Text('No feedback available for this staff.'),
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () {
+                                          Navigator.of(context).pop();
+                                        },
+                                        child: const Text('Close'),
+                                      ),
+                                    ],
+                                  );
+                                },
+                              );
+                            },
+                          ),
+                        ],
+                      ),
                     ],
                   ),
                 ),
@@ -152,13 +314,11 @@ class _ViewStaffPageState extends State<ViewStaffPage> {
         },
       ),
       
-      // Floating Action Button with Notification Icon
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          // Navigate to the "StaffNoti" page when the button is pressed
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => StaffNoti()), // Navigate to StaffNotiPage
+            MaterialPageRoute(builder: (context) => StaffNoti()),
           );
         },
         child: const Icon(Icons.notifications),

@@ -50,6 +50,7 @@ dependencies:
   url_launcher: ^6.3.1
   flutter_gemini: ^3.0.0
   flutter_speed_dial: ^7.0.0
+  flutter_datetime_picker: ^1.5.1
 
 dev_dependencies:
   flutter_test:
