@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:project1/admin/screen/admin_login.dart';
-import 'package:project1/hotel/hotel_login.dart';
-import 'package:project1/staff/staff_login.dart';
-import 'package:project1/user/login_page.dart'; // Make sure to import your StaffLoginPage
+import 'package:project1/hotel/hotel_registration.dart';
+import 'package:project1/user/registration_page.dart';
 
 class ChooseScreen extends StatelessWidget {
   const ChooseScreen({super.key});
@@ -64,7 +63,7 @@ class ChooseScreen extends StatelessWidget {
                   title: 'Hotel',
                   icon: Icons.hotel,
                   onTap: () {
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => const HotelLoginPage(),));
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => const HotelRegistrationPage(),));
                   },
                 ),
                 const SizedBox(height: 20),
@@ -72,19 +71,12 @@ class ChooseScreen extends StatelessWidget {
                   title: 'User',
                   icon: Icons.person,
                   onTap: () {
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => const UserLoginPage(),));
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => const UserRegistrationPage(),));
                   },
                 ),
                 const SizedBox(height: 20),
                 // Staff Card
-                RoleCard(
-                  title: 'Staff',
-                  icon: Icons.account_circle,  // You can choose a different icon if you prefer
-                  onTap: () {
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => const StaffLoginPage(),));  // Make sure the StaffLoginPage is correctly imported
-                  },
-                ),
-              ],
+                ],
             ),
           ),
           // Admin Text with Icon at the bottom center

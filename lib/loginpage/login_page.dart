@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:project1/choose_screen.dart';
+import 'package:project1/loginpage/login_services.dart';
 import 'package:project1/user/registration_page.dart'; // Import Registration Page
 // Import HomePage after login
-import 'package:project1/user/forgot_password_page.dart';
+import 'package:project1/forgot_password_page.dart';
 import 'package:project1/user/services/user_auth_service.dart'; // Import ForgotPassword Page
+
 
 class UserLoginPage extends StatefulWidget {
   const UserLoginPage({super.key});
@@ -16,21 +19,26 @@ class _UserLoginPageState extends State<UserLoginPage> {
   TextEditingController passwordController = TextEditingController();
 
   bool _isPasswordVisible = false;
+  bool loading = false;
 
   // Login handler function to process form data
-  void loginHandler() {
-    String email = emailController.text;
-    String password = passwordController.text;
+ void LoginHandler() async {
+    setState(() {
+      loading = true;
+    });
 
-    // Basic validation
-    if (email.isEmpty || password.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please fill in all the fields')),
-      );
-      return;
-    }
+    final email = emailController.text.trim();
+    final password = passwordController.text.trim();
 
-    UserAuthService().userLogin(email: email, password: password, context: context);
+    await LoginServiceFire().LoginService(
+      email: email,
+      password: password,
+      context: context,
+    );
+
+    setState(() {
+      loading = false;
+    });
   }
 
   @override
@@ -136,7 +144,7 @@ class _UserLoginPageState extends State<UserLoginPage> {
 
                     // Sign In Button
                     ElevatedButton(
-                      onPressed: loginHandler,
+                      onPressed: LoginHandler,
                       child: const Text('Sign In'),
                     ),
                     const SizedBox(height: 12),
@@ -145,7 +153,7 @@ class _UserLoginPageState extends State<UserLoginPage> {
                     GestureDetector(
                       onTap: () {
                         Navigator.push(context, MaterialPageRoute(builder: (context) {
-                          return const UserRegistrationPage(); // Navigate to Registration Page
+                          return const ChooseScreen(); // Navigate to Registration Page
                         }));
                       },
                       child: const Text(
@@ -156,6 +164,11 @@ class _UserLoginPageState extends State<UserLoginPage> {
                         ),
                       ),
                     ),
+
+                    const SizedBox(height: 12),
+
+                    // Forgot Password Option
+
 
                     const SizedBox(height: 12),
 

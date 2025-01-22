@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:project1/staff/staff_home.dart'; // Import Staff Home Screen
-import 'package:project1/user/forgot_password_page.dart';
+import 'package:project1/forgot_password_page.dart';
 import 'package:project1/user/services/staff_auth_sevice.dart'; // Import Staff Auth Service
 
 class StaffLoginPage extends StatefulWidget {

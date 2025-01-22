@@ -7,7 +7,7 @@ import 'package:geocoding/geocoding.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 
-import 'package:project1/hotel/hotel_login.dart';
+import 'package:project1/loginpage/login_page.dart';
 
 class HotelRegistrationPage extends StatefulWidget {
   const HotelRegistrationPage({super.key});
@@ -177,9 +177,15 @@ class _HotelRegistrationPageState extends State<HotelRegistrationPage> {
         'imageUrl': imageUrl, // Add image URL to the data
         'document': documnetUrl
       };
+      Map<String, dynamic> role = {
+        'uid':FirebaseAuth.instance.currentUser?.uid,
+        'role':'Hotel'
+      };
 
       try {
         await _firestore.collection('hotels').doc(user.user!.uid).set(hotelData);
+        await _firestore.collection('role_tb').doc(user.user!.uid).set(role);
+
         setState(() {
           isLoading = false;
         });
@@ -225,6 +231,8 @@ class _HotelRegistrationPageState extends State<HotelRegistrationPage> {
       }
     }
   }
+
+  
 
   // Input decoration
   InputDecoration _buildInputDecoration(String labelText) {
@@ -503,7 +511,7 @@ class _HotelRegistrationPageState extends State<HotelRegistrationPage> {
                           // Navigate to Hotel Login
                           Navigator.push(
                             context,
-                            MaterialPageRoute(builder: (context) =>  const HotelLoginPage()),
+                            MaterialPageRoute(builder: (context) =>  const UserLoginPage()),
                           );
                         },
                         child: const Text("Login"),

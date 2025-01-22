@@ -88,6 +88,12 @@ class _AddStaffPageState extends State<AddStaffPage> {
         'createdAt': FieldValue.serverTimestamp(),
         'hotelUid': hotelUid, // Store the hotelUid in the staff document
       });
+  
+
+        await FirebaseFirestore.instance.collection('role_tb').add({
+      'uid': user.user?.uid,
+      'role': 'Staff',
+    });
 
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Staff added successfully')),

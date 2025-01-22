@@ -2,14 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-class StaffForgotPasswordPage extends StatefulWidget {
-  const StaffForgotPasswordPage({super.key});
+class ForgotPasswordPage extends StatefulWidget {
+  const ForgotPasswordPage({super.key});
 
   @override
-  State<StaffForgotPasswordPage> createState() => _StaffForgotPasswordPageState();
+  State<ForgotPasswordPage> createState() => _ForgotPasswordPageState();
 }
 
-class _StaffForgotPasswordPageState extends State<StaffForgotPasswordPage> {
+class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
   final TextEditingController emailController = TextEditingController();
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
   final FirebaseFirestore firestore = FirebaseFirestore.instance;
@@ -26,14 +26,30 @@ class _StaffForgotPasswordPageState extends State<StaffForgotPasswordPage> {
     }
 
     try {
-      // Check if the staff exists in the Firestore
-      final staffQuery = await firestore
-          .collection('staff') // Replace with the correct collection name for staff
+      // Search the email in the 'user', 'staff', and 'hotel' collections
+      bool emailFound = false;
+
+      // Check in 'user' collection
+      var userQuery = await firestore
+          .collection('user') // 'user' collection
           .where('email', isEqualTo: email)
           .get();
 
-      if (staffQuery.docs.isNotEmpty) {
-        // Staff exists; send a password reset email
+      // Check in 'staff' collection
+      var staffQuery = await firestore
+          .collection('staff') // 'staff' collection
+          .where('email', isEqualTo: email)
+          .get();
+
+      // Check in 'hotel' collection
+      var hotelQuery = await firestore
+          .collection('hotels') // 'hotel' collection
+          .where('contactEmail', isEqualTo: email)
+          .get();
+
+      // If the email is found in any collection, send a password reset email
+      if (userQuery.docs.isNotEmpty || staffQuery.docs.isNotEmpty || hotelQuery.docs.isNotEmpty) {
+        emailFound = true;
         await _firebaseAuth.sendPasswordResetEmail(email: email);
 
         if (mounted) {
@@ -43,10 +59,12 @@ class _StaffForgotPasswordPageState extends State<StaffForgotPasswordPage> {
           ));
           Navigator.of(context).pop();
         }
-      } else {
-        // Staff does not exist
+      }
+
+      if (!emailFound) {
+        // Email was not found in any collection
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-          content: Text('Staff not found. Please try again.'),
+          content: Text('User not found. Please try again.'),
           backgroundColor: Colors.red,
         ));
       }
@@ -62,7 +80,7 @@ class _StaffForgotPasswordPageState extends State<StaffForgotPasswordPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Staff Forgot Password"),
+        title: const Text("Forgot Password"),
       ),
       body: Stack(
         children: [

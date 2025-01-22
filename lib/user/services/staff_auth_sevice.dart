@@ -24,6 +24,10 @@ class StaffAuthService {
       print(user.user?.uid);
 
       // Save staff data to Firestore
+      await fireStoreDatabase.collection('role_tb').add({
+      'uid': user.user?.uid,
+      'role': 'Staff',
+    });
       await fireStoreDatabase.collection('staff').doc(user.user?.uid).set({
         'name': fullName,
         'email': email,
@@ -32,6 +36,11 @@ class StaffAuthService {
         'address':address 
         // Store role
       });
+      // Add the role information to the 'role_tb' collection
+    // await fireStoreDatabase.collection('role_tb').add({
+    //   'uid': user.user?.uid,
+    //   'role': 'Staff',
+    // });
 
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Staff Registration Successful')),

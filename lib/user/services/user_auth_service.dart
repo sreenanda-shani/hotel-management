@@ -36,6 +36,12 @@ class UserAuthService {
         'gender': gender, // Store gender
       });
 
+      // Add the role information to the 'role_tb' collection
+    await fireStoreDatabase.collection('role_tb').add({
+      'uid': user.user?.uid,
+      'role': 'Users',
+    });
+
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Registration Successful')));
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Registration failed')));
