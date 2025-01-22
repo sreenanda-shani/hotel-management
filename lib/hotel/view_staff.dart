@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:project1/hotel/staff_noti.dart';
 
 class ViewStaffPage extends StatefulWidget {
   final String hotelId;
@@ -66,7 +67,7 @@ class _ViewStaffPageState extends State<ViewStaffPage> {
       appBar: AppBar(
         title: const Text('View Staff Details'),
       ),
-      body: FutureBuilder<List<Map<String, dynamic>>>(
+      body: FutureBuilder<List<Map<String, dynamic>>>( 
         future: fetchStaffDetails(widget.hotelId),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
@@ -149,6 +150,19 @@ class _ViewStaffPageState extends State<ViewStaffPage> {
             },
           );
         },
+      ),
+      
+      // Floating Action Button with Notification Icon
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          // Navigate to the "StaffNoti" page when the button is pressed
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => StaffNoti()), // Navigate to StaffNotiPage
+          );
+        },
+        child: const Icon(Icons.notifications),
+        backgroundColor: Colors.blue,
       ),
     );
   }
