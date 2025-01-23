@@ -67,7 +67,7 @@ class _HotelDetailsPageState extends State<HotelDetailsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.blueAccent,
+        backgroundColor: Colors.teal,
         title: const Text(
           "Search Hotel Page",
           style: TextStyle(fontSize: 20),

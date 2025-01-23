@@ -16,6 +16,7 @@ class BookingHistoryPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Booking History"),
+        backgroundColor: Colors.teal, // Set the background color of the AppBar to teal
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -37,21 +38,56 @@ class BookingCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Determine status color
+    Color statusColor = booking["status"] == "Completed" ? Colors.green : Colors.red;
+
     return Card(
-      elevation: 4,
-      margin: const EdgeInsets.symmetric(vertical: 8),
+      elevation: 8, // Higher elevation for a more prominent card
+      margin: const EdgeInsets.symmetric(vertical: 10),
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(20), // More rounded corners for elegance
       ),
+      shadowColor: Colors.black26,
       child: ListTile(
         contentPadding: const EdgeInsets.all(16),
         title: Text(
           booking["hotel"]!,
-          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          style: const TextStyle(
+            fontSize: 20, 
+            fontWeight: FontWeight.bold, 
+            color: Colors.teal
+          ),
         ),
-        subtitle: Text(
-          "Date: ${booking["date"]!}\nStatus: ${booking["status"]!}",
-          style: const TextStyle(fontSize: 14, color: Colors.grey),
+        subtitle: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              "Date: ${booking["date"]!}",
+              style: TextStyle(
+                fontSize: 14, 
+                color: Colors.grey[600],
+                fontStyle: FontStyle.italic,
+              ),
+            ),
+            const SizedBox(height: 6),
+            Row(
+              children: [
+                Icon(
+                  booking["status"] == "Completed" ? Icons.check_circle : Icons.cancel,
+                  color: statusColor,
+                ),
+                const SizedBox(width: 6),
+                Text(
+                  "Status: ${booking["status"]!}",
+                  style: TextStyle(
+                    fontSize: 14, 
+                    fontWeight: FontWeight.bold,
+                    color: statusColor,
+                  ),
+                ),
+              ],
+            ),
+          ],
         ),
         onTap: () {
           // Add your desired action on tap

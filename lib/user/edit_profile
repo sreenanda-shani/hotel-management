@@ -106,9 +106,17 @@ class _EditProfilePageState extends State<EditProfilePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Edit Profile'),
+        title: const Text(
+          'Edit Profile',
+          style: TextStyle(
+            fontSize: 24,
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
+        ),
         centerTitle: true,
-        backgroundColor: Colors.blue,
+        backgroundColor: const Color.fromARGB(255, 0, 123, 123), // Teal color
+        elevation: 4,
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
@@ -116,36 +124,30 @@ class _EditProfilePageState extends State<EditProfilePage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Name Field
-            TextFormField(
+            _buildTextField(
               controller: _nameController,
-              decoration: const InputDecoration(
-                labelText: 'Name',
-                prefixIcon: Icon(Icons.person),
-                border: OutlineInputBorder(),
-              ),
+              label: 'Name',
+              icon: Icons.person,
             ),
             const SizedBox(height: 16),
+            
             // Address Field
-            TextFormField(
+            _buildTextField(
               controller: _addressController,
-              decoration: const InputDecoration(
-                labelText: 'Address',
-                prefixIcon: Icon(Icons.location_on),
-                border: OutlineInputBorder(),
-              ),
+              label: 'Address',
+              icon: Icons.location_on,
             ),
             const SizedBox(height: 16),
+            
             // Phone Field
-            TextFormField(
+            _buildTextField(
               controller: _phoneController,
-              decoration: const InputDecoration(
-                labelText: 'Phone',
-                prefixIcon: Icon(Icons.phone),
-                border: OutlineInputBorder(),
-              ),
+              label: 'Phone',
+              icon: Icons.phone,
               keyboardType: TextInputType.phone,
             ),
             const SizedBox(height: 16),
+            
             // Gender Dropdown
             DropdownButtonFormField<String>(
               value: _selectedGender,
@@ -160,33 +162,76 @@ class _EditProfilePageState extends State<EditProfilePage> {
                   _selectedGender = value!;
                 });
               },
-              decoration: const InputDecoration(
+              decoration: InputDecoration(
                 labelText: 'Gender',
-                prefixIcon: Icon(Icons.transgender),
-                border: OutlineInputBorder(),
+                prefixIcon: const Icon(Icons.transgender, color: Colors.teal),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
               ),
             ),
+            const SizedBox(height: 20),
+            
+            // Save and Reset Buttons
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                // Save Button
-                ElevatedButton(
+                _buildButton(
+                  label: 'Save Changes',
+                  color: const Color.fromARGB(255, 0, 123, 123),
                   onPressed: _updateUserData,
-                  child: const Text('Save Changes'),
                 ),
                 const SizedBox(width: 20),
-                // Reset Button
-                ElevatedButton(
+                _buildButton(
+                  label: 'Reset',
+                  color: Colors.grey,
                   onPressed: _resetFields,
-                  child: const Text('Reset'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.grey,
-                  ),
                 ),
               ],
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  // Helper function to build text fields
+  Widget _buildTextField({
+    required TextEditingController controller,
+    required String label,
+    required IconData icon,
+    TextInputType keyboardType = TextInputType.text,
+  }) {
+    return TextFormField(
+      controller: controller,
+      keyboardType: keyboardType,
+      decoration: InputDecoration(
+        labelText: label,
+        prefixIcon: Icon(icon, color: const Color.fromARGB(255, 0, 123, 123)),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+      ),
+    );
+  }
+
+  // Helper function to build buttons with correct styling
+  Widget _buildButton({
+    required String label,
+    required Color color,
+    required VoidCallback onPressed,
+  }) {
+    return ElevatedButton(
+      onPressed: onPressed,
+      style: ButtonStyle(
+        backgroundColor: MaterialStateProperty.all(color),
+        padding: MaterialStateProperty.all(const EdgeInsets.symmetric(vertical: 12, horizontal: 30)),
+        shape: MaterialStateProperty.all(RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))),
+        elevation: MaterialStateProperty.all(5),
+      ),
+      child: Text(
+        label,
+        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
       ),
     );
   }

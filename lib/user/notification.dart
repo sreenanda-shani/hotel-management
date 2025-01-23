@@ -101,13 +101,13 @@ class NotificationCard extends StatelessWidget {
             const SizedBox(height: 4),
             Text(
               formattedTime,  // Display the formatted timestamp
-              style: const TextStyle(fontSize: 12, color: Colors.grey),
+              style: const TextStyle(fontSize: 12, color: Colors.teal),
             ),
           ],
         ),
         trailing: const Icon(
           Icons.notifications,
-          color: Colors.blue,
+          color: Colors.teal,
         ),
         onTap: () {
           // Action on tap (e.g., navigate to more details, or show a message)

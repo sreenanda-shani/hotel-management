@@ -25,6 +25,19 @@ class UserHotelDetailsScreen extends StatelessWidget {
           var hotelData = snapshot.data!.data() as Map<String, dynamic>;
           final hotelId = snapshot.data!.id; // This is the document ID, which serves as hotelId
 
+          // Get the facilities list (if it's a String, split it into a List)
+          List<String> facilitiesList;
+          if (hotelData['facilities'] is String) {
+            // Split the comma-separated string into a List
+            facilitiesList = hotelData['facilities'].split(',');
+          } else if (hotelData['facilities'] is List) {
+            // If it's already a List, use it as is
+            facilitiesList = List<String>.from(hotelData['facilities']);
+          } else {
+            // If it's neither, fallback to an empty list
+            facilitiesList = [];
+          }
+
           return Scaffold(
             appBar: AppBar(
               title: Text(
@@ -109,7 +122,7 @@ class UserHotelDetailsScreen extends StatelessWidget {
                         ),
                         const Divider(),
 
-                        // Facilities Section in a Beautiful Layout
+                        // Facilities Section in Two-in-One-Row Format
                         const SizedBox(height: 8),
                         const Text(
                           'Facilities',
@@ -120,10 +133,12 @@ class UserHotelDetailsScreen extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(height: 8),
+
+                        // Container with white background for facilities
                         Container(
                           padding: const EdgeInsets.all(16.0),
                           decoration: BoxDecoration(
-                            color: Colors.teal.withOpacity(0.1),
+                            color: Colors.white, // Changed background color to white
                             borderRadius: BorderRadius.circular(12),
                             boxShadow: const [
                               BoxShadow(
@@ -133,9 +148,29 @@ class UserHotelDetailsScreen extends StatelessWidget {
                               ),
                             ],
                           ),
-                          child: Text(
-                            hotelData['facilities'] ?? 'N/A',
-                            style: const TextStyle(fontSize: 16),
+                          child: GridView.builder(
+                            shrinkWrap: true,
+                            physics: NeverScrollableScrollPhysics(),
+                            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: 2, // Two items per row
+                              crossAxisSpacing: 10,
+                              mainAxisSpacing: 10,
+                            ),
+                            itemCount: facilitiesList.length,
+                            itemBuilder: (context, index) {
+                              // Each facility is displayed in the grid
+                              return Container(
+                                padding: const EdgeInsets.all(16),
+                                decoration: BoxDecoration(
+                                  color: Colors.teal.withOpacity(0.1),
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Text(
+                                  facilitiesList[index] ?? 'N/A',
+                                  style: const TextStyle(fontSize: 16),
+                                ),
+                              );
+                            },
                           ),
                         ),
                         const SizedBox(height: 16),

@@ -12,112 +12,84 @@ class FeedbackPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Feedback"),
-        backgroundColor: Colors.blueAccent,
+        backgroundColor: Colors.teal,
       ),
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              "Please share your feedback:",
-              style: TextStyle(fontSize: 18),
-            ),
-            const SizedBox(height: 20),
-            TextField(
-              controller: feedbackController,
-              maxLines: 5,
-              decoration: const InputDecoration(
-                border: OutlineInputBorder(),
-                hintText: "Enter your feedback here...",
-              ),
-            ),
-            const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () async {
-                String feedback = feedbackController.text.trim();
-                if (feedback.isNotEmpty) {
-                  await FirebaseFirestore.instance.collection('feedbacks').add({
-                    'userId': FirebaseAuth.instance.currentUser?.uid,
-                    'feedback': feedback,
-                    'timestamp': FieldValue.serverTimestamp(),
-                  });
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text("Feedback submitted successfully!")),
-                  );
-                  Navigator.pop(context);  // Go back to HomePage
-                } else {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text("Please enter some feedback")),
-                  );
-                }
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.blueAccent,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
+        padding: const EdgeInsets.all(20.0), // Increased padding for a more spacious feel
+        child: SingleChildScrollView( // Prevents overflow in case of keyboard showing up
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                "Please share your feedback:",
+                style: TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.teal,
                 ),
               ),
-              child: const Text("Submit Feedback"),
-            ),
-          ],
+              const SizedBox(height: 20),
+              Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(15),
+                  border: Border.all(color: Colors.teal.shade300),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.1),
+                      blurRadius: 6,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: TextField(
+                  controller: feedbackController,
+                  maxLines: 5,
+                  style: const TextStyle(fontSize: 16),
+                  decoration: const InputDecoration(
+                    contentPadding: EdgeInsets.all(15),
+                    border: InputBorder.none,
+                    hintText: "Enter your feedback here...",
+                    hintStyle: TextStyle(color: Colors.grey),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: () async {
+                  String feedback = feedbackController.text.trim();
+                  if (feedback.isNotEmpty) {
+                    await FirebaseFirestore.instance.collection('feedbacks').add({
+                      'userId': FirebaseAuth.instance.currentUser?.uid,
+                      'feedback': feedback,
+                      'timestamp': FieldValue.serverTimestamp(),
+                    });
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text("Feedback submitted successfully!")),
+                    );
+                    Navigator.pop(context);  // Go back to HomePage
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text("Please enter some feedback")),
+                    );
+                  }
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.teal,
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  elevation: 5,
+                ),
+                child: const Text(
+                  "Submit",
+                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
-    );
-  }
-}
-
-class UserDrawerHeader extends StatelessWidget {
-  const UserDrawerHeader({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return FutureBuilder<DocumentSnapshot>(
-      future: FirebaseFirestore.instance
-          .collection('user')
-          .doc(FirebaseAuth.instance.currentUser?.uid)
-          .get(),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const CircularProgressIndicator();
-        }
-
-        if (snapshot.hasError) {
-          return const Text('Error fetching user data');
-        }
-
-        if (!snapshot.hasData || snapshot.data == null) {
-          return const Text('User not found');
-        }
-
-        final userData = snapshot.data!.data() as Map<String, dynamic>;
-
-        final name = userData['name'] ?? 'User Name';
-        final email = userData['email'] ?? 'No email';
-        final profilePictureUrl = userData['profilePicture'];
-
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            CircleAvatar(
-              radius: 30,
-              backgroundColor: Colors.white,
-              backgroundImage: profilePictureUrl != null
-                  ? NetworkImage(profilePictureUrl)
-                  : const AssetImage('assets/asset/default_profile.jpg') as ImageProvider,
-            ),
-            const SizedBox(height: 10),
-            Text(
-              "Welcome $name",
-              style: const TextStyle(color: Colors.white, fontSize: 18),
-            ),
-            Text(
-              email,
-              style: const TextStyle(color: Colors.white70, fontSize: 14),
-            ),
-          ],
-        );
-      },
     );
   }
 }

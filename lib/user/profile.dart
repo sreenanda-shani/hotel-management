@@ -30,13 +30,15 @@ class ProfilePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    const tealColor = Color.fromARGB(255, 0, 123, 123); // Teal color
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Profile'),
+        title: const Text('Profile', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
         centerTitle: true,
-        backgroundColor: Colors.blue,
+        backgroundColor: tealColor,
       ),
-      body: FutureBuilder<Map<String, dynamic>?> (
+      body: FutureBuilder<Map<String, dynamic>?>(
         future: fetchUserData(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
@@ -50,68 +52,92 @@ class ProfilePage extends StatelessWidget {
           final userDetails = snapshot.data!;
 
           return SingleChildScrollView(
-            padding: const EdgeInsets.all(16.0),
+            padding: const EdgeInsets.all(20.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                // Profile Picture Placeholder
+                // Profile Picture
                 CircleAvatar(
-                  radius: 60,
-                  backgroundColor: Colors.blue.shade100,
-                  child: const Icon(
-                    Icons.account_circle,
-                    size: 120,
-                    color: Colors.grey,
+                  radius: 75,
+                  backgroundColor: tealColor.withOpacity(0.2),
+                  backgroundImage: NetworkImage(userDetails['profile_picture'] ?? ''),
+                  child: userDetails['profile_picture'] == null
+                      ? const Icon(Icons.account_circle, size: 120, color: Colors.grey)
+                      : null,
+                ),
+                const SizedBox(height: 20),
+
+                // User Details wrapped in a Card
+                Card(
+                  elevation: 5,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  margin: const EdgeInsets.symmetric(vertical: 10.0),
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      children: [
+                        ProfileDetailRow(
+                          icon: Icons.person,
+                          label: 'Name',
+                          value: userDetails['name'] ?? 'N/A',
+                          iconColor: tealColor,
+                        ),
+                        ProfileDetailRow(
+                          icon: Icons.email,
+                          label: 'Email',
+                          value: userDetails['email'] ?? 'N/A',
+                          iconColor: tealColor,
+                        ),
+                        ProfileDetailRow(
+                          icon: Icons.location_on,
+                          label: 'Address',
+                          value: userDetails['address'] ?? 'N/A',
+                          iconColor: tealColor,
+                        ),
+                        ProfileDetailRow(
+                          icon: Icons.phone,
+                          label: 'Phone',
+                          value: userDetails['phone'] ?? 'N/A',
+                          iconColor: tealColor,
+                        ),
+                        ProfileDetailRow(
+                          icon: Icons.transgender,
+                          label: 'Gender',
+                          value: userDetails['gender'] ?? 'N/A',
+                          iconColor: tealColor,
+                        ),
+                        ProfileDetailRow(
+                          icon: Icons.security,
+                          label: 'Aadhar',
+                          value: userDetails['aadhar'] ?? 'N/A',
+                          iconColor: tealColor,
+                        ),
+                      ],
+                    ),
                   ),
                 ),
+
                 const SizedBox(height: 20),
 
-                // User Details
-                ProfileDetailRow(
-                  icon: Icons.person,
-                  label: 'Name',
-                  value: userDetails['name'] ?? 'N/A',
-                ),
-                ProfileDetailRow(
-                  icon: Icons.email,
-                  label: 'Email',
-                  value: userDetails['email'] ?? 'N/A',
-                ),
-                ProfileDetailRow(
-                  icon: Icons.location_on,
-                  label: 'Address',
-                  value: userDetails['address'] ?? 'N/A',
-                ),
-                ProfileDetailRow(
-                  icon: Icons.phone,
-                  label: 'Phone',
-                  value: userDetails['phone'] ?? 'N/A',
-                ),
-                ProfileDetailRow(
-                  icon: Icons.transgender,
-                  label: 'Gender',
-                  value: userDetails['gender'] ?? 'N/A',
-                ),
-                ProfileDetailRow(
-                  icon: Icons.security,
-                  label: 'Aadhar',
-                  value: userDetails['aadhar'] ?? 'N/A',
-                ),
-                const SizedBox(height: 20),
-
-                // Edit Button
-                Center(
-                  child: ElevatedButton(
-                    onPressed: () {
-                      // Navigate to EditProfilePage
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const EditProfilePage(),
-                        ),
-                      );
-                    },
-                    child: const Text('Edit Profile'),
+                // Edit Button with a more modern design
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const EditProfilePage(),
+                      ),
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: tealColor,
+                    padding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 25.0),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                    elevation: 5,
+                  ),
+                  child: const Text(
+                    'Edit Profile',
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                   ),
                 ),
               ],
@@ -128,12 +154,14 @@ class ProfileDetailRow extends StatelessWidget {
   final IconData icon;
   final String label;
   final String value;
+  final Color iconColor;
 
   const ProfileDetailRow({
     super.key,
     required this.icon,
     required this.label,
     required this.value,
+    required this.iconColor,
   });
 
   @override
@@ -143,7 +171,7 @@ class ProfileDetailRow extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon, size: 24, color: Colors.blue),
+          Icon(icon, size: 26, color: iconColor),
           const SizedBox(width: 16),
           Expanded(
             child: Column(
@@ -151,9 +179,10 @@ class ProfileDetailRow extends StatelessWidget {
               children: [
                 Text(
                   label,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 16,
+                    color: iconColor,
                   ),
                 ),
                 const SizedBox(height: 4),
@@ -161,7 +190,7 @@ class ProfileDetailRow extends StatelessWidget {
                   value,
                   style: const TextStyle(
                     fontSize: 14,
-                    color: Colors.black54,
+                    color: Colors.black87,
                   ),
                 ),
               ],

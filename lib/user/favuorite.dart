@@ -89,7 +89,7 @@ class _FavouritesPageState extends State<FavouritesPage> {
       appBar: AppBar(
         title: const Text("Favourites"),
         centerTitle: true,
-        backgroundColor: Colors.blue,
+        backgroundColor: Colors.teal,
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -140,7 +140,7 @@ class _FavouritesPageState extends State<FavouritesPage> {
                                 style: const TextStyle(
                                   fontSize: 18,
                                   fontWeight: FontWeight.bold,
-                                  color: Colors.blue,
+                                  color: Colors.teal,
                                 ),
                               ),
                               const SizedBox(height: 4),
@@ -199,7 +199,7 @@ class _FavouritesPageState extends State<FavouritesPage> {
                                   child: const Text(
                                     'View in Detail',
                                     style: TextStyle(
-                                      color: Colors.blue,
+                                      color: Colors.teal,
                                       fontWeight: FontWeight.bold,
                                     ),
                                   ),

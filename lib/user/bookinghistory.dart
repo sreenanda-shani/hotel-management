@@ -25,26 +25,23 @@ class _BookingHistoryPageState extends State<BookingHistoryPage> {
     _fetchUserBookings();
   }
 
-  // Fetch user booking data from Firestore
   Future<void> _fetchUserBookings() async {
     try {
       QuerySnapshot bookingSnapshot = await _bookingCollection.get();
-
       List<Map<String, dynamic>> bookings = [];
       for (var doc in bookingSnapshot.docs) {
         var bookingData = doc.data() as Map<String, dynamic>;
-        bookingData['bookingId'] = doc.id; // Add booking ID
+        bookingData['bookingId'] = doc.id;
 
-        // Fetch hotel data for the booking using hotelId
+        // Fetch hotel data for the booking
         var hotelSnapshot = await _hotelCollection.doc(bookingData['hotelId']).get();
         if (hotelSnapshot.exists) {
           var hotelData = hotelSnapshot.data() as Map<String, dynamic>;
-          bookingData['hotelName'] = hotelData['hotelName']; // Hotel Name
-          bookingData['hotelEmail'] = hotelData['contactEmail']; // Hotel Email
-          bookingData['hotelMobile'] = hotelData['contactNumber']; // Hotel Mobile
-          bookingData['hotelImage'] = hotelData['imageUrl']; // Hotel Image
+          bookingData['hotelName'] = hotelData['hotelName'];
+          bookingData['hotelEmail'] = hotelData['contactEmail'];
+          bookingData['hotelMobile'] = hotelData['contactNumber'];
+          bookingData['hotelImage'] = hotelData['imageUrl'];
         }
-
         bookings.add(bookingData);
       }
 
@@ -67,7 +64,7 @@ class _BookingHistoryPageState extends State<BookingHistoryPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.blueAccent,
+        backgroundColor: Colors.teal,
         title: const Text("Booking History"),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
@@ -95,7 +92,6 @@ class _BookingHistoryPageState extends State<BookingHistoryPage> {
 
   // Build booking card to display booking details
   Widget _buildBookingCard(Map<String, dynamic> booking) {
-    // Extract details from the booking
     var hotelName = booking['hotelName'] ?? 'Hotel Name';
     var hotelEmail = booking['hotelEmail'] ?? 'Not Available';
     var hotelMobile = booking['hotelMobile'] ?? 'Not Available';
@@ -105,53 +101,59 @@ class _BookingHistoryPageState extends State<BookingHistoryPage> {
     var hotelImage = booking['hotelImage'] ?? '';
 
     return Card(
-      margin: const EdgeInsets.symmetric(vertical: 10),
+      margin: const EdgeInsets.symmetric(vertical: 12),
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(15),
+        borderRadius: BorderRadius.circular(20),
       ),
+      elevation: 8,
+      shadowColor: Colors.black.withOpacity(0.1),
       child: Padding(
-        padding: const EdgeInsets.all(12.0),
+        padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Display hotel image
+            // Display hotel image with rounded corners
             if (hotelImage.isNotEmpty)
               ClipRRect(
-                borderRadius: BorderRadius.circular(10),
+                borderRadius: BorderRadius.circular(15),
                 child: Image.network(
                   hotelImage,
-                  height: 150,
+                  height: 180,
                   width: double.infinity,
                   fit: BoxFit.cover,
                 ),
               ),
-            const SizedBox(height: 10),
+            const SizedBox(height: 12),
 
-            // Display hotel name
+            // Display hotel name with bold style
             Text(
               hotelName,
-              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              style: const TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: Colors.teal,
+              ),
             ),
             const SizedBox(height: 4),
 
-            // Display room details
+            // Display room and other details
             Text(
               'Room: $roomNumber',
               style: const TextStyle(color: Colors.grey),
             ),
             const SizedBox(height: 4),
-
-            // Display rent
-            Text(
-              'Total Rent: \$${rent.toString()}',
-              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-            ),
-            const SizedBox(height: 4),
-
-            // Display guests
             Text(
               'Guests: $guests',
               style: const TextStyle(color: Colors.grey),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              'Total Rent: \$${rent.toString()}',
+              style: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: Colors.teal,
+              ),
             ),
             const SizedBox(height: 8),
 
@@ -165,9 +167,9 @@ class _BookingHistoryPageState extends State<BookingHistoryPage> {
               'Hotel Mobile: $hotelMobile',
               style: const TextStyle(color: Colors.grey),
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 16),
 
-            // Row with View Details and Provide Feedback buttons
+            // Action buttons (View Details & Provide Feedback)
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -183,6 +185,12 @@ class _BookingHistoryPageState extends State<BookingHistoryPage> {
                       ),
                     );
                   },
+                  style: ElevatedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12), backgroundColor: Colors.teal,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(15),
+                    ),
+                  ),
                   child: const Text("View Details"),
                 ),
                 ElevatedButton(
@@ -199,7 +207,10 @@ class _BookingHistoryPageState extends State<BookingHistoryPage> {
                     );
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.teal,
+                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12), backgroundColor: Colors.teal,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(15),
+                    ),
                   ),
                   child: const Text("Provide Feedback"),
                 ),
@@ -212,7 +223,7 @@ class _BookingHistoryPageState extends State<BookingHistoryPage> {
   }
 }
 
-// Booking Details Page
+// Booking Details Page (unchanged)
 class BookingDetailsPage extends StatelessWidget {
   final String bookingId;
 
@@ -222,7 +233,7 @@ class BookingDetailsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.blueAccent,
+        backgroundColor: Colors.teal,
         title: const Text("Booking Details"),
       ),
       body: FutureBuilder<DocumentSnapshot>(

@@ -32,7 +32,7 @@ class _HotelFeedbackState extends State<HotelFeedback> {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Hotel Feedback", style: TextStyle(fontWeight: FontWeight.bold)),
-        backgroundColor: Colors.deepPurpleAccent,
+        backgroundColor: Colors.teal,
       ),
       body: Padding(
         padding: const EdgeInsets.all(20.0),
@@ -41,7 +41,7 @@ class _HotelFeedbackState extends State<HotelFeedback> {
             // Hotel Name displayed (default value)
             Text(
               "Hotel: ${widget.hotelName}",
-              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.deepPurpleAccent),
+              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.teal),
             ),
             const SizedBox(height: 20),
 
@@ -87,7 +87,7 @@ class _HotelFeedbackState extends State<HotelFeedback> {
                   borderRadius: BorderRadius.circular(12),
                 ),
                 contentPadding: const EdgeInsets.all(16),
-                prefixIcon: Icon(Icons.feedback, color: Colors.deepPurpleAccent),
+                prefixIcon: Icon(Icons.feedback, color: Colors.teal),
               ),
               style: const TextStyle(fontSize: 16),
             ),
@@ -179,7 +179,7 @@ class _HotelFeedbackState extends State<HotelFeedback> {
                     }
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.deepPurpleAccent,
+                    backgroundColor: Colors.teal,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
