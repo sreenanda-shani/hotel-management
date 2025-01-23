@@ -1,27 +1,94 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:intl/intl.dart';
 import 'package:project1/hotel/user_details.dart';
 
-class hotelbooking extends StatelessWidget {
-  const hotelbooking({super.key});
+class HotelBooking extends StatefulWidget {
+  const HotelBooking({super.key});
+
+  @override
+  _HotelBookingState createState() => _HotelBookingState();
+}
+
+class _HotelBookingState extends State<HotelBooking> {
+  DateTime? _fromDate;
+  DateTime? _toDate;
+
+  Future<void> _selectDate(BuildContext context, bool isFromDate) async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(2020),
+      lastDate: DateTime(2101),
+    );
+
+    if (picked != null) {
+      setState(() {
+        if (isFromDate) {
+          _fromDate = picked;
+        } else {
+          _toDate = picked;
+        }
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text(
-          "Booking History",
-          style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold,color: Colors.white),
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(120.0),
+        child: AppBar(
+          title: const Text(
+            "Booking History",
+            style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+          ),
+          centerTitle: true,
+          backgroundColor: Colors.blueGrey.shade900,
+          elevation: 0,
+          actions: [
+            Padding(
+              padding: const EdgeInsets.only(right: 10.0),
+              child: Row(
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.calendar_today, color: Colors.white),
+                    onPressed: () => _selectDate(context, true),
+                  ),
+                  const Text(
+                    "From:",
+                    style: TextStyle(color: Colors.white, fontSize: 16),
+                  ),
+                  if (_fromDate != null)
+                    Text(
+                      DateFormat('dd/MM/yyyy').format(_fromDate!),
+                      style: const TextStyle(color: Colors.white, fontSize: 16),
+                    ),
+                  const SizedBox(width: 10),
+                  IconButton(
+                    icon: const Icon(Icons.calendar_today, color: Colors.white),
+                    onPressed: () => _selectDate(context, false),
+                  ),
+                  const Text(
+                    "To:",
+                    style: TextStyle(color: Colors.white, fontSize: 16),
+                  ),
+                  if (_toDate != null)
+                    Text(
+                      DateFormat('dd/MM/yyyy').format(_toDate!),
+                      style: const TextStyle(color: Colors.white, fontSize: 16),
+                    ),
+                ],
+              ),
+            ),
+          ],
         ),
-        centerTitle: true,
-        backgroundColor: Colors.blueGrey.shade900,
-        elevation: 0,
       ),
       body: Container(
         decoration: const BoxDecoration(
           image: DecorationImage(
-            image: AssetImage('asset/img4.webp'), // Replace with your image path
+            image: AssetImage('asset/img4.webp'),
             fit: BoxFit.cover,
           ),
         ),
@@ -44,12 +111,30 @@ class hotelbooking extends StatelessWidget {
             }
 
             final bookings = snapshot.data!.docs;
+            List<Map<String, dynamic>> filteredBookings = [];
+
+            for (var bookingDoc in bookings) {
+              final booking = bookingDoc.data() as Map<String, dynamic>;
+
+              DateTime checkOutDate = (booking["checkOut"] as Timestamp).toDate();
+
+              // Filter bookings based on the selected date range
+              if (_fromDate != null && _toDate != null) {
+                if (checkOutDate.isAfter(_fromDate!.subtract(const Duration(days: 1))) &&
+                    checkOutDate.isBefore(_toDate!.add(const Duration(days: 1)))) {
+                  filteredBookings.add(booking);
+                }
+              } else {
+                // If no date range is selected, show all bookings
+                filteredBookings.add(booking);
+              }
+            }
 
             return ListView.builder(
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 20),
-              itemCount: bookings.length,
+              itemCount: filteredBookings.length,
               itemBuilder: (context, index) {
-                final booking = bookings[index].data() as Map<String, dynamic>;
+                final booking = filteredBookings[index];
                 return BookingCard(booking: booking);
               },
             );
@@ -74,24 +159,23 @@ class BookingCard extends StatelessWidget {
       return _buildErrorCard("Unknown Hotel", "Hotel details are missing.");
     }
 
-    // Get the name from the booking document
     final bookingName = booking["name"] ?? "No Name Provided";
 
     return ClipRRect(
-      borderRadius: BorderRadius.circular(30), // Side oval shape for more curvature
+      borderRadius: BorderRadius.circular(30),
       child: Card(
-        elevation: 8, // Slightly increased elevation for depth
+        elevation: 8,
         margin: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
         shadowColor: Colors.black.withOpacity(0.3),
         child: ListTile(
           contentPadding: const EdgeInsets.all(16),
-          tileColor: Colors.white.withOpacity(0.85), // Slight transparency for softness
+          tileColor: Colors.white.withOpacity(0.85),
           title: Text(
-            bookingName,  // Use the booking name as the title
+            bookingName,
             style: const TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.bold,
-              color: Colors.black, // Black text for better visibility
+              color: Colors.black,
             ),
           ),
           subtitle: Column(
@@ -123,7 +207,7 @@ class BookingCard extends StatelessWidget {
           onTap: () {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => UserDetails(userName: booking["name"],)), // Missing semicolon added
+              MaterialPageRoute(builder: (context) => UserDetails(userName: booking["name"])),
             );
           },
         ),
@@ -133,7 +217,7 @@ class BookingCard extends StatelessWidget {
 
   Widget _buildErrorCard(String title, String subtitle) {
     return ClipRRect(
-      borderRadius: BorderRadius.circular(30), // Side oval shape
+      borderRadius: BorderRadius.circular(30),
       child: Card(
         elevation: 4,
         margin: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
@@ -154,10 +238,9 @@ class BookingCard extends StatelessWidget {
     );
   }
 
-  // Updated formatDate function to remove time
   String formatDate(Timestamp? timestamp) {
     if (timestamp == null) return "Unknown Date";
     final date = timestamp.toDate();
-    return "${date.day}/${date.month}/${date.year}"; // Only return date (no time)
+    return "${date.day}/${date.month}/${date.year}";
   }
 }

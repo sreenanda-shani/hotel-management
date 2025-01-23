@@ -185,7 +185,7 @@ class _HotelHomeState extends State<HotelHome> {
                   icon: Icons.book_online,
                   title: 'View Bookings',
                   subtitle: 'Check reservations',
-                  route: const hotelbooking(),
+                  route: const HotelBooking(),
                 ),
                 _buildCard(
                   context,

@@ -121,19 +121,11 @@ void _navigateToDetailsPage(Map<String, dynamic> room) {
     ),
   );
 }
-
-
-
-
-
- 
-
 }
-
 class RoomDetailsPage extends StatefulWidget {
   final Map<String, dynamic> room;
-  
-  const RoomDetailsPage({super.key, required this.room,});
+
+  const RoomDetailsPage({super.key, required this.room});
 
   @override
   State<RoomDetailsPage> createState() => _RoomDetailsPageState();
@@ -156,6 +148,17 @@ class _RoomDetailsPageState extends State<RoomDetailsPage> {
 
   @override
   Widget build(BuildContext context) {
+    // Safe retrieval of room values
+    final roomNumber = widget.room['roomNumber'] ?? 'N/A';
+    final rent = widget.room['rent'] ?? 0;
+    final maxPeople = widget.room['maxPeople'] ?? 0;
+    final acType = widget.room['acType'] ?? 'N/A';
+    final bedType = widget.room['bedType'] ?? 'N/A';
+    final wifiAvailable = widget.room['wifiAvailable'] ?? false;
+    final balconyAvailable = widget.room['balconyAvailable'] ?? false;
+    final isAvailable = widget.room['isAvailable'] ?? false;
+    final imageUrl = widget.room['imageUrl'] ?? '';
+
     return Scaffold(
       appBar: AppBar(
         title: const Text(
@@ -172,26 +175,32 @@ class _RoomDetailsPageState extends State<RoomDetailsPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Image(image: NetworkImage(widget.room['imageUrl']),width: MediaQuery.of(context).size.width,height: MediaQuery.of(context).size.height/3,fit: BoxFit.cover,),
+              if (imageUrl.isNotEmpty)
+                Image.network(
+                  imageUrl,
+                  width: MediaQuery.of(context).size.width,
+                  height: MediaQuery.of(context).size.height / 3,
+                  fit: BoxFit.cover,
+                ),
               const SizedBox(height: 30),
               Row(
                 children: [
                   const Icon(Icons.meeting_room, size: 30, color: Colors.teal),
                   const SizedBox(width: 10),
                   Text(
-                    "Room Number: ${widget.room['roomNumber']}",
+                    "Room Number: $roomNumber",
                     style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
                   ),
                 ],
               ),
               const Divider(height: 30, thickness: 1),
-              _buildRoomDetail(Icons.attach_money, "Rent", "\$${widget.room['rent']}"),
-              _buildRoomDetail(Icons.group, "Max People", "${widget.room['maxPeople']}"),
-              _buildRoomDetail(Icons.ac_unit, "AC Type", widget.room['acType']),
-              _buildRoomDetail(Icons.bed, "Bed Type", widget.room['bedType']),
-              _buildRoomDetail(Icons.wifi, "Wi-Fi", widget.room['wifiAvailable'] ? 'Available' : 'Not Available'),
-              _buildRoomDetail(Icons.balcony, "Balcony", widget.room['balconyAvailable'] ? 'Available' : 'Not Available'),
-              _buildRoomDetail(Icons.check_circle, "Availability", widget.room['isAvailable'] ? 'Available' : 'Not Available'),
+              _buildRoomDetail(Icons.attach_money, "Rent", "\$$rent"),
+              _buildRoomDetail(Icons.group, "Max People", "$maxPeople"),
+              _buildRoomDetail(Icons.ac_unit, "AC Type", acType),
+              _buildRoomDetail(Icons.bed, "Bed Type", bedType),
+              _buildRoomDetail(Icons.wifi, "Wi-Fi", wifiAvailable ? 'Available' : 'Not Available'),
+              _buildRoomDetail(Icons.balcony, "Balcony", balconyAvailable ? 'Available' : 'Not Available'),
+              _buildRoomDetail(Icons.check_circle, "Availability", isAvailable ? 'Available' : 'Not Available'),
               const SizedBox(height: 30),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -199,7 +208,10 @@ class _RoomDetailsPageState extends State<RoomDetailsPage> {
                   Expanded(
                     child: ElevatedButton.icon(
                       onPressed: () {
-                        Navigator.push(context, MaterialPageRoute(builder: (context) => UpdateRoomPage(roomData: widget.room),));
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => UpdateRoomPage(roomData: widget.room)),
+                        );
                       },
                       style: ElevatedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
@@ -213,11 +225,11 @@ class _RoomDetailsPageState extends State<RoomDetailsPage> {
                       ),
                     ),
                   ),
-                  SizedBox(width: 10,),
+                  const SizedBox(width: 10),
                   Expanded(
                     child: ElevatedButton.icon(
                       onPressed: () {
-                        _removeRoom(widget.room['id']);
+                        _removeRoom(widget.room['id'] ?? '');
                       },
                       style: ElevatedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
@@ -314,7 +326,6 @@ class _RoomDetailsPageState extends State<RoomDetailsPage> {
     );
   }
 }
-
 
 
 
