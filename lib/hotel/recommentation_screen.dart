@@ -60,7 +60,7 @@ class _AiRecomentationScreenState extends State<AiRecomentationScreen> {
 
   // Post data to API and handle response
   Future<Map<String, dynamic>> postToApi(Map<String, dynamic> formattedData) async {
-    final apiUrl = "https://e1c8-2409-4073-4d9b-66a8-4ae5-2682-8e76-1585.ngrok-free.app/get_improvement_suggestions";
+    final apiUrl = "https://a464-2409-4073-4e34-5df6-9573-50fa-3a05-d0f4.ngrok-free.app/get_improvement_suggestions";
 
     try {
       final response = await http.post(
@@ -110,57 +110,56 @@ class _AiRecomentationScreenState extends State<AiRecomentationScreen> {
     }
   }
 
-  @override
-  Widget build(BuildContext context) {
+ @override
+Widget build(BuildContext context) {
+  var improvementSuggestions = response != null 
+      ? response!["general_improvement"] as List<dynamic>? 
+      : null;
 
-    var improvementSuggestions;
+  return Scaffold(
+    appBar: AppBar(
+      title: const Text("API Response"),
+      backgroundColor: Colors.blueAccent,
+    ),
+    body: isLoading 
+      ? Center(child: CircularProgressIndicator())
+      : improvementSuggestions != null && improvementSuggestions.isNotEmpty 
+        ? Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: ListView.builder(
+              itemCount: improvementSuggestions.length,
+              itemBuilder: (context, index) {
+                final suggestion = improvementSuggestions[index];
 
-    if(response != null){
-
-       improvementSuggestions =
-      response!["general_improvement"] as List<dynamic>;
-    }
-   
-
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text("API Response"),
-        backgroundColor: Colors.blueAccent,
-      ),
-      body: isLoading ? Center(child: CircularProgressIndicator(),)
-      
-       :  Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: ListView.builder(
-          itemCount: improvementSuggestions.length,
-          itemBuilder: (context, index) {
-            final suggestion = improvementSuggestions[index];
-
-            return Card(
-              margin: const EdgeInsets.symmetric(vertical: 8),
-              elevation: 4,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: ListTile(
-                leading: const Icon(
-                  Icons.lightbulb,
-                  color: Colors.blueAccent,
-                  size: 30,
-                ),
-                title: Text(
-                  suggestion,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w500,
-                    color: Colors.black87,
+                return Card(
+                  margin: const EdgeInsets.symmetric(vertical: 8),
+                  elevation: 4,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
                   ),
-                ),
-              ),
-            );
-          },
-        ),
-      ),
-    );
-  }
+                  child: ListTile(
+                    leading: const Icon(
+                      Icons.lightbulb,
+                      color: Colors.blueAccent,
+                      size: 30,
+                    ),
+                    title: Text(
+                      suggestion,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
+                        color: Colors.black87,
+                      ),
+                    ),
+                  ),
+                );
+              },
+            ),
+          )
+        : Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Center(child: Text('No improvement suggestions available')),
+          ),
+  );
+}
 }

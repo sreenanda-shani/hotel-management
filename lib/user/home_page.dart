@@ -9,7 +9,7 @@ import 'package:project1/user/favuorite.dart';
 import 'package:project1/user/feedback.dart';
 import 'package:project1/user/hotel_details.dart';
 import 'package:project1/user/hotel_price_prediction_screen.dart';
-import 'package:project1/user/new_ai_screen.dart';
+import 'package:project1/user/last_ai.dart';
 import 'package:project1/user/notification.dart';
 import 'package:project1/user/profile.dart';
 import 'package:project1/user/user_chat_screen.dart';
