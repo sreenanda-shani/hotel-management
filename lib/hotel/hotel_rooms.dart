@@ -13,6 +13,8 @@ class AddRoomScreen extends StatefulWidget {
 class _AddRoomScreenState extends State<AddRoomScreen> {
   final _roomNumberController = TextEditingController();
   final _rentController = TextEditingController();
+  final _totalRentController =
+      TextEditingController(); // New controller for Total Rent
   final _maxPeopleController = TextEditingController();
 
   String _selectedRoomType = 'Standard Room';
@@ -23,19 +25,35 @@ class _AddRoomScreenState extends State<AddRoomScreen> {
   bool _isAvailable = true;
   File? _selectedImage;
   bool _isLoading = false;
-  final _hotelId = FirebaseAuth.instance.currentUser?.uid; // Replace with actual hotel ID
+  final _hotelId =
+      FirebaseAuth.instance.currentUser?.uid; // Replace with actual hotel ID
 
-  final _roomTypes =  [
-  'Double Room', 'Twin Room', 'Single Room', 'Triple Room', 'Family Room', 
-  'Suite', 'Standard Room', 'Superior Room', 'Quadruple Room', 'Deluxe Room', 
-  'Vacation Home', 'Apartment', 'King Room', 'Guest Room', 'Studio', 
-  'House', 'Queen Room', 'Premium Room'
-];
+  final _roomTypes = [
+    'Double Room',
+    'Twin Room',
+    'Single Room',
+    'Triple Room',
+    'Family Room',
+    'Suite',
+    'Standard Room',
+    'Superior Room',
+    'Quadruple Room',
+    'Deluxe Room',
+    'Vacation Home',
+    'Apartment',
+    'King Room',
+    'Guest Room',
+    'Studio',
+    'House',
+    'Queen Room',
+    'Premium Room'
+  ];
   final _acTypes = ['AC', 'Non-AC'];
   final _bedTypes = ['Single', 'Double', 'Queen', 'King'];
 
   Future<void> _pickImage() async {
-    final pickedFile = await ImagePicker().pickImage(source: ImageSource.gallery);
+    final pickedFile =
+        await ImagePicker().pickImage(source: ImageSource.gallery);
     if (pickedFile != null) {
       setState(() {
         _selectedImage = File(pickedFile.path);
@@ -64,93 +82,99 @@ class _AddRoomScreenState extends State<AddRoomScreen> {
     }
   }
 
-
   Future<void> _updateRoomDetails() async {
-  if (_roomNumberController.text.isEmpty ||
-      _rentController.text.isEmpty ||
-      _maxPeopleController.text.isEmpty) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Please fill in all required fields')),
-    );
-    return;
-  }
-
-  try {
-    setState(() {
-      _isLoading = true;
-    });
-
-    // Parse the room number as an integer
-    final roomNumber = int.tryParse(_roomNumberController.text) ?? 0;
-
-    // Check if a room with the same room number already exists for this hotel
-    final querySnapshot = await FirebaseFirestore.instance
-        .collection('rooms')
-        .where('hotelId', isEqualTo: _hotelId)
-        .where('roomNumber', isEqualTo: roomNumber)
-        .get();
-
-    if (querySnapshot.docs.isNotEmpty) {
+    if (_roomNumberController.text.isEmpty ||
+        _rentController.text.isEmpty ||
+        _totalRentController.text.isEmpty ||
+        _maxPeopleController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Room number already exists for this hotel')),
+        const SnackBar(content: Text('Please fill in all required fields')),
       );
       return;
     }
 
-    // Upload image to Cloudinary if selected
-    String? imageUrl;
-    if (_selectedImage != null) {
-      imageUrl = await _uploadImageToCloudinary(_selectedImage!);
-    }
+    try {
+      setState(() {
+        _isLoading = true;
+      });
 
-    // Add room details to Firestore
-    await FirebaseFirestore.instance.collection('rooms').add({
-      'hotelId': _hotelId,
-      'roomNumber': roomNumber,
-      'rent': double.tryParse(_rentController.text) ?? 0.0,
-      'maxPeople': int.tryParse(_maxPeopleController.text) ?? 1,
-      'acType': _acType,
-      'bedType': _bedType,
-      'wifiAvailable': _wifiAvailable,
-      'balconyAvailable': _balconyAvailable,
-      'imageUrl': imageUrl, // Save the image URL
-      'isAvailable': _isAvailable,
-      'roomType': _selectedRoomType,
-    });
+      // Parse the room number as an integer
+      final roomNumber = int.tryParse(_roomNumberController.text) ?? 0;
 
-    // Clear all fields after successful save
-    _roomNumberController.clear();
-    _rentController.clear();
-    _maxPeopleController.clear();
-    setState(() {
-      _selectedRoomType = 'Standard Room';
-      _acType = 'AC';
-      _bedType = 'Single';
-      _wifiAvailable = false;
-      _balconyAvailable = false;
-      _isAvailable = true;
-      _selectedImage = null;
-    });
+      // Check if a room with the same room number already exists for this hotel
+      final querySnapshot = await FirebaseFirestore.instance
+          .collection('rooms')
+          .where('hotelId', isEqualTo: _hotelId)
+          .where('roomNumber', isEqualTo: roomNumber)
+          .get();
 
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Room details added successfully!')),
-      );
+      if (querySnapshot.docs.isNotEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+              content: Text('Room number already exists for this hotel')),
+        );
+        return;
+      }
+
+      // Upload image to Cloudinary if selected
+      String? imageUrl;
+      if (_selectedImage != null) {
+        imageUrl = await _uploadImageToCloudinary(_selectedImage!);
+      }
+
+      // Parse the rent and total rent values
+      final double rentValue = double.tryParse(_rentController.text) ?? 0.0;
+      final double totalRentValue =
+          double.tryParse(_totalRentController.text) ?? 0.0;
+
+      // Add room details to Firestore including totalRent field
+      await FirebaseFirestore.instance.collection('rooms').add({
+        'hotelId': _hotelId,
+        'roomNumber': roomNumber,
+        'rent': rentValue,
+        'totalRent': totalRentValue, // New field for Total Rent
+        'maxPeople': int.tryParse(_maxPeopleController.text) ?? 1,
+        'acType': _acType,
+        'bedType': _bedType,
+        'wifiAvailable': _wifiAvailable,
+        'balconyAvailable': _balconyAvailable,
+        'imageUrl': imageUrl, // Save the image URL
+        'isAvailable': _isAvailable,
+        'roomType': _selectedRoomType,
+      });
+
+      // Clear all fields after successful save
+      _roomNumberController.clear();
+      _rentController.clear();
+      _totalRentController.clear();
+      _maxPeopleController.clear();
+      setState(() {
+        _selectedRoomType = 'Standard Room';
+        _acType = 'AC';
+        _bedType = 'Single';
+        _wifiAvailable = false;
+        _balconyAvailable = false;
+        _isAvailable = true;
+        _selectedImage = null;
+      });
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Room details added successfully!')),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Error adding room details')),
+        );
+      }
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
     }
-  } catch (e) {
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Error adding room details')),
-      );
-    }
-  } finally {
-    setState(() {
-      _isLoading = false;
-    });
   }
-}
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -166,11 +190,18 @@ class _AddRoomScreenState extends State<AddRoomScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _buildTextField(_roomNumberController, 'Room Number', TextInputType.number),
-                  _buildTextField(_rentController, 'Rent', TextInputType.number),
-                  _buildTextField(_maxPeopleController, 'Max People', TextInputType.number),
+                  _buildTextField(_roomNumberController, 'Room Number',
+                      TextInputType.number),
+                  _buildTextField(
+                      _rentController, 'Rent', TextInputType.number),
+                  // New Total Rent Field below Rent
+                  _buildTextField(
+                      _totalRentController, 'Total Rent', TextInputType.number),
+                  _buildTextField(
+                      _maxPeopleController, 'Max People', TextInputType.number),
                   const SizedBox(height: 16.0),
-                  _buildDropdown('Room Type', _roomTypes, _selectedRoomType, (value) {
+                  _buildDropdown('Room Type', _roomTypes, _selectedRoomType,
+                      (value) {
                     setState(() {
                       _selectedRoomType = value!;
                     });
@@ -210,7 +241,8 @@ class _AddRoomScreenState extends State<AddRoomScreen> {
     );
   }
 
-  Widget _buildTextField(TextEditingController controller, String labelText, TextInputType inputType) {
+  Widget _buildTextField(TextEditingController controller, String labelText,
+      TextInputType inputType) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: TextField(
@@ -228,7 +260,8 @@ class _AddRoomScreenState extends State<AddRoomScreen> {
     );
   }
 
-  Widget _buildDropdown(String label, List<String> items, String currentValue, Function(String?) onChanged) {
+  Widget _buildDropdown(String label, List<String> items, String currentValue,
+      Function(String?) onChanged) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: DropdownButtonFormField<String>(
@@ -252,7 +285,8 @@ class _AddRoomScreenState extends State<AddRoomScreen> {
     );
   }
 
-  Widget _buildSwitch(String title, bool currentValue, Function(bool) onChanged) {
+  Widget _buildSwitch(
+      String title, bool currentValue, Function(bool) onChanged) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: SwitchListTile(
@@ -272,7 +306,8 @@ class _AddRoomScreenState extends State<AddRoomScreen> {
         icon: const Icon(Icons.photo_library),
         label: const Text('Pick Image'),
         style: ElevatedButton.styleFrom(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.0)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.0)),
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
           backgroundColor: Colors.teal,
         ),
@@ -285,9 +320,13 @@ class _AddRoomScreenState extends State<AddRoomScreen> {
       width: MediaQuery.of(context).size.width,
       child: ElevatedButton(
         onPressed: _updateRoomDetails,
-        child: const Text('Add Room',style: TextStyle(color: Colors.white),),
+        child: const Text(
+          'Add Room',
+          style: TextStyle(color: Colors.white),
+        ),
         style: ElevatedButton.styleFrom(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.0)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.0)),
           padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 16),
           backgroundColor: Colors.teal,
         ),
@@ -299,6 +338,7 @@ class _AddRoomScreenState extends State<AddRoomScreen> {
   void dispose() {
     _roomNumberController.dispose();
     _rentController.dispose();
+    _totalRentController.dispose();
     _maxPeopleController.dispose();
     super.dispose();
   }

@@ -51,8 +51,10 @@ class _RoomBookingPageState extends State<RoomBookingPage> {
   // Function to handle successful payment
   void _handlePaymentSuccess(PaymentSuccessResponse response) async {
     try {
-      DateTime checkInDate = DateFormat('yyyy-MM-dd').parse(_checkInController.text.trim());
-      DateTime checkOutDate = DateFormat('yyyy-MM-dd').parse(_checkOutController.text.trim());
+      DateTime checkInDate =
+          DateFormat('yyyy-MM-dd').parse(_checkInController.text.trim());
+      DateTime checkOutDate =
+          DateFormat('yyyy-MM-dd').parse(_checkOutController.text.trim());
 
       // Calculate the total rent based on the number of days between check-in and check-out
       int daysStay = checkOutDate.difference(checkInDate).inDays;
@@ -78,12 +80,16 @@ class _RoomBookingPageState extends State<RoomBookingPage> {
       await FirebaseFirestore.instance.collection('booking').add(bookingData);
 
       // Update the room availability to false
-      await FirebaseFirestore.instance.collection('rooms').doc(widget.roomId).update({
+      await FirebaseFirestore.instance
+          .collection('rooms')
+          .doc(widget.roomId)
+          .update({
         'isAvailable': false, // Set room availability to false
       });
 
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Booking confirmed for room ${widget.roomNumber}!')),
+        SnackBar(
+            content: Text('Booking confirmed for room ${widget.roomNumber}!')),
       );
 
       Navigator.pop(context); // Navigate back after successful booking
@@ -126,7 +132,8 @@ class _RoomBookingPageState extends State<RoomBookingPage> {
   }
 
   // Date picker for selecting dates
-  Future<void> _selectDate(BuildContext context, TextEditingController controller) async {
+  Future<void> _selectDate(
+      BuildContext context, TextEditingController controller) async {
     final DateTime? pickedDate = await showDatePicker(
       context: context,
       initialDate: DateTime.now(),
@@ -169,8 +176,10 @@ class _RoomBookingPageState extends State<RoomBookingPage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text('Room Number: ${widget.roomNumber}',
-                        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                    Text('Rent: \$${widget.rent}', style: const TextStyle(fontSize: 18)),
+                        style: const TextStyle(
+                            fontSize: 18, fontWeight: FontWeight.bold)),
+                    Text('Rent: \$${widget.rent}',
+                        style: const TextStyle(fontSize: 18)),
                   ],
                 ),
               ),
@@ -179,61 +188,81 @@ class _RoomBookingPageState extends State<RoomBookingPage> {
               // Booking form fields
               TextFormField(
                 controller: _nameController,
-                decoration: const InputDecoration(labelText: 'Full Name', border: OutlineInputBorder()),
-                validator: (value) => value == null || value.isEmpty ? 'Please enter your name' : null,
+                decoration: const InputDecoration(
+                    labelText: 'Full Name', border: OutlineInputBorder()),
+                validator: (value) => value == null || value.isEmpty
+                    ? 'Please enter your name'
+                    : null,
               ),
               const SizedBox(height: 12),
               TextFormField(
                 controller: _mobileController,
-                decoration: const InputDecoration(labelText: 'Mobile Number', border: OutlineInputBorder()),
+                decoration: const InputDecoration(
+                    labelText: 'Mobile Number', border: OutlineInputBorder()),
                 keyboardType: TextInputType.phone,
-                validator: (value) => value == null || value.isEmpty ? 'Please enter your mobile number' : null,
+                validator: (value) => value == null || value.isEmpty
+                    ? 'Please enter your mobile number'
+                    : null,
               ),
               const SizedBox(height: 12),
               TextFormField(
                 controller: _emailController,
-                decoration: const InputDecoration(labelText: 'Email Address', border: OutlineInputBorder()),
+                decoration: const InputDecoration(
+                    labelText: 'Email Address', border: OutlineInputBorder()),
                 validator: (value) => value == null ||
                         value.isEmpty ||
-                        !RegExp(r"^[a-zA-Z0-9+_.-]+@[a-zA-Z0-9.-]+$").hasMatch(value)
+                        !RegExp(r"^[a-zA-Z0-9+_.-]+@[a-zA-Z0-9.-]+$")
+                            .hasMatch(value)
                     ? 'Please enter a valid email'
                     : null,
               ),
               const SizedBox(height: 12),
               TextFormField(
                 controller: _guestsController,
-                decoration: const InputDecoration(labelText: 'Number of Guests', border: OutlineInputBorder()),
+                decoration: const InputDecoration(
+                    labelText: 'Number of Guests',
+                    border: OutlineInputBorder()),
                 keyboardType: TextInputType.number,
-                validator: (value) => value == null || value.isEmpty ? 'Please enter the number of guests' : null,
+                validator: (value) => value == null || value.isEmpty
+                    ? 'Please enter the number of guests'
+                    : null,
               ),
               const SizedBox(height: 12),
               TextFormField(
                 controller: _checkInController,
-                decoration: const InputDecoration(labelText: 'Check-in Date', border: OutlineInputBorder()),
+                decoration: const InputDecoration(
+                    labelText: 'Check-in Date', border: OutlineInputBorder()),
                 readOnly: true,
                 onTap: () => _selectDate(context, _checkInController),
-                validator: (value) => value == null || value.isEmpty ? 'Please select a check-in date' : null,
+                validator: (value) => value == null || value.isEmpty
+                    ? 'Please select a check-in date'
+                    : null,
               ),
               const SizedBox(height: 12),
               TextFormField(
                 controller: _checkOutController,
-                decoration: const InputDecoration(labelText: 'Check-out Date', border: OutlineInputBorder()),
+                decoration: const InputDecoration(
+                    labelText: 'Check-out Date', border: OutlineInputBorder()),
                 readOnly: true,
                 onTap: () => _selectDate(context, _checkOutController),
-                validator: (value) => value == null || value.isEmpty ? 'Please select a check-out date' : null,
+                validator: (value) => value == null || value.isEmpty
+                    ? 'Please select a check-out date'
+                    : null,
               ),
               const SizedBox(height: 24),
 
               Center(
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 40, vertical: 15),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10),
                     ),
                   ),
                   onPressed: _startPayment,
-                  child: const Text("Proceed to Payment", style: TextStyle(fontSize: 16)),
+                  child: const Text("Proceed to Payment",
+                      style: TextStyle(fontSize: 16)),
                 ),
               ),
             ],

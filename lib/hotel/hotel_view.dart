@@ -10,9 +10,6 @@ class ViewRoomPage extends StatefulWidget {
 }
 
 class _ViewRoomPageState extends State<ViewRoomPage> {
-
-  
-
   void _navigateToUpdatePage(Map<String, dynamic> roomData) {
     Navigator.push(
       context,
@@ -22,106 +19,110 @@ class _ViewRoomPageState extends State<ViewRoomPage> {
     );
   }
 
-@override
-Widget build(BuildContext context) {
-  return Scaffold(
-    appBar: AppBar(
-      title: const Text("View Rooms"),
-      backgroundColor: Colors.white,
-      elevation: 0,
-      iconTheme: const IconThemeData(color: Colors.black), // Back arrow in black
-    ),
-    body: StreamBuilder<QuerySnapshot>(
-      stream: FirebaseFirestore.instance
-          .collection('rooms')
-          .where('hotelId', isEqualTo: FirebaseAuth.instance.currentUser!.uid)
-          .snapshots(),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator());
-        }
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text("View Rooms"),
+        backgroundColor: Colors.white,
+        elevation: 0,
+        iconTheme:
+            const IconThemeData(color: Colors.black), // Back arrow in black
+      ),
+      body: StreamBuilder<QuerySnapshot>(
+        stream: FirebaseFirestore.instance
+            .collection('rooms')
+            .where('hotelId', isEqualTo: FirebaseAuth.instance.currentUser!.uid)
+            .snapshots(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
 
-        if (snapshot.hasError) {
-          return const Center(child: Text('Error fetching room details'));
-        }
+          if (snapshot.hasError) {
+            return const Center(child: Text('Error fetching room details'));
+          }
 
-        if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-          return const Center(child: Text('No rooms found'));
-        }
+          if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+            return const Center(child: Text('No rooms found'));
+          }
 
-        var roomsData = snapshot.data!.docs.map((doc) {
-          return {
-            ...doc.data() as Map<String, dynamic>,
-            'id': doc.id, // Add the document ID
-          };
-        }).toList();
+          var roomsData = snapshot.data!.docs.map((doc) {
+            return {
+              ...doc.data() as Map<String, dynamic>,
+              'id': doc.id, // Add the document ID
+            };
+          }).toList();
 
-        return Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: GridView.builder(
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2, // Number of columns
-              crossAxisSpacing: 10, // Space between columns
-              mainAxisSpacing: 10, // Space between rows
-              childAspectRatio: 1.5, // Adjusted for taller cards
-            ),
-            itemCount: roomsData.length,
-            itemBuilder: (context, index) {
-              final room = roomsData[index];
-              final isAvailable = room['isAvailable'] as bool;
+          return Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: GridView.builder(
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2, // Number of columns
+                crossAxisSpacing: 10, // Space between columns
+                mainAxisSpacing: 10, // Space between rows
+                childAspectRatio: 1.5, // Adjusted for taller cards
+              ),
+              itemCount: roomsData.length,
+              itemBuilder: (context, index) {
+                final room = roomsData[index];
+                final isAvailable = room['isAvailable'] as bool;
 
-              return GestureDetector(
-                onTap: () {
-                  _navigateToDetailsPage(room);
-                },
-                child: Card(
-                  color: isAvailable ? Colors.teal : Colors.redAccent, // Background color
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(15),
-                  ),
-                  elevation: 5,
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          Icons.hotel,
-                          size: 40,
-                          color: Colors.white, // Icon color
-                        ),
-                        const SizedBox(height: 10),
-                        Text(
-                          "Room ${room['roomNumber']}",
-                          style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white, // Text color
+                return GestureDetector(
+                  onTap: () {
+                    _navigateToDetailsPage(room);
+                  },
+                  child: Card(
+                    color: isAvailable
+                        ? Colors.teal
+                        : Colors.redAccent, // Background color
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(15),
+                    ),
+                    elevation: 5,
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.hotel,
+                            size: 40,
+                            color: Colors.white, // Icon color
                           ),
-                          textAlign: TextAlign.center,
-                        ),
-                      ],
+                          const SizedBox(height: 10),
+                          Text(
+                            "Room ${room['roomNumber']}",
+                            style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white, // Text color
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ],
+                      ),
                     ),
                   ),
-                ),
-              );
-            },
-          ),
-        );
-      },
-    ),
-  );
-}
+                );
+              },
+            ),
+          );
+        },
+      ),
+    );
+  }
 
 void _navigateToDetailsPage(Map<String, dynamic> room) {
-  Navigator.push(
-    context,
-    MaterialPageRoute(
-      builder: (context) => RoomDetailsPage(room: room),
-    ),
-  );
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => RoomDetailsPage(room: room),
+      ),
+    );
+  }
 }
-}
+
 class RoomDetailsPage extends StatefulWidget {
   final Map<String, dynamic> room;
 
@@ -151,6 +152,7 @@ class _RoomDetailsPageState extends State<RoomDetailsPage> {
     // Safe retrieval of room values
     final roomNumber = widget.room['roomNumber'] ?? 'N/A';
     final rent = widget.room['rent'] ?? 0;
+    final totalRent = widget.room['totalRent'] ?? 0; // new field for total rent
     final maxPeople = widget.room['maxPeople'] ?? 0;
     final acType = widget.room['acType'] ?? 'N/A';
     final bedType = widget.room['bedType'] ?? 'N/A';
@@ -175,7 +177,7 @@ class _RoomDetailsPageState extends State<RoomDetailsPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              if (imageUrl.isNotEmpty)
+              if (imageUrl != null && imageUrl.toString().isNotEmpty)
                 Image.network(
                   imageUrl,
                   width: MediaQuery.of(context).size.width,
@@ -189,18 +191,24 @@ class _RoomDetailsPageState extends State<RoomDetailsPage> {
                   const SizedBox(width: 10),
                   Text(
                     "Room Number: $roomNumber",
-                    style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                    style: const TextStyle(
+                        fontSize: 22, fontWeight: FontWeight.bold),
                   ),
                 ],
               ),
               const Divider(height: 30, thickness: 1),
               _buildRoomDetail(Icons.attach_money, "Rent", "\$$rent"),
+              _buildRoomDetail(Icons.money, "Total Rent",
+                  "\$$totalRent"), // added total rent
               _buildRoomDetail(Icons.group, "Max People", "$maxPeople"),
               _buildRoomDetail(Icons.ac_unit, "AC Type", acType),
               _buildRoomDetail(Icons.bed, "Bed Type", bedType),
-              _buildRoomDetail(Icons.wifi, "Wi-Fi", wifiAvailable ? 'Available' : 'Not Available'),
-              _buildRoomDetail(Icons.balcony, "Balcony", balconyAvailable ? 'Available' : 'Not Available'),
-              _buildRoomDetail(Icons.check_circle, "Availability", isAvailable ? 'Available' : 'Not Available'),
+              _buildRoomDetail(Icons.wifi, "Wi-Fi",
+                  wifiAvailable ? 'Available' : 'Not Available'),
+              _buildRoomDetail(Icons.balcony, "Balcony",
+                  balconyAvailable ? 'Available' : 'Not Available'),
+              _buildRoomDetail(Icons.check_circle, "Availability",
+                  isAvailable ? 'Available' : 'Not Available'),
               const SizedBox(height: 30),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -210,12 +218,17 @@ class _RoomDetailsPageState extends State<RoomDetailsPage> {
                       onPressed: () {
                         Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (context) => UpdateRoomPage(roomData: widget.room)),
+                          MaterialPageRoute(
+
+builder: (context) =>
+                                  UpdateRoomPage(roomData: widget.room)),
                         );
                       },
                       style: ElevatedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 20, vertical: 12),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(20)),
                         backgroundColor: Colors.blue,
                       ),
                       icon: const Icon(Icons.edit, color: Colors.white),
@@ -232,8 +245,10 @@ class _RoomDetailsPageState extends State<RoomDetailsPage> {
                         _removeRoom(widget.room['id'] ?? '');
                       },
                       style: ElevatedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 20, vertical: 12),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(20)),
                         backgroundColor: Colors.red,
                       ),
                       icon: const Icon(Icons.delete, color: Colors.white),
@@ -253,8 +268,10 @@ class _RoomDetailsPageState extends State<RoomDetailsPage> {
                     Navigator.pop(context); // Go back
                   },
                   style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 12),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 30, vertical: 12),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20)),
                     backgroundColor: Colors.teal,
                   ),
                   child: const Text(
@@ -292,11 +309,12 @@ class _RoomDetailsPageState extends State<RoomDetailsPage> {
   void _updateRoom(BuildContext context) {
     // Navigate to update room screen or trigger update logic
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text("Update room functionality not implemented yet")),
+      const SnackBar(
+          content: Text("Update room functionality not implemented yet")),
     );
   }
 
-  void _deleteRoom(BuildContext context) {
+void _deleteRoom(BuildContext context) {
     showDialog(
       context: context,
       builder: (context) {
@@ -327,8 +345,6 @@ class _RoomDetailsPageState extends State<RoomDetailsPage> {
   }
 }
 
-
-
 class UpdateRoomPage extends StatefulWidget {
   final Map<String, dynamic> roomData;
 
@@ -341,6 +357,8 @@ class UpdateRoomPage extends StatefulWidget {
 class _UpdateRoomPageState extends State<UpdateRoomPage> {
   late TextEditingController _roomNumberController;
   late TextEditingController _rentController;
+  late TextEditingController
+      _totalRentController; // new controller for totalRent
   late TextEditingController _maxPeopleController;
 
   String _acType = 'AC';
@@ -352,22 +370,34 @@ class _UpdateRoomPageState extends State<UpdateRoomPage> {
   @override
   void initState() {
     super.initState();
-    _roomNumberController = TextEditingController(text: widget.roomData['roomNumber'].toString());
-    _rentController = TextEditingController(text: widget.roomData['rent'].toString());
-    _maxPeopleController = TextEditingController(text: widget.roomData['maxPeople'].toString()); // Correct controller for maxPeople
+    _roomNumberController =
+        TextEditingController(text: widget.roomData['roomNumber'].toString());
+    _rentController =
+        TextEditingController(text: widget.roomData['rent'].toString());
+    _totalRentController = TextEditingController(
+      text:
+          (widget.roomData['totalRent'] ?? widget.roomData['rent']).toString(),
+    );
+    _maxPeopleController =
+        TextEditingController(text: widget.roomData['maxPeople'].toString());
     _acType = widget.roomData['acType'];
     _bedType = widget.roomData['bedType'];
     _wifiAvailable = widget.roomData['wifiAvailable'];
     _balconyAvailable = widget.roomData['balconyAvailable'];
-    _isAvailable = widget.roomData['isAvailable']; // Initialize availability from Firestore
+    _isAvailable = widget.roomData['isAvailable'];
   }
 
   Future<void> _updateRoomDetails() async {
     try {
-      await FirebaseFirestore.instance.collection('rooms').doc(widget.roomData['id']).update({
+      await FirebaseFirestore.instance
+          .collection('rooms')
+          .doc(widget.roomData['id'])
+          .update({
         'roomNumber': int.tryParse(_roomNumberController.text) ?? 0,
         'rent': double.tryParse(_rentController.text) ?? 0.0,
-        'maxPeople' :  int.tryParse(_maxPeopleController.text) ?? 0,
+        'totalRent': double.tryParse(_totalRentController.text) ??
+            0.0, // update totalRent
+        'maxPeople': int.tryParse(_maxPeopleController.text) ?? 0,
         'acType': _acType,
         'bedType': _bedType,
         'wifiAvailable': _wifiAvailable,
@@ -375,20 +405,25 @@ class _UpdateRoomPageState extends State<UpdateRoomPage> {
         'isAvailable': _isAvailable, // Store availability status
       });
 
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Room details updated successfully!')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Room details updated successfully!')),
+      );
       Navigator.pop(context); // Go back to the previous screen
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Error updating room details')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Error updating room details')),
+      );
     }
   }
 
-  @override
+@override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Update Room Details"),
         backgroundColor: Colors.white,
-        iconTheme: const IconThemeData(color: Colors.black), // Change back arrow to black
+        iconTheme: const IconThemeData(
+            color: Colors.black), // Change back arrow to black
         elevation: 0,
       ),
       body: Padding(
@@ -399,7 +434,8 @@ class _UpdateRoomPageState extends State<UpdateRoomPage> {
               // Room Number Field
               Card(
                 elevation: 5,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(15)),
                 color: Colors.transparent, // Set to transparent
                 child: Padding(
                   padding: const EdgeInsets.all(16.0),
@@ -410,7 +446,8 @@ class _UpdateRoomPageState extends State<UpdateRoomPage> {
                       Expanded(
                         child: TextField(
                           controller: _roomNumberController,
-                          decoration: const InputDecoration(labelText: 'Room Number'),
+                          decoration:
+                              const InputDecoration(labelText: 'Room Number'),
                           keyboardType: TextInputType.number,
                         ),
                       ),
@@ -424,7 +461,8 @@ class _UpdateRoomPageState extends State<UpdateRoomPage> {
               // Rent Field
               Card(
                 elevation: 5,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(15)),
                 color: Colors.transparent, // Set to transparent
                 child: Padding(
                   padding: const EdgeInsets.all(16.0),
@@ -436,7 +474,8 @@ class _UpdateRoomPageState extends State<UpdateRoomPage> {
                         child: TextField(
                           controller: _rentController,
                           decoration: const InputDecoration(labelText: 'Rent'),
-                          keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                          keyboardType: const TextInputType.numberWithOptions(
+                              decimal: true),
                         ),
                       ),
                     ],
@@ -446,10 +485,39 @@ class _UpdateRoomPageState extends State<UpdateRoomPage> {
 
               const SizedBox(height: 20),
 
-              // Max People Field
+              // Total Rent Field
               Card(
                 elevation: 5,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(15)),
+                color: Colors.transparent, // Set to transparent
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.money, color: Colors.teal),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: TextField(
+                          controller: _totalRentController,
+                          decoration:
+                              const InputDecoration(labelText: 'Total Rent'),
+                          keyboardType: const TextInputType.numberWithOptions(
+                              decimal: true),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 20),
+
+// Max People Field
+              Card(
+                elevation: 5,
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(15)),
                 color: Colors.transparent, // Set to transparent
                 child: Padding(
                   padding: const EdgeInsets.all(16.0),
@@ -459,8 +527,10 @@ class _UpdateRoomPageState extends State<UpdateRoomPage> {
                       const SizedBox(width: 10),
                       Expanded(
                         child: TextField(
-                          controller: _maxPeopleController,  // Correct controller
-                          decoration: const InputDecoration(labelText: 'Max People'),
+                          controller:
+                              _maxPeopleController, // Correct controller
+                          decoration:
+                              const InputDecoration(labelText: 'Max People'),
                           keyboardType: TextInputType.number,
                         ),
                       ),
@@ -474,7 +544,8 @@ class _UpdateRoomPageState extends State<UpdateRoomPage> {
               // AC Type Field
               Card(
                 elevation: 5,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(15)),
                 color: Colors.transparent, // Set to transparent
                 child: Padding(
                   padding: const EdgeInsets.all(16.0),
@@ -508,7 +579,8 @@ class _UpdateRoomPageState extends State<UpdateRoomPage> {
               // Bed Type Field
               Card(
                 elevation: 5,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(15)),
                 color: Colors.transparent, // Set to transparent
                 child: Padding(
                   padding: const EdgeInsets.all(16.0),
@@ -539,10 +611,11 @@ class _UpdateRoomPageState extends State<UpdateRoomPage> {
 
               const SizedBox(height: 20),
 
-              // Wi-Fi Switch
+// Wi-Fi Switch
               Card(
                 elevation: 5,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(15)),
                 color: Colors.transparent, // Set to transparent
                 child: Padding(
                   padding: const EdgeInsets.all(16.0),
@@ -571,7 +644,8 @@ class _UpdateRoomPageState extends State<UpdateRoomPage> {
               // Balcony Switch
               Card(
                 elevation: 5,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(15)),
                 color: Colors.transparent, // Set to transparent
                 child: Padding(
                   padding: const EdgeInsets.all(16.0),
@@ -601,9 +675,11 @@ class _UpdateRoomPageState extends State<UpdateRoomPage> {
               ElevatedButton(
                 onPressed: _updateRoomDetails,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.white,  // Set background to white
-                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+                  backgroundColor: Colors.white, // Set background to white
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(15)),
                 ),
                 child: const Text('Update Room Details'),
               ),
