@@ -2,6 +2,12 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
+void main() {
+  runApp(const MaterialApp(
+    home: ManageHotelDetailsPage(),
+  ));
+}
+
 class ManageHotelDetailsPage extends StatefulWidget {
   const ManageHotelDetailsPage({super.key});
 
@@ -12,14 +18,24 @@ class ManageHotelDetailsPage extends StatefulWidget {
 class _ManageHotelDetailsPageState extends State<ManageHotelDetailsPage> {
   final TextEditingController _hotelNameController = TextEditingController();
   final TextEditingController _contactEmailController = TextEditingController();
-  final TextEditingController _contactNumberController = TextEditingController();
+  final TextEditingController _contactNumberController =
+      TextEditingController();
   final TextEditingController _facilitiesController = TextEditingController();
   final TextEditingController _imageUrlController = TextEditingController();
   final TextEditingController _locationController = TextEditingController();
   final TextEditingController _latController = TextEditingController();
   final TextEditingController _logController = TextEditingController();
-  final TextEditingController _numberOfRoomsController = TextEditingController();
+  final TextEditingController _numberOfRoomsController =
+      TextEditingController();
   bool _isApproved = false;
+
+  List<Map<String, String>> _nearbyAttractions = [];
+  final TextEditingController _attractionNameController =
+      TextEditingController();
+  final TextEditingController _attractionDistanceController =
+      TextEditingController();
+  final TextEditingController _attractionFeaturesController =
+      TextEditingController();
 
   bool _isLoading = true;
   String _hotelId = ''; // Store the hotel ID of the logged-in user
@@ -52,6 +68,8 @@ class _ManageHotelDetailsPageState extends State<ManageHotelDetailsPage> {
             _latController.text = data['lat'] ?? '';
             _logController.text = data['log'] ?? '';
             _numberOfRoomsController.text = data['numberOfRooms'].toString();
+            _nearbyAttractions =
+            List<Map<String, String>>.from(data['nearbyAttractions'] ?? []);
             _isApproved = data['isApproved'] ?? false;
             _isLoading = false;
           });
@@ -74,7 +92,10 @@ class _ManageHotelDetailsPageState extends State<ManageHotelDetailsPage> {
 
   Future<void> _updateHotelDetails() async {
     try {
-      await FirebaseFirestore.instance.collection('hotels').doc(_hotelId).update({
+      await FirebaseFirestore.instance
+          .collection('hotels')
+          .doc(_hotelId)
+          .update({
         'hotelName': _hotelNameController.text,
         'contactEmail': _contactEmailController.text,
         'contactNumber': _contactNumberController.text,
@@ -84,13 +105,29 @@ class _ManageHotelDetailsPageState extends State<ManageHotelDetailsPage> {
         'lat': _latController.text,
         'log': _logController.text,
         'numberOfRooms': int.tryParse(_numberOfRoomsController.text) ?? 0,
+        'nearbyAttractions': _nearbyAttractions,
         'isApproved': _isApproved,
       });
 
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Hotel details updated successfully!')));
+      ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Hotel details updated successfully!')));
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Error updating hotel details')));
+      ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Error updating hotel details')));
     }
+  }
+
+  void _addAttraction() {
+    setState(() {
+      _nearbyAttractions.add({
+        'name': _attractionNameController.text,
+        'distance': _attractionDistanceController.text,
+        'features': _attractionFeaturesController.text,
+      });
+      _attractionNameController.clear();
+      _attractionDistanceController.clear();
+      _attractionFeaturesController.clear();
+    });
   }
 
   @override
@@ -115,11 +152,13 @@ class _ManageHotelDetailsPageState extends State<ManageHotelDetailsPage> {
             fontSize: 20,
           ),
         ),
-        backgroundColor: Colors.white, // Set the AppBar background color to white
+        backgroundColor:
+            Colors.white, // Set the AppBar background color to white
         elevation: 0, // Remove the shadow
         actions: [
           IconButton(
-            icon: const Icon(Icons.save, color: Colors.black), // Change the icon color to black
+            icon: const Icon(Icons.save,
+                color: Colors.black), // Change the icon color to black
             onPressed: _updateHotelDetails,
           ),
         ],
@@ -127,7 +166,8 @@ class _ManageHotelDetailsPageState extends State<ManageHotelDetailsPage> {
       body: Container(
         decoration: const BoxDecoration(
           image: DecorationImage(
-            image: AssetImage('asset/img4.webp'), // Add your background image path here
+            image: AssetImage(
+                'asset/img4.webp'), // Add your background image path here
             fit: BoxFit.cover,
           ),
         ),
@@ -137,7 +177,8 @@ class _ManageHotelDetailsPageState extends State<ManageHotelDetailsPage> {
             child: Container(
               padding: const EdgeInsets.all(16.0),
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.8), // Semi-transparent background color for the form container
+                color: Colors.white.withOpacity(
+                    0.8), // Semi-transparent background color for the form container
                 borderRadius: BorderRadius.circular(16),
                 boxShadow: [
                   BoxShadow(
@@ -158,11 +199,33 @@ class _ManageHotelDetailsPageState extends State<ManageHotelDetailsPage> {
                   _buildTextField("Latitude", _latController),
                   _buildTextField("Longitude", _logController),
                   _buildTextField("Number of Rooms", _numberOfRoomsController),
+                  const SizedBox(height: 16),
+                  const Text("Nearby Attractions",
+                      style:
+                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                  _buildTextField("Attraction Name", _attractionNameController),
+                  _buildTextField("Distance", _attractionDistanceController),
+                  _buildTextField("Features", _attractionFeaturesController),
+                  ElevatedButton(
+                      onPressed: _addAttraction,
+                      child: const Text("Add Attraction")),
+                  Column(
+                    children: _nearbyAttractions
+                        .map((attraction) => ListTile(
+                              title: Text(attraction['name']!),
+                              subtitle: Text(
+                                  "${attraction['distance']} km - ${attraction['features']}"),
+                            ))
+                        .toList(),
+                  ),
                   Row(
                     children: [
                       const Text(
                         "Is Approved",
-                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black),
+                        style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black),
                       ),
                       Checkbox(
                         value: _isApproved,
@@ -190,7 +253,8 @@ class _ManageHotelDetailsPageState extends State<ManageHotelDetailsPage> {
         controller: controller,
         decoration: InputDecoration(
           labelText: label,
-          labelStyle: const TextStyle(color: Colors.black), // Changed label color to black
+          labelStyle: const TextStyle(
+              color: Colors.black), // Changed label color to black
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
             borderSide: const BorderSide(color: Colors.teal),
@@ -198,7 +262,7 @@ class _ManageHotelDetailsPageState extends State<ManageHotelDetailsPage> {
           filled: true,
           fillColor: Colors.transparent, // Transparent background
           focusColor: Colors.teal, // Focus color for better visibility
-          hoverColor: Colors.teal,  // Hover color (optional)
+          hoverColor: Colors.teal, // Hover color (optional)
         ),
       ),
     );

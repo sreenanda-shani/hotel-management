@@ -9,14 +9,16 @@ class AvailableRoomsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    print("AvailableRoomsPage initialized with hotelId: $hotelId"); // Debugging
+
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.teal, // Teal AppBar
+        backgroundColor: Colors.teal,
         title: const Text("Available Rooms"),
         elevation: 4,
       ),
       body: FutureBuilder<List<Room>>(
-        future: _fetchAvailableRooms(hotelId), // Fetch rooms using hotelId
+        future: _fetchAvailableRooms(hotelId),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
@@ -26,12 +28,11 @@ class AvailableRoomsPage extends StatelessWidget {
             return const Center(child: Text("No rooms available"));
           } else {
             List<Room> rooms = snapshot.data!;
-            return SingleChildScrollView( // Wrap the ListView in SingleChildScrollView
-              child: Column(
-                children: rooms.map((room) {
-                  return RoomTile(room: room, hotelId: hotelId); // Pass hotelId to RoomTile
-                }).toList(),
-              ),
+            return ListView.builder(
+              itemCount: rooms.length,
+              itemBuilder: (context, index) {
+                return RoomTile(room: rooms[index], hotelId: hotelId);
+              },
             );
           }
         },
@@ -41,23 +42,34 @@ class AvailableRoomsPage extends StatelessWidget {
 
   Future<List<Room>> _fetchAvailableRooms(String hotelId) async {
     try {
+      print("Fetching rooms for hotelId: $hotelId"); // Debugging
+
       QuerySnapshot snapshot = await FirebaseFirestore.instance
-          .collection('rooms') // Assuming you have a 'rooms' collection
-          .where('hotelId', isEqualTo: hotelId) // Filter by hotelId
-          .where('isAvailable', isEqualTo: true) // Filter by availability
+          .collection('rooms')
+          .where('hotelId', isEqualTo: hotelId) // Ensure hotelId exists in Firestore
+          .where('isAvailable', isEqualTo: true) // Only fetch available rooms
           .get();
+
+      print("Documents found: ${snapshot.docs.length}"); // Debugging
+
+      if (snapshot.docs.isEmpty) {
+        print("No rooms found for hotelId: $hotelId");
+      }
 
       List<Room> rooms = snapshot.docs.map((doc) {
         var data = doc.data() as Map<String, dynamic>;
+        print("Fetched Room Data: $data"); // Debugging
+
         return Room(
           roomId: doc.id,
-          roomNumber: data['roomNumber'],
-          acType: data['acType'],
-          balconyAvailable: data['balconyAvailable'],
-          bedType: data['bedType'],
-          rent: data['rent'],
-          isAvailable: data['isAvailable'],
-          wifiAvailable: data['wifiAvailable'],
+          roomNumber: data['roomNumber'] ?? 0, // Default to 0 if missing
+          acType: data['acType'] ?? 'Unknown',
+          balconyAvailable: data['balconyAvailable'] ?? false,
+          bedType: data['bedType'] ?? 'Unknown',
+          rent: (data['rent'] as num?)?.toDouble() ?? 0.0, // Ensure double
+          isAvailable: data['isAvailable'] ?? false,
+          wifiAvailable: data['wifiAvailable'] ?? false,
+          totalRent: (data['totalRent'] as num?)?.toDouble() ?? 0.0,
         );
       }).toList();
 
@@ -69,6 +81,7 @@ class AvailableRoomsPage extends StatelessWidget {
   }
 }
 
+// Room Model Class
 class Room {
   final int roomNumber;
   final String acType;
@@ -78,6 +91,7 @@ class Room {
   final bool isAvailable;
   final bool wifiAvailable;
   final String roomId;
+  final double totalRent;
 
   Room({
     required this.roomId,
@@ -88,12 +102,14 @@ class Room {
     required this.rent,
     required this.isAvailable,
     required this.wifiAvailable,
+    required this.totalRent,
   });
 }
 
+// RoomTile Widget (List Item)
 class RoomTile extends StatefulWidget {
   final Room room;
-  final String hotelId; // To pass hotelId for booking
+  final String hotelId;
 
   const RoomTile({super.key, required this.room, required this.hotelId});
 
@@ -112,12 +128,12 @@ class _RoomTileState extends State<RoomTile> {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
       ),
-      color: Colors.white, // Soft teal background for the room tile
+      color: Colors.white,
       child: ExpansionTile(
         title: Text(
           'Room ${widget.room.roomNumber}',
           style: const TextStyle(
-            color: Colors.teal, // Title color in teal
+            color: Colors.teal,
             fontWeight: FontWeight.bold,
           ),
         ),
@@ -147,22 +163,21 @@ class _RoomTileState extends State<RoomTile> {
                 Text('Bed Type: ${widget.room.bedType}'),
                 Text('Rent: \$${widget.room.rent.toString()}'),
                 Text('Wi-Fi Available: ${widget.room.wifiAvailable ? 'Yes' : 'No'}'),
+                Text('Total Rent: \$${widget.room.totalRent.toString()}'),
               ],
             ),
           ),
-          // Book Now button with teal accent
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: ElevatedButton(
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.teal, // Button color teal
+                backgroundColor: Colors.teal,
                 padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 32),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
               ),
               onPressed: () {
-                // Navigate to RoomBookingPage with room details and hotelId
                 Navigator.push(
                   context,
                   MaterialPageRoute(
@@ -170,7 +185,7 @@ class _RoomTileState extends State<RoomTile> {
                       hotelId: widget.hotelId,
                       roomNumber: widget.room.roomNumber,
                       rent: widget.room.rent,
-                      roomId:widget.room.roomId
+                      roomId: widget.room.roomId,
                     ),
                   ),
                 );

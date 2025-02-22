@@ -38,6 +38,8 @@ class UserHotelDetailsScreen extends StatelessWidget {
             facilitiesList = [];
           }
 
+          List<dynamic> nearbyAttractions = hotelData['nearbyAttractions'] ?? [];
+
           return Scaffold(
             appBar: AppBar(
               title: Text(
@@ -173,7 +175,39 @@ class UserHotelDetailsScreen extends StatelessWidget {
                             },
                           ),
                         ),
+                        const SizedBox(height: 8),
+
+                        // Nearby Attractions Section
+                        const Text(
+                          'Nearby Attractions',
+                          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.teal),
+                        ),
+                        const SizedBox(height: 8),
+                        nearbyAttractions.isEmpty
+                            ? const Text("No nearby attractions available.")
+                            : ListView.builder(
+                                shrinkWrap: true,
+                                physics: const NeverScrollableScrollPhysics(),
+                                itemCount: nearbyAttractions.length,
+                                itemBuilder: (context, index) {
+                                  var attraction = nearbyAttractions[index] as Map<String, dynamic>;
+                                  return Card(
+                                    margin: const EdgeInsets.symmetric(vertical: 8),
+                                    elevation: 4,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    child: ListTile(
+                                      leading: const Icon(Icons.place, color: Colors.teal),
+                                      title: Text(attraction['name'] ?? 'N/A'),
+                                      subtitle: Text(
+                                          "${attraction['distance']} km - ${attraction['features']}"),
+                                    ),
+                                  );
+                                },
+                              ),
                         const SizedBox(height: 16),
+
 
                         // Book Now Button with Elevated Style
                         Center(

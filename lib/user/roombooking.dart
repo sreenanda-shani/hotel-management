@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:razorpay_flutter/razorpay_flutter.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class RoomBookingPage extends StatefulWidget {
   final String hotelId;
@@ -51,6 +52,7 @@ class _RoomBookingPageState extends State<RoomBookingPage> {
   // Function to handle successful payment
   void _handlePaymentSuccess(PaymentSuccessResponse response) async {
     try {
+      String? userId = FirebaseAuth.instance.currentUser?.uid;
       DateTime checkInDate =
           DateFormat('yyyy-MM-dd').parse(_checkInController.text.trim());
       DateTime checkOutDate =
@@ -61,6 +63,7 @@ class _RoomBookingPageState extends State<RoomBookingPage> {
       double totalRent = daysStay * widget.rent;
 
       final bookingData = {
+        'userId': userId,
         'hotelId': widget.hotelId,
         'roomNumber': widget.roomNumber,
         'roomid': widget.roomId,

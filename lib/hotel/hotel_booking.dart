@@ -56,10 +56,7 @@ class _HotelBookingState extends State<HotelBooking> {
                     icon: const Icon(Icons.calendar_today, color: Colors.white),
                     onPressed: () => _selectDate(context, true),
                   ),
-                  const Text(
-                    "From:",
-                    style: TextStyle(color: Colors.white, fontSize: 16),
-                  ),
+                  const Text("From:", style: TextStyle(color: Colors.white, fontSize: 16)),
                   if (_fromDate != null)
                     Text(
                       DateFormat('dd/MM/yyyy').format(_fromDate!),
@@ -70,10 +67,7 @@ class _HotelBookingState extends State<HotelBooking> {
                     icon: const Icon(Icons.calendar_today, color: Colors.white),
                     onPressed: () => _selectDate(context, false),
                   ),
-                  const Text(
-                    "To:",
-                    style: TextStyle(color: Colors.white, fontSize: 16),
-                  ),
+                  const Text("To:", style: TextStyle(color: Colors.white, fontSize: 16)),
                   if (_toDate != null)
                     Text(
                       DateFormat('dd/MM/yyyy').format(_toDate!),
@@ -118,14 +112,12 @@ class _HotelBookingState extends State<HotelBooking> {
 
               DateTime checkOutDate = (booking["checkOut"] as Timestamp).toDate();
 
-              // Filter bookings based on the selected date range
               if (_fromDate != null && _toDate != null) {
                 if (checkOutDate.isAfter(_fromDate!.subtract(const Duration(days: 1))) &&
                     checkOutDate.isBefore(_toDate!.add(const Duration(days: 1)))) {
                   filteredBookings.add(booking);
                 }
               } else {
-                // If no date range is selected, show all bookings
                 filteredBookings.add(booking);
               }
             }
@@ -152,13 +144,6 @@ class BookingCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final hotelId = booking["hotelId"] ?? "";
-
-    if (hotelId.isEmpty) {
-      debugPrint("Missing 'hotelId' field in booking: $booking");
-      return _buildErrorCard("Unknown Hotel", "Hotel details are missing.");
-    }
-
     final bookingName = booking["name"] ?? "No Name Provided";
 
     return ClipRRect(
@@ -172,35 +157,23 @@ class BookingCard extends StatelessWidget {
           tileColor: Colors.white.withOpacity(0.85),
           title: Text(
             bookingName,
-            style: const TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-              color: Colors.black,
-            ),
+            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.black),
           ),
           subtitle: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const SizedBox(height: 5),
-              Text(
-                "Booking Date: ${formatDate(booking["bookingDate"])}",
-                style: const TextStyle(fontSize: 14, color: Colors.black),
-              ),
-              Text(
-                "Check-In: ${formatDate(booking["checkIn"]) ?? "N/A"}",
-                style: const TextStyle(fontSize: 14, color: Colors.black),
-              ),
-              Text(
-                "Check-Out: ${formatDate(booking["checkOut"]) ?? "N/A"}",
-                style: const TextStyle(fontSize: 14, color: Colors.black),
-              ),
-              Text(
-                "Guests: ${booking["guests"] ?? 0} | Room: ${booking["roomNumber"] ?? "N/A"}",
-                style: const TextStyle(fontSize: 14, color: Colors.black),
-              ),
-              Text(
-                "Rent: \$${booking["rent"] ?? 0}",
-                style: const TextStyle(fontSize: 14, color: Colors.black),
+              Text("Booking Date: ${formatDate(booking["bookingDate"])}"),
+              Text("Check-In: ${formatDate(booking["checkIn"])}"),
+              Text("Check-Out: ${formatDate(booking["checkOut"])}"),
+              Text("Guests: ${booking["guests"] ?? 0} | Room: ${booking["roomNumber"] ?? "N/A"}"),
+              Text("Rent: \$${booking["rent"] ?? 0}"),
+              const SizedBox(height: 10),
+              ElevatedButton.icon(
+                icon: const Icon(Icons.report, color: Colors.white),
+                label: const Text("Report"),
+                style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+                onPressed: () => _showReportDialog(context, booking),
               ),
             ],
           ),
@@ -215,25 +188,40 @@ class BookingCard extends StatelessWidget {
     );
   }
 
-  Widget _buildErrorCard(String title, String subtitle) {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(30),
-      child: Card(
-        elevation: 4,
-        margin: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
-        shadowColor: Colors.black.withOpacity(0.2),
-        child: ListTile(
-          contentPadding: const EdgeInsets.all(16),
-          tileColor: const Color.fromARGB(255, 205, 197, 198),
-          title: Text(
-            title,
-            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black),
-          ),
-          subtitle: Text(
-            subtitle,
-            style: const TextStyle(fontSize: 14, color: Colors.black),
-          ),
+  void _showReportDialog(BuildContext context, Map<String, dynamic> booking) {
+    final TextEditingController _reportController = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text("Report"),
+        content: TextField(
+          controller: _reportController,
+          maxLines: 3,
+          decoration: const InputDecoration(hintText: "Reason for reporting"),
         ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text("Cancel"),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              if (_reportController.text.isNotEmpty) {
+                await FirebaseFirestore.instance.collection('reports').add({
+                  'userId': booking["userId"],
+                  'report': _reportController.text,
+                  'timestamp': FieldValue.serverTimestamp(),
+                });
+                Navigator.pop(context);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text("Report submitted successfully")),
+                );
+              }
+            },
+            child: const Text("Submit"),
+          ),
+        ],
       ),
     );
   }
