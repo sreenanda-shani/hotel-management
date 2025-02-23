@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:project1/user/feedback.dart';
+import 'package:project1/user/hotel_feedback.dart';
 
 class BookingHistoryPage extends StatefulWidget {
   const BookingHistoryPage({super.key});
@@ -187,7 +188,7 @@ class _BookingHistoryPageState extends State<BookingHistoryPage> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => FeedbackPage(),
+                          builder: (context) => HotelFeedback(hotelId: '', hotelName: '',),
                         ),
                       );
                     }

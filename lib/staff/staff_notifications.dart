@@ -1,7 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:project1/staff/staff_home.dart'; // Import the StaffHomeScreen
 
 class StaffNotifications extends StatefulWidget {
   const StaffNotifications({super.key});
@@ -11,27 +10,18 @@ class StaffNotifications extends StatefulWidget {
 }
 
 class _StaffNotificationsState extends State<StaffNotifications> {
-  String? currentHotelId; // To store the hotelId
-
-  // Fetch the hotelId (hotelUid) from the staff collection
+  String? currentHotelId;
   Future<void> fetchHotelId() async {
     try {
-      // Assuming the current user's ID is stored in FirebaseAuth or passed down (you can adjust this part)
-      // For example, fetch the current user's hotelUid from FirebaseAuth or another source.
-      // This code assumes you already have the current user's staffId or another way to identify them.
-
-      // Example for getting current staff ID (assuming FirebaseAuth or similar):
-      String staffId = FirebaseAuth.instance.currentUser!.uid;  // Replace with actual logic to get current user id
-      
-      // Fetch the document for the current staff
+      String staffId = FirebaseAuth.instance.currentUser!.uid;
       DocumentSnapshot staffDoc = await FirebaseFirestore.instance
           .collection('staff')
-          .doc(staffId)  // Fetch staff by ID (could be currentUserId)
+          .doc(staffId)
           .get();
 
       if (staffDoc.exists) {
         setState(() {
-          currentHotelId = staffDoc['hotelUid'];  // Save hotelUid from the staff document
+          currentHotelId = staffDoc['hotelUid'];
         });
       }
     } catch (e) {
@@ -39,20 +29,21 @@ class _StaffNotificationsState extends State<StaffNotifications> {
     }
   }
 
-  // Fetch notifications that match the hotelId
   Future<List<Map<String, dynamic>>> fetchNotifications() async {
     if (currentHotelId == null) {
-      // Return empty list if hotelId is not set yet
       return [];
     }
     try {
       QuerySnapshot querySnapshot = await FirebaseFirestore.instance
           .collection('staffnoti')
-          .where('hotelId', isEqualTo: currentHotelId)  // Filter by hotelId
-          .orderBy('timestamp', descending: true)
+          .where('hotelId', isEqualTo: currentHotelId)
           .get();
 
-      return querySnapshot.docs
+// Sort the results in memory
+      var sortedDocs = querySnapshot.docs.toList()
+        ..sort((a, b) => b['timestamp'].compareTo(a['timestamp']));
+
+      return sortedDocs
           .map((doc) => {
                 "title": doc['title'],
                 "message": doc['message'],
@@ -67,7 +58,7 @@ class _StaffNotificationsState extends State<StaffNotifications> {
   @override
   void initState() {
     super.initState();
-    fetchHotelId();  // Fetch hotelId when the page is initialized
+    fetchHotelId();
   }
 
   @override
@@ -77,13 +68,7 @@ class _StaffNotificationsState extends State<StaffNotifications> {
         title: const Text('Notifications'),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
-          onPressed: () {
-            // Navigate to StaffHomeScreen
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (context) => StaffHomeScreen()),
-            );
-          },
+          onPressed: () => Navigator.pop(context),
         ),
       ),
       body: FutureBuilder<List<Map<String, dynamic>>>(
@@ -128,7 +113,6 @@ class _StaffNotificationsState extends State<StaffNotifications> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Notification Title
                       Text(
                         title,
                         style: const TextStyle(
@@ -138,7 +122,6 @@ class _StaffNotificationsState extends State<StaffNotifications> {
                         ),
                       ),
                       const SizedBox(height: 8),
-                      // Notification Message
                       Text(
                         message,
                         style: const TextStyle(
@@ -151,7 +134,7 @@ class _StaffNotificationsState extends State<StaffNotifications> {
                       Align(
                         alignment: Alignment.bottomRight,
                         child: Text(
-                          '${time.toLocal()}'.split(' ')[0], // Only the date part
+                          '${time.toLocal()}'.split(' ')[0],
                           style: const TextStyle(
                             fontSize: 12,
                             color: Colors.grey,

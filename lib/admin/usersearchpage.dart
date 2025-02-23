@@ -18,7 +18,7 @@ class _UserSearchPageState extends State<UserSearchPage> {
       return snapshot.docs.map((doc) {
         return {
           'id': doc.id, // Document ID for deletion
-          'userName': doc['name'] ?? 'Unknown',
+          'userName': doc['fullName'] ?? 'Unknown',
           'userEmail': doc['email'] ?? 'No email',
         };
       }).toList();
@@ -37,7 +37,7 @@ class _UserSearchPageState extends State<UserSearchPage> {
   // Delete user from Firestore
   Future<void> deleteUser(String userId) async {
     try {
-      await FirebaseFirestore.instance.collection('users').doc(userId).delete();
+      await FirebaseFirestore.instance.collection('user').doc(userId).delete();
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('User removed successfully')),
       );
@@ -185,7 +185,7 @@ class ReportedUsersPage extends StatelessWidget {
       String reportDetails = doc['report'] ?? 'No details';
 
       // Fetch user details
-      final userSnapshot = await FirebaseFirestore.instance.collection('users').doc(userId).get();
+      final userSnapshot = await FirebaseFirestore.instance.collection('user').doc(userId).get();
       if (userSnapshot.exists) {
         reportedUsers.add({
           'userId': userId,
@@ -228,7 +228,7 @@ class ReportedUsersPage extends StatelessWidget {
     );
 
     if (confirmDelete == true) {
-      await FirebaseFirestore.instance.collection('users').doc(userId).delete();
+      await FirebaseFirestore.instance.collection('user').doc(userId).delete();
       await FirebaseFirestore.instance.collection('reports').doc(reportId).delete();
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('User and report deleted successfully.')),
