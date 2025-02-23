@@ -1,73 +1,88 @@
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart'; // Firebase Firestore
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:project1/user/edit_profile'; // Firebase Auth
+import 'package:project1/user/edit_profile';
+
 
 class ProfilePage extends StatelessWidget {
   const ProfilePage({super.key});
 
   Future<Map<String, dynamic>?> fetchUserData() async {
     try {
-      // Fetch the current user ID from Firebase Auth
-      final String? userId = FirebaseAuth.instance.currentUser?.uid;
+          String userId = FirebaseAuth.instance.currentUser!.uid;
+
 
       if (userId == null) {
-        debugPrint('User is not logged in');
+        debugPrint('⚠️ User is not logged in');
         return null;
       }
 
-      DocumentSnapshot userDoc =
-          await FirebaseFirestore.instance.collection('user').doc(userId).get();
+      DocumentSnapshot userDoc = await FirebaseFirestore.instance
+          .collection('users') // ✅ Corrected Collection Name
+          .doc(userId)
+          .get();
 
       if (userDoc.exists) {
+        debugPrint('✅ User data found: ${userDoc.data()}');
         return userDoc.data() as Map<String, dynamic>?;
+      } else {
+        debugPrint('❌ No user document found for ID: $userId');
       }
     } catch (e) {
-      debugPrint('Error fetching user data: $e');
+      debugPrint('🔥 Error fetching user data: $e');
     }
     return null;
   }
 
   @override
   Widget build(BuildContext context) {
-    const tealColor = Color.fromARGB(255, 0, 123, 123); // Teal color
+    const Color tealColor = Color.fromARGB(255, 0, 123, 123);
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Profile', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+        title: const Text(
+          'Profile',
+          style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+        ),
         centerTitle: true,
         backgroundColor: tealColor,
       ),
       body: FutureBuilder<Map<String, dynamic>?>(
         future: fetchUserData(),
         builder: (context, snapshot) {
+          debugPrint('📡 FutureBuilder state: ${snapshot.connectionState}');
+          debugPrint('🚨 Error: ${snapshot.error}');
+          debugPrint('📊 Snapshot Data: ${snapshot.data}');
+
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           } else if (snapshot.hasError) {
-            return const Center(child: Text('Error loading profile data'));
+            return Center(
+                child: Text(
+              'Error: ${snapshot.error}',
+              style: const TextStyle(color: Colors.red),
+            ));
           } else if (!snapshot.hasData || snapshot.data == null) {
-            return const Center(child: Text('No user data found'));
+            return const Center(child: Text('No user data found.'));
           }
 
           final userDetails = snapshot.data!;
-
           return SingleChildScrollView(
             padding: const EdgeInsets.all(20.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                // Profile Picture
                 CircleAvatar(
                   radius: 75,
                   backgroundColor: tealColor.withOpacity(0.2),
-                  backgroundImage: NetworkImage(userDetails['profile_picture'] ?? ''),
+                  backgroundImage: userDetails['profile_picture'] != null
+                      ? NetworkImage(userDetails['profile_picture'])
+                      : null,
                   child: userDetails['profile_picture'] == null
                       ? const Icon(Icons.account_circle, size: 120, color: Colors.grey)
                       : null,
                 ),
                 const SizedBox(height: 20),
-
-                // User Details wrapped in a Card
                 Card(
                   elevation: 5,
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -116,17 +131,12 @@ class ProfilePage extends StatelessWidget {
                     ),
                   ),
                 ),
-
                 const SizedBox(height: 20),
-
-                // Edit Button with a more modern design
                 ElevatedButton(
                   onPressed: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(
-                        builder: (context) => const EditProfilePage(),
-                      ),
+                      MaterialPageRoute(builder: (context) => const EditProfilePage()),
                     );
                   },
                   style: ElevatedButton.styleFrom(
@@ -149,7 +159,7 @@ class ProfilePage extends StatelessWidget {
   }
 }
 
-// A helper widget for displaying profile details
+// Profile Detail Widget
 class ProfileDetailRow extends StatelessWidget {
   final IconData icon;
   final String label;
@@ -179,19 +189,12 @@ class ProfileDetailRow extends StatelessWidget {
               children: [
                 Text(
                   label,
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16,
-                    color: iconColor,
-                  ),
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: iconColor),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   value,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    color: Colors.black87,
-                  ),
+                  style: const TextStyle(fontSize: 14, color: Colors.black87),
                 ),
               ],
             ),

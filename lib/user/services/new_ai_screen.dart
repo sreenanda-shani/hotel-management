@@ -92,7 +92,7 @@ class ChatPageState extends State<ChatPage> {
         _isLoading = true;
       });
       final userDoc = await FirebaseFirestore.instance
-          .collection('user')
+          .collection('users')
           .doc(currentUserId)
           .get();
 

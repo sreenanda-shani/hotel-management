@@ -27,7 +27,7 @@ class _AdminFeedbackState extends State<AdminFeedback> {
 
         // Fetch user information using the uid from the feedback
         DocumentSnapshot userDoc = await FirebaseFirestore.instance
-            .collection('user') // The collection where user info is stored
+            .collection('users') // The collection where user info is stored
             .doc(feedbackData['userId']) // Get user by the userId stored in feedback
             .get();
 

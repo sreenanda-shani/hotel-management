@@ -31,7 +31,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
 
       // Check in 'user' collection
       var userQuery = await firestore
-          .collection('user') // 'user' collection
+          .collection('users') // 'user' collection
           .where('email', isEqualTo: email)
           .get();
 

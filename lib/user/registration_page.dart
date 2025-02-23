@@ -579,7 +579,7 @@ class _UserRegistrationPageState extends State<UserRegistrationPage> {
 
     try {
       // Store user data in Firestore
-      await FirebaseFirestore.instance.collection('user').add({
+      await FirebaseFirestore.instance.collection('users').add({
         'fullName': fullName,
         'email': email,
         'password': password,

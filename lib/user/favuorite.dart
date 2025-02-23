@@ -25,7 +25,7 @@ class _FavouritesPageState extends State<FavouritesPage> {
       try {
         // Fetch user document
         final userDoc = await FirebaseFirestore.instance
-            .collection('user')
+            .collection('users')
             .doc(currentUser.uid)
             .get();
 
@@ -65,7 +65,7 @@ class _FavouritesPageState extends State<FavouritesPage> {
     final currentUser = FirebaseAuth.instance.currentUser;
     if (currentUser != null) {
       try {
-        final userDoc = FirebaseFirestore.instance.collection('user').doc(currentUser.uid);
+        final userDoc = FirebaseFirestore.instance.collection('users').doc(currentUser.uid);
 
         // Remove the hotel ID from the user's favourites field
         await userDoc.update({

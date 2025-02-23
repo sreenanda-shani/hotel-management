@@ -16,7 +16,7 @@ class UserAuthService {
        final user = await firebaseAuth.createUserWithEmailAndPassword(email: email, password: password);
        print(user.user?.uid);
 
-        await fireStoreDatabase.collection('user').doc(user.user?.uid).set(
+        await fireStoreDatabase.collection('users').doc(user.user?.uid).set(
           {
              'name':fullName,
              'email':email,

@@ -285,7 +285,7 @@ class _HomePageState extends State<HomePage> {
       builder: (context, setState) {
         Future<bool> isFavorite() async {
           final userDoc = await FirebaseFirestore.instance
-              .collection('user')
+              .collection('users')
               .doc(currentUser?.uid)
               .get();
           final favorites = userDoc.data()?['favourites'] as List<dynamic>? ?? [];
@@ -294,7 +294,7 @@ class _HomePageState extends State<HomePage> {
 
         Future<void> toggleFavorite() async {
           final userDocRef = FirebaseFirestore.instance
-              .collection('user')
+              .collection('users')
               .doc(currentUser?.uid);
 
           final userDoc = await userDocRef.get();

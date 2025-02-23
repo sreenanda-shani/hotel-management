@@ -440,7 +440,7 @@ class ChatList extends StatelessWidget {
                 chatWidgets.add(
                   FutureBuilder<DocumentSnapshot>( 
                     future: FirebaseFirestore.instance
-                        .collection('user')
+                        .collection('users')
                         .doc(senderId)
                         .get(),
                     builder: (context, userSnapshot) {
