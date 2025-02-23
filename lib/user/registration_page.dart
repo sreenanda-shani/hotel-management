@@ -591,10 +591,17 @@ class _UserRegistrationPageState extends State<UserRegistrationPage> {
         'imageUrl': imageUrl,
         'createdAt': FieldValue.serverTimestamp(),
       });
+       final user = await FirebaseAuth.instance.createUserWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+      print(user.user?.uid);
+
+      // Save staff data to Firestore
       await FirebaseFirestore.instance.collection('role_tb').add({
-       'role':'Users',
-       'uid':FirebaseAuth.instance.currentUser?.uid
-      });
+      'uid': user.user?.uid,
+      'role': 'Users',
+    });
 
 
       ScaffoldMessenger.of(context).showSnackBar(
