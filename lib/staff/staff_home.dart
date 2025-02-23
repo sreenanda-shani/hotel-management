@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:project1/loginpage/login_page.dart';
+import 'package:project1/staff/hotel_chat.dart';
 import 'package:project1/staff/staff_feedback.dart';
 import 'package:project1/staff/staff_notifications.dart';
 import 'package:project1/staff/staff_profile.dart';
@@ -198,6 +199,16 @@ class _StaffHomeScreenState extends State<StaffHomeScreen> {
                 Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(builder: (context) => const StaffFeedbackPage()),
+                );
+              },
+            ),
+             ListTile(
+              leading: const Icon(Icons.person),
+              title: const Text('chat with hotel'),
+              onTap: () {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (context) => const HotelChatScreen()),
                 );
               },
             ),
