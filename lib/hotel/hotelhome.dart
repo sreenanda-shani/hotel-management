@@ -10,6 +10,7 @@ import 'package:project1/hotel/hotel_view.dart';
 import 'package:project1/hotel/hotelmanage.dart';
 import 'package:project1/hotel/notification.dart';
 import 'package:project1/hotel/recommentation_screen.dart';
+import 'package:project1/hotel/staffchat.dart';
 import 'package:project1/hotel/view_staff.dart';
 import 'package:project1/user/bookinghistory.dart';
 import 'package:project1/user/roombooking.dart';
@@ -168,6 +169,16 @@ class _HotelHomeState extends State<HotelHome> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(builder: (context) => RoomServicesPage(staffHotelId: FirebaseAuth.instance.currentUser!.uid,)),
+                );
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.hotel, color: Colors.black),
+              title: const Text('Chat with staffs'),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => StaffChatPage()),
                 );
               },
             ),
