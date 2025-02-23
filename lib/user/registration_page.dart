@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:project1/loginpage/login_page.dart';
 import 'package:file_picker/file_picker.dart';
@@ -590,6 +591,11 @@ class _UserRegistrationPageState extends State<UserRegistrationPage> {
         'imageUrl': imageUrl,
         'createdAt': FieldValue.serverTimestamp(),
       });
+      await FirebaseFirestore.instance.collection('role_tb').add({
+       'role':'Users',
+       'uid':FirebaseAuth.instance.currentUser?.uid
+      });
+
 
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Registration Successful!')),
