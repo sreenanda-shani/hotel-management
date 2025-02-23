@@ -3,35 +3,16 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:project1/user/edit_profile';
 
-
 class ProfilePage extends StatelessWidget {
   const ProfilePage({super.key});
 
-  Future<Map<String, dynamic>?> fetchUserData() async {
-    try {
-          String userId = FirebaseAuth.instance.currentUser!.uid;
-
-
-      if (userId == null) {
-        debugPrint('⚠️ User is not logged in');
-        return null;
-      }
-
-      DocumentSnapshot userDoc = await FirebaseFirestore.instance
-          .collection('users') // ✅ Corrected Collection Name
-          .doc(userId)
-          .get();
-
-      if (userDoc.exists) {
-        debugPrint('✅ User data found: ${userDoc.data()}');
-        return userDoc.data() as Map<String, dynamic>?;
-      } else {
-        debugPrint('❌ No user document found for ID: $userId');
-      }
-    } catch (e) {
-      debugPrint('🔥 Error fetching user data: $e');
-    }
-    return null;
+  Stream<QuerySnapshot<Map<String, dynamic>>> fetchUserData() {
+    String userId = FirebaseAuth.instance.currentUser!.uid;
+    print(userId);
+    return FirebaseFirestore.instance
+        .collection('users')
+        .where('uid', isEqualTo: userId) // Filtering by uid field        
+        .snapshots();
   }
 
   @override
@@ -47,12 +28,12 @@ class ProfilePage extends StatelessWidget {
         centerTitle: true,
         backgroundColor: tealColor,
       ),
-      body: FutureBuilder<Map<String, dynamic>?>(
-        future: fetchUserData(),
+      body: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
+        stream: fetchUserData(),
         builder: (context, snapshot) {
-          debugPrint('📡 FutureBuilder state: ${snapshot.connectionState}');
+          debugPrint('📡 StreamBuilder state: ${snapshot.connectionState}');
           debugPrint('🚨 Error: ${snapshot.error}');
-          debugPrint('📊 Snapshot Data: ${snapshot.data}');
+          debugPrint('📊 Snapshot Data: ${snapshot.data?.docs}');
 
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
@@ -62,11 +43,11 @@ class ProfilePage extends StatelessWidget {
               'Error: ${snapshot.error}',
               style: const TextStyle(color: Colors.red),
             ));
-          } else if (!snapshot.hasData || snapshot.data == null) {
+          } else if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
             return const Center(child: Text('No user data found.'));
           }
 
-          final userDetails = snapshot.data!;
+          final userDetails = snapshot.data!.docs.first.data();
           return SingleChildScrollView(
             padding: const EdgeInsets.all(20.0),
             child: Column(
@@ -94,7 +75,7 @@ class ProfilePage extends StatelessWidget {
                         ProfileDetailRow(
                           icon: Icons.person,
                           label: 'Name',
-                          value: userDetails['name'] ?? 'N/A',
+                          value: userDetails['fullName'] ?? 'N/A',
                           iconColor: tealColor,
                         ),
                         ProfileDetailRow(
@@ -124,7 +105,7 @@ class ProfilePage extends StatelessWidget {
                         ProfileDetailRow(
                           icon: Icons.security,
                           label: 'Aadhar',
-                          value: userDetails['aadhar'] ?? 'N/A',
+                          value: userDetails['idProofNumber'] ?? 'N/A',
                           iconColor: tealColor,
                         ),
                       ],

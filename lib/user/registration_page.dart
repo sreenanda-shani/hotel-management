@@ -578,9 +578,14 @@ class _UserRegistrationPageState extends State<UserRegistrationPage> {
     }
 
     try {
+      final user = await FirebaseAuth.instance.createUserWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
       // Store user data in Firestore
       await FirebaseFirestore.instance.collection('users').add({
         'fullName': fullName,
+        'uid':user.user?.uid,
         'email': email,
         'password': password,
         'idProofNumber': idProofNumber,
@@ -591,10 +596,6 @@ class _UserRegistrationPageState extends State<UserRegistrationPage> {
         'imageUrl': imageUrl,
         'createdAt': FieldValue.serverTimestamp(),
       });
-       final user = await FirebaseAuth.instance.createUserWithEmailAndPassword(
-        email: email,
-        password: password,
-      );
       print(user.user?.uid);
 
       // Save staff data to Firestore
