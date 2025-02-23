@@ -1,6 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:project1/staff/staff_home.dart';
+import 'package:project1/staff/staff_profile.dart'; // Import the StaffHomeScreen
 
 class StaffEditProfile extends StatefulWidget {
   const StaffEditProfile({super.key});
@@ -92,7 +94,11 @@ class _StaffEditProfileState extends State<StaffEditProfile> {
           leading: IconButton(
             icon: const Icon(Icons.arrow_back, color: Colors.black),
             onPressed: () {
-              Navigator.pop(context); // Navigate to the previous screen
+              // Navigate to StaffHomeScreen
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => StaffProfile()),
+              );
             },
           ),
         ),
@@ -129,10 +135,11 @@ class _StaffEditProfileState extends State<StaffEditProfile> {
                     onPressed: _updateProfile,
                     style: ElevatedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(
-                          vertical: 16.0, horizontal: 60.0), backgroundColor: Colors.green,
+                          vertical: 16.0, horizontal: 60.0),
+                      backgroundColor: Colors.green,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(8.0),
-                      ), // Button color
+                      ),
                     ),
                     child: const Text(
                       'Save Changes',

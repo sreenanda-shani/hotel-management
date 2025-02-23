@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:project1/staff/staff_home.dart'; // Import the StaffHomeScreen
 
 class StaffFeedbackPage extends StatefulWidget {
   const StaffFeedbackPage({super.key});
@@ -18,6 +19,16 @@ class _StaffFeedbackPageState extends State<StaffFeedbackPage> {
       appBar: AppBar(
         title: const Text("Staff Feedback"),
         backgroundColor: Colors.blueAccent,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () {
+            // Navigate to StaffHomeScreen
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => StaffHomeScreen()),
+            );
+          },
+        ),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),

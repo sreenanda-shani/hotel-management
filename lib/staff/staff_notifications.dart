@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:project1/staff/staff_home.dart'; // Import the StaffHomeScreen
 
 class StaffNotifications extends StatefulWidget {
   const StaffNotifications({super.key});
@@ -76,7 +77,13 @@ class _StaffNotificationsState extends State<StaffNotifications> {
         title: const Text('Notifications'),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
-          onPressed: () => Navigator.pop(context),
+          onPressed: () {
+            // Navigate to StaffHomeScreen
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => StaffHomeScreen()),
+            );
+          },
         ),
       ),
       body: FutureBuilder<List<Map<String, dynamic>>>(
@@ -162,6 +169,3 @@ class _StaffNotificationsState extends State<StaffNotifications> {
     );
   }
 }
-
-
-

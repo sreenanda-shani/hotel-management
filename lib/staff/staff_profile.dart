@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:project1/staff/staff_home.dart'; // Import the StaffHomeScreen
 import 'package:project1/staff/staff_edit_profile.dart'; // Import the StaffEditProfile page
 
 class StaffProfile extends StatefulWidget {
@@ -24,7 +25,11 @@ class _StaffProfileState extends State<StaffProfile> {
           leading: IconButton(
             icon: const Icon(Icons.arrow_back, color: Colors.black),
             onPressed: () {
-              Navigator.pop(context); // Navigate to the previous screen
+              // Navigate to StaffHomeScreen
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => StaffHomeScreen()),
+              );
             },
           ),
           actions: [
