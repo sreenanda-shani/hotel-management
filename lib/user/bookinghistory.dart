@@ -1,7 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:project1/user/hotel_feedback.dart';
-
+import 'package:project1/user/feedback.dart';
 class BookingHistoryPage extends StatefulWidget {
   const BookingHistoryPage({super.key});
 
@@ -33,7 +32,6 @@ class _BookingHistoryPageState extends State<BookingHistoryPage> {
         var bookingData = doc.data() as Map<String, dynamic>;
         bookingData['bookingId'] = doc.id;
 
-        // Fetch hotel data for the booking
         var hotelSnapshot = await _hotelCollection.doc(bookingData['hotelId']).get();
         if (hotelSnapshot.exists) {
           var hotelData = hotelSnapshot.data() as Map<String, dynamic>;
@@ -90,7 +88,6 @@ class _BookingHistoryPageState extends State<BookingHistoryPage> {
     );
   }
 
-  // Build booking card to display booking details
   Widget _buildBookingCard(Map<String, dynamic> booking) {
     var hotelName = booking['hotelName'] ?? 'Hotel Name';
     var hotelEmail = booking['hotelEmail'] ?? 'Not Available';
@@ -99,6 +96,10 @@ class _BookingHistoryPageState extends State<BookingHistoryPage> {
     var rent = booking['rent'] ?? 'Not Available';
     var guests = booking['guests'] ?? 'Not Available';
     var hotelImage = booking['hotelImage'] ?? '';
+    var checkIn = (booking['checkIn'] as Timestamp).toDate();
+    var checkOut = (booking['checkOut'] as Timestamp).toDate();
+    var currentDate = DateTime.now();
+    bool isCurrentBooking = currentDate.isAfter(checkIn) && currentDate.isBefore(checkOut);
 
     return Card(
       margin: const EdgeInsets.symmetric(vertical: 12),
@@ -112,7 +113,6 @@ class _BookingHistoryPageState extends State<BookingHistoryPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Display hotel image with rounded corners
             if (hotelImage.isNotEmpty)
               ClipRRect(
                 borderRadius: BorderRadius.circular(15),
@@ -124,8 +124,6 @@ class _BookingHistoryPageState extends State<BookingHistoryPage> {
                 ),
               ),
             const SizedBox(height: 12),
-
-            // Display hotel name with bold style
             Text(
               hotelName,
               style: const TextStyle(
@@ -135,84 +133,68 @@ class _BookingHistoryPageState extends State<BookingHistoryPage> {
               ),
             ),
             const SizedBox(height: 4),
-
-            // Display room and other details
-            Text(
-              'Room: $roomNumber',
-              style: const TextStyle(color: Colors.grey),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              'Guests: $guests',
-              style: const TextStyle(color: Colors.grey),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              'Total Rent: \$${rent.toString()}',
-              style: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                color: Colors.teal,
-              ),
-            ),
+            Text('Room: $roomNumber', style: const TextStyle(color: Colors.grey)),
+            Text('Guests: $guests', style: const TextStyle(color: Colors.grey)),
+            Text('Total Rent: \$${rent.toString()}',
+                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.teal)),
             const SizedBox(height: 8),
-
-            // Display hotel contact details
-            Text(
-              'Hotel Email: $hotelEmail',
-              style: const TextStyle(color: Colors.grey),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              'Hotel Mobile: $hotelMobile',
-              style: const TextStyle(color: Colors.grey),
-            ),
+            Text('Hotel Email: $hotelEmail', style: const TextStyle(color: Colors.grey)),
+            Text('Hotel Mobile: $hotelMobile', style: const TextStyle(color: Colors.grey)),
             const SizedBox(height: 16),
 
-            // Action buttons (View Details & Provide Feedback)
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 ElevatedButton(
-                  onPressed: () {
-                    // Navigate to Booking Details Page
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => BookingDetailsPage(
-                          bookingId: booking['bookingId'],
+                  onPressed: () async {
+                    if (isCurrentBooking) {
+                      TextEditingController serviceController = TextEditingController();
+                      await showDialog(
+                        context: context,
+                        builder: (context) => AlertDialog(
+                          title: const Text("What service do you want to book?"),
+                          content: TextField(controller: serviceController),
+                          actions: [
+                            TextButton(
+                              onPressed: () {
+                                if (serviceController.text.isNotEmpty) {
+                                  FirebaseFirestore.instance.collection('roomService').add({
+                                    'message': serviceController.text,
+                                    'roomNo': roomNumber,
+                                    'hotelId': booking['hotelId'],
+                                  });
+                                }
+                                Navigator.pop(context);
+                              },
+                              child: const Text("Submit"),
+                            ),
+                          ],
                         ),
-                      ),
-                    );
+                      );
+                    } else {
+                      // Navigate to feedback page if booking is past the check-out date
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => FeedbackPage(),
+                        ),
+                      );
+                    }
                   },
-                  style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12), backgroundColor: Colors.teal,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(15),
-                    ),
-                  ),
-                  child: const Text("View Details"),
+                  child: Text(isCurrentBooking ? "Book Room Service" : "Provide Feedback"),
                 ),
                 ElevatedButton(
                   onPressed: () {
-                    // Navigate to Hotel Feedback Page
+                    // Navigate to detailed booking page
                     Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => HotelFeedback(
-                          hotelId: booking['hotelId'],
-                          hotelName: hotelName,
-                        ),
-                      ),
-                    );
+  context,
+  MaterialPageRoute(
+    builder: (context) => BookingDetailsPage(bookingId: booking['bookingId']),
+  ),
+);
+
                   },
-                  style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12), backgroundColor: Colors.teal,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(15),
-                    ),
-                  ),
-                  child: const Text("Provide Feedback"),
+                  child: const Text("View in Detail"),
                 ),
               ],
             ),
@@ -222,6 +204,7 @@ class _BookingHistoryPageState extends State<BookingHistoryPage> {
     );
   }
 }
+
 
 // Booking Details Page (unchanged)
 class BookingDetailsPage extends StatelessWidget {
