@@ -357,15 +357,17 @@ class UpdateRoomPage extends StatefulWidget {
 class _UpdateRoomPageState extends State<UpdateRoomPage> {
   late TextEditingController _roomNumberController;
   late TextEditingController _rentController;
-  late TextEditingController
-      _totalRentController; // new controller for totalRent
   late TextEditingController _maxPeopleController;
 
-  String _acType = 'AC';
-  String _bedType = 'Double Bed';
+  // Define constants for dropdown values
+  static const AC_TYPE_OPTIONS = ['AC', 'Non-AC'];
+  static const BED_TYPE_OPTIONS = ['Single Bed', 'Double Bed'];
+
+  late String _acType;
+  late String _bedType;
   bool _wifiAvailable = true;
   bool _balconyAvailable = false;
-  bool _isAvailable = true; // Added availability toggle
+  bool _isAvailable = true;
 
   @override
   void initState() {
@@ -374,17 +376,29 @@ class _UpdateRoomPageState extends State<UpdateRoomPage> {
         TextEditingController(text: widget.roomData['roomNumber'].toString());
     _rentController =
         TextEditingController(text: widget.roomData['rent'].toString());
-    _totalRentController = TextEditingController(
-      text:
-          (widget.roomData['totalRent'] ?? widget.roomData['rent']).toString(),
-    );
     _maxPeopleController =
         TextEditingController(text: widget.roomData['maxPeople'].toString());
-    _acType = widget.roomData['acType'];
-    _bedType = widget.roomData['bedType'];
-    _wifiAvailable = widget.roomData['wifiAvailable'];
-    _balconyAvailable = widget.roomData['balconyAvailable'];
-    _isAvailable = widget.roomData['isAvailable'];
+    
+    // Validate and set initial values for dropdowns
+    _acType = AC_TYPE_OPTIONS.contains(widget.roomData['acType'])
+        ? widget.roomData['acType']
+        : AC_TYPE_OPTIONS[0];
+    
+    _bedType = BED_TYPE_OPTIONS.contains(widget.roomData['bedType'])
+        ? widget.roomData['bedType']
+        : BED_TYPE_OPTIONS[0];
+    
+    _wifiAvailable = widget.roomData['wifiAvailable'] ?? true;
+    _balconyAvailable = widget.roomData['balconyAvailable'] ?? false;
+    _isAvailable = widget.roomData['isAvailable'] ?? true;
+  }
+
+  @override
+  void dispose() {
+    _roomNumberController.dispose();
+    _rentController.dispose();
+    _maxPeopleController.dispose();
+    super.dispose();
   }
 
   Future<void> _updateRoomDetails() async {
@@ -395,35 +409,34 @@ class _UpdateRoomPageState extends State<UpdateRoomPage> {
           .update({
         'roomNumber': int.tryParse(_roomNumberController.text) ?? 0,
         'rent': double.tryParse(_rentController.text) ?? 0.0,
-        'totalRent': double.tryParse(_totalRentController.text) ??
-            0.0, // update totalRent
         'maxPeople': int.tryParse(_maxPeopleController.text) ?? 0,
         'acType': _acType,
         'bedType': _bedType,
         'wifiAvailable': _wifiAvailable,
         'balconyAvailable': _balconyAvailable,
-        'isAvailable': _isAvailable, // Store availability status
+        'isAvailable': _isAvailable,
       });
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Room details updated successfully!')),
-      );
-      Navigator.pop(context); // Go back to the previous screen
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Room details updated successfully!')));
+        Navigator.pop(context);
+      }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Error updating room details')),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Error updating room details')));
+      }
     }
   }
 
-@override
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Update Room Details"),
         backgroundColor: Colors.white,
-        iconTheme: const IconThemeData(
-            color: Colors.black), // Change back arrow to black
+        iconTheme: const IconThemeData(color: Colors.black),
         elevation: 0,
       ),
       body: Padding(
@@ -436,7 +449,7 @@ class _UpdateRoomPageState extends State<UpdateRoomPage> {
                 elevation: 5,
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(15)),
-                color: Colors.transparent, // Set to transparent
+                color: Colors.transparent,
                 child: Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: Row(
@@ -463,7 +476,7 @@ class _UpdateRoomPageState extends State<UpdateRoomPage> {
                 elevation: 5,
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(15)),
-                color: Colors.transparent, // Set to transparent
+                color: Colors.transparent,
                 child: Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: Row(
@@ -485,40 +498,12 @@ class _UpdateRoomPageState extends State<UpdateRoomPage> {
 
               const SizedBox(height: 20),
 
-              // Total Rent Field
+              // Max People Field
               Card(
                 elevation: 5,
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(15)),
-                color: Colors.transparent, // Set to transparent
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Row(
-                    children: [
-                      const Icon(Icons.money, color: Colors.teal),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: TextField(
-                          controller: _totalRentController,
-                          decoration:
-                              const InputDecoration(labelText: 'Total Rent'),
-                          keyboardType: const TextInputType.numberWithOptions(
-                              decimal: true),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-
-              const SizedBox(height: 20),
-
-// Max People Field
-              Card(
-                elevation: 5,
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(15)),
-                color: Colors.transparent, // Set to transparent
+                color: Colors.transparent,
                 child: Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: Row(
@@ -527,8 +512,7 @@ class _UpdateRoomPageState extends State<UpdateRoomPage> {
                       const SizedBox(width: 10),
                       Expanded(
                         child: TextField(
-                          controller:
-                              _maxPeopleController, // Correct controller
+                          controller: _maxPeopleController,
                           decoration:
                               const InputDecoration(labelText: 'Max People'),
                           keyboardType: TextInputType.number,
@@ -546,7 +530,7 @@ class _UpdateRoomPageState extends State<UpdateRoomPage> {
                 elevation: 5,
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(15)),
-                color: Colors.transparent, // Set to transparent
+                color: Colors.transparent,
                 child: Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: Row(
@@ -556,16 +540,18 @@ class _UpdateRoomPageState extends State<UpdateRoomPage> {
                       Expanded(
                         child: DropdownButton<String>(
                           value: _acType,
-                          items: ['AC', 'Non-AC']
+                          items: AC_TYPE_OPTIONS
                               .map((ac) => DropdownMenuItem(
                                     value: ac,
                                     child: Text(ac),
                                   ))
                               .toList(),
                           onChanged: (value) {
-                            setState(() {
-                              _acType = value!;
-                            });
+                            if (value != null) {
+                              setState(() {
+                                _acType = value;
+                              });
+                            }
                           },
                         ),
                       ),
@@ -581,7 +567,7 @@ class _UpdateRoomPageState extends State<UpdateRoomPage> {
                 elevation: 5,
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(15)),
-                color: Colors.transparent, // Set to transparent
+                color: Colors.transparent,
                 child: Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: Row(
@@ -591,16 +577,18 @@ class _UpdateRoomPageState extends State<UpdateRoomPage> {
                       Expanded(
                         child: DropdownButton<String>(
                           value: _bedType,
-                          items: ['Single Bed', 'Double Bed']
+                          items: BED_TYPE_OPTIONS
                               .map((bed) => DropdownMenuItem(
                                     value: bed,
                                     child: Text(bed),
                                   ))
                               .toList(),
                           onChanged: (value) {
-                            setState(() {
-                              _bedType = value!;
-                            });
+                            if (value != null) {
+                              setState(() {
+                                _bedType = value;
+                              });
+                            }
                           },
                         ),
                       ),
@@ -611,12 +599,12 @@ class _UpdateRoomPageState extends State<UpdateRoomPage> {
 
               const SizedBox(height: 20),
 
-// Wi-Fi Switch
+              // Wi-Fi Switch
               Card(
                 elevation: 5,
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(15)),
-                color: Colors.transparent, // Set to transparent
+                color: Colors.transparent,
                 child: Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: Row(
@@ -646,7 +634,7 @@ class _UpdateRoomPageState extends State<UpdateRoomPage> {
                 elevation: 5,
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(15)),
-                color: Colors.transparent, // Set to transparent
+                color: Colors.transparent,
                 child: Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: Row(
@@ -675,7 +663,7 @@ class _UpdateRoomPageState extends State<UpdateRoomPage> {
               ElevatedButton(
                 onPressed: _updateRoomDetails,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.white, // Set background to white
+                  backgroundColor: Colors.white,
                   padding:
                       const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                   shape: RoundedRectangleBorder(

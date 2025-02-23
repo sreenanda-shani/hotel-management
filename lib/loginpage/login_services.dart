@@ -6,7 +6,6 @@ import 'package:project1/hotel/hotelhome.dart';
 import 'package:project1/staff/staff_home.dart';
 import 'package:project1/user/home_page.dart';
 
-
 class LoginServiceFire {
   final firebaseAuth = FirebaseAuth.instance;
   final firestoreDatabse = FirebaseFirestore.instance;
@@ -22,57 +21,75 @@ class LoginServiceFire {
         email: email,
         password: password,
       );
-      
 
       if (userCredential.user != null) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Login Successful')),
         );
-        final role = await firestoreDatabse
+
+        final roleSnapshot = await firestoreDatabse
             .collection('role_tb')
             .where('uid', isEqualTo: userCredential.user?.uid)
             .get();
 
-        final roledata = role.docs.first.data();
-        print(roledata);
-
-        switch (roledata['role']) {
-          case 'Users':
-            Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const HomePage(),
-                ));
-            break;
-          case 'Hotel':
-            Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const HotelHome(),
-                ));
-            break;
-         case 'Admin':
-            Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const AdminHomePage(),
-                ));
-            break;
-           case 'Staff':
-            Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const StaffHomeScreen(),
-                ));
-            break;
+        if (roleSnapshot.docs.isEmpty) {
+          throw Exception("User role not found.");
         }
 
-        // Optionally, navigate to another screen after successful login
-        // Navigator.pushReplacementNamed(context, '/home');
+        final roledata = roleSnapshot.docs.first.data();
+
+        if (roledata['role'] == 'Hotel') {
+          // Fetch hotel data to check approval status
+          final hotelSnapshot = await firestoreDatabse
+              .collection('hotels')
+              .doc(userCredential.user!.uid)
+              .get();
+
+          if (!hotelSnapshot.exists || hotelSnapshot.data()?['isApproved'] != true) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Hotel not approved. Please wait for admin approval.')),
+            );
+            await firebaseAuth.signOut();
+            return;
+          }
+        }
+
+        // Navigate based on role
+        switch (roledata['role']) {
+          case 'Users':
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => const HomePage()),
+            );
+            break;
+          case 'Hotel':
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => const HotelHome()),
+            );
+            break;
+          case 'Admin':
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => const AdminHomePage()),
+            );
+            break;
+          case 'Staff':
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => const StaffHomeScreen()),
+            );
+            break;
+          default:
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Unknown role. Contact support.')),
+            );
+            await firebaseAuth.signOut();
+        }
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Login failed')),
+        SnackBar(content: Text('Login failed: ${e.toString()}')),
       );
     }
   }

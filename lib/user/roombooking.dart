@@ -203,21 +203,33 @@ class _RoomBookingPageState extends State<RoomBookingPage> {
                 decoration: const InputDecoration(
                     labelText: 'Mobile Number', border: OutlineInputBorder()),
                 keyboardType: TextInputType.phone,
-                validator: (value) => value == null || value.isEmpty
-                    ? 'Please enter your mobile number'
-                    : null,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter your mobile number';
+                  }
+                  // Validate phone number format (10 digits)
+                  if (!RegExp(r'^[0-9]{10}$').hasMatch(value)) {
+                    return 'Please enter a valid 10-digit mobile number';
+                  }
+                  return null;
+                },
               ),
               const SizedBox(height: 12),
               TextFormField(
                 controller: _emailController,
                 decoration: const InputDecoration(
                     labelText: 'Email Address', border: OutlineInputBorder()),
-                validator: (value) => value == null ||
-                        value.isEmpty ||
-                        !RegExp(r"^[a-zA-Z0-9+_.-]+@[a-zA-Z0-9.-]+$")
-                            .hasMatch(value)
-                    ? 'Please enter a valid email'
-                    : null,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter your email address';
+                  }
+                  // Validate email format
+                  if (!RegExp(r"^[a-zA-Z0-9+_.-]+@[a-zA-Z0-9.-]+$")
+                      .hasMatch(value)) {
+                    return 'Please enter a valid email address';
+                  }
+                  return null;
+                },
               ),
               const SizedBox(height: 12),
               TextFormField(
