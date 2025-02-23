@@ -123,7 +123,7 @@ class _StaffChatScreenState extends State<StaffChatScreen> {
     if (_messageController.text.isNotEmpty) {
       await messagesCollection.add({
         'senderId': currentUserId,
-        'recipientId': widget.recipientId,
+        'receiverId': widget.recipientId,
         'message': _messageController.text,
         'timestamp': FieldValue.serverTimestamp(),
       });
@@ -150,7 +150,7 @@ class _StaffChatScreenState extends State<StaffChatScreen> {
           .where('senderId', whereIn: [
         currentUserId,
         widget.recipientId
-      ]).where('recipientId',
+      ]).where('receiverId',
               whereIn: [currentUserId, widget.recipientId]).snapshots(),
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
