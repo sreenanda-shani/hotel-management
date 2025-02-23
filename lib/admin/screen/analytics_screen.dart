@@ -174,13 +174,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> {
                     title: 'Total Bookings',
                     value: totalBookings.toString(),
                   ),
-                  const SizedBox(height: 16),
-                  _buildCard(
-                    icon: Icons.feedback,
-                    iconColor: Colors.red,
-                    title: 'Total Complaints',
-                    value: totalComplaints.toString(),
-                  ),
+                
                 ],
               ),
             ),

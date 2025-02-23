@@ -20,7 +20,7 @@ class _AddStaffPageState extends State<AddStaffPage> {
   bool loading = false;
   bool _isPasswordVisible = false;
   String? selectedRole = 'Receptionist'; // Default role is Receptionist
-  String? hotelUid;  // Variable to store the current hotel UID
+  String? hotelUid; // Variable to store the current hotel UID
 
   // Add Staff handler function to process form data
   Future<void> addStaffHandler() async {
@@ -36,6 +36,7 @@ class _AddStaffPageState extends State<AddStaffPage> {
     String staffId = staffIdController.text;
     String role = selectedRole!;
 
+    // Basic validation
     if (fullName.isEmpty ||
         email.isEmpty ||
         password.isEmpty ||
@@ -51,13 +52,40 @@ class _AddStaffPageState extends State<AddStaffPage> {
       return;
     }
 
+    // Email validation
+    final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
+    if (!emailRegex.hasMatch(email)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please enter a valid email address')),
+      );
+      setState(() {
+        loading = false;
+      });
+      return;
+    }
+
+    // Phone number validation
+    final phoneRegex = RegExp(r'^[0-9]{10}$');
+    if (!phoneRegex.hasMatch(phone)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please enter a valid 10-digit phone number')),
+      );
+      setState(() {
+        loading = false;
+      });
+      return;
+    }
+
     // Retrieve the hotelUid from Firestore (assuming the hotel data is stored in the "hotels" collection)
     final firebaseAuth = FirebaseAuth.instance;
     String currentUserUid = firebaseAuth.currentUser!.uid;
 
     try {
       // Get the hotel UID associated with the current authenticated user
-      DocumentSnapshot hotelDoc = await FirebaseFirestore.instance.collection('hotels').doc(currentUserUid).get();
+      DocumentSnapshot hotelDoc = await FirebaseFirestore.instance
+          .collection('hotels')
+          .doc(currentUserUid)
+          .get();
 
       if (hotelDoc.exists) {
         hotelUid = hotelDoc.id; // Assuming the document ID is the hotel UID
@@ -71,14 +99,17 @@ class _AddStaffPageState extends State<AddStaffPage> {
         return;
       }
 
-      // Create a new user for the staff
+      // Create a new user for the staff using Firebase Authentication
       final user = await firebaseAuth.createUserWithEmailAndPassword(
         email: email,
         password: password,
       );
 
       // Add staff data to Firestore (do not store the password here)
-      await FirebaseFirestore.instance.collection('staff').doc(user.user?.uid).set({
+      await FirebaseFirestore.instance
+          .collection('staff')
+          .doc(user.user?.uid)
+          .set({
         'fullName': fullName,
         'email': email,
         'phone': phone,
@@ -88,12 +119,12 @@ class _AddStaffPageState extends State<AddStaffPage> {
         'createdAt': FieldValue.serverTimestamp(),
         'hotelUid': hotelUid, // Store the hotelUid in the staff document
       });
-  
 
-        await FirebaseFirestore.instance.collection('role_tb').add({
-      'uid': user.user?.uid,
-      'role': 'Staff',
-    });
+      // Add role to the role_tb collection
+      await FirebaseFirestore.instance.collection('role_tb').add({
+        'uid': user.user?.uid,
+        'role': 'Staff',
+      });
 
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Staff added successfully')),

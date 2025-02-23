@@ -26,9 +26,22 @@ class _UserRegistrationPageState extends State<UserRegistrationPage> {
 
   bool loading = false;
   bool _isPasswordVisible = false;
-  String? selectedGender = 'Male'; // Default gender is Male
-  String? selectedIdProofType = 'Aadhar'; // Default ID proof type
-  File? selectedImage; // Variable to hold the selected image file
+  String? selectedGender = 'Male';
+  String? selectedIdProofType = 'Aadhar';
+  File? selectedImage;
+
+  // Form key for validation
+  final _formKey = GlobalKey<FormState>();
+
+  // Validation regular expressions
+  final RegExp emailRegex = RegExp(
+    r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$',
+  );
+  final RegExp phoneRegex = RegExp(r'^[0-9]{10}$');
+  final RegExp aadharRegex = RegExp(r'^[0-9]{12}$');
+  final RegExp passportRegex = RegExp(r'^[A-Z][0-9]{7}$');
+  final RegExp licenseRegex = RegExp(
+      r'^(([A-Z]{2}[0-9]{2})( )|([A-Z]{2}-[0-9]{2}))((19|20)[0-9][0-9])[0-9]{7}$');
 
   @override
   void initState() {
@@ -69,6 +82,32 @@ class _UserRegistrationPageState extends State<UserRegistrationPage> {
     });
   }
 
+  // Validate ID proof based on type
+  String? validateIdProof(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Please enter ID proof number';
+    }
+
+    switch (selectedIdProofType) {
+      case 'Aadhar':
+        if (!aadharRegex.hasMatch(value)) {
+          return 'Please enter a valid 12-digit Aadhar number';
+        }
+        break;
+      case 'Passport':
+        if (!passportRegex.hasMatch(value)) {
+          return 'Please enter a valid passport number (e.g., A1234567)';
+        }
+        break;
+      case 'Licence':
+        if (!licenseRegex.hasMatch(value)) {
+          return 'Please enter a valid driving license number';
+        }
+        break;
+    }
+    return null;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -77,86 +116,61 @@ class _UserRegistrationPageState extends State<UserRegistrationPage> {
       ),
       body: Stack(
         children: [
-          // Background Image
           Positioned.fill(
             child: Image.asset(
-              'asset/img4.webp', // Replace with your image path
+              'asset/img4.webp',
               fit: BoxFit.cover,
             ),
           ),
-          // Foreground Content
           Center(
             child: SingleChildScrollView(
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    // Circular Logo
-                    ClipOval(
-                      child: Image.asset(
-                        'asset/download.png', // Replace with your logo path
-                        width: 120,
-                        height: 120,
-                        fit: BoxFit.cover,
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      ClipOval(
+                        child: Image.asset(
+                          'asset/download.png',
+                          width: 120,
+                          height: 120,
+                          fit: BoxFit.cover,
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 24),
-
-                    // Full Name Text Field
-                    _buildTextField('Full Name', fullNameController),
-
-                    const SizedBox(height: 16),
-
-                    // Email Text Field
-                    _buildTextField('Email', emailController),
-
-                    const SizedBox(height: 16),
-
-                    // Password Text Field
-                    _buildPasswordTextField(),
-
-                    const SizedBox(height: 16),
-
-                    // ID Proof Type Dropdown
-                    _buildIdProofTypeSelection(),
-
-                    const SizedBox(height: 16),
-
-                    // ID Proof Number Text Field
-                    _buildTextField('ID Proof Number', idProofNumberController),
-
-                    const SizedBox(height: 16),
-
-                    // Phone Number Text Field
-                    _buildTextField('Phone Number', phoneController),
-
-                    const SizedBox(height: 16),
-
-                    // Address Text Field
-                    _buildTextField('Address', addressController),
-
-                    const SizedBox(height: 16),
-
-                    // Gender Selection
-                    _buildGenderSelection(),
-
-                    const SizedBox(height: 16),
-
-                    // Image Upload Button
-                    _buildImageUploadButton(),
-
-                    const SizedBox(height: 24),
-
-                    // Register Button
-                    loading
-                        ? const CircularProgressIndicator()
-                        : ElevatedButton(
-                            onPressed: registerHandler,
-                            child: const Text('Register'),
-                          ),
-                  ],
+                      const SizedBox(height: 24),
+                      _buildTextField('Full Name', fullNameController),
+                      const SizedBox(height: 16),
+                      _buildEmailField(),
+                      const SizedBox(height: 16),
+                      _buildPasswordTextField(),
+                      const SizedBox(height: 16),
+                      _buildIdProofTypeSelection(),
+                      const SizedBox(height: 16),
+                      _buildIdProofField(),
+                      const SizedBox(height: 16),
+                      _buildPhoneField(),
+                      const SizedBox(height: 16),
+                      _buildTextField('Address', addressController),
+                      const SizedBox(height: 16),
+                      _buildGenderSelection(),
+                      const SizedBox(height: 16),
+                      _buildImageUploadButton(),
+                      const SizedBox(height: 24),
+                      loading
+                          ? const CircularProgressIndicator()
+                          : ElevatedButton(
+                              onPressed: () {
+                                if (_formKey.currentState!.validate()) {
+                                  registerHandler();
+                                }
+                              },
+                              child: const Text('Register'),
+                            ),
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -166,13 +180,18 @@ class _UserRegistrationPageState extends State<UserRegistrationPage> {
     );
   }
 
-  // Helper function to build text fields
   Widget _buildTextField(String label, TextEditingController controller) {
     return SizedBox(
       width: 300,
-      child: TextField(
+      child: TextFormField(
         controller: controller,
         style: const TextStyle(color: Colors.white),
+        validator: (value) {
+          if (value == null || value.isEmpty) {
+            return 'Please enter $label';
+          }
+          return null;
+        },
         decoration: InputDecoration(
           labelText: label,
           labelStyle: const TextStyle(color: Colors.white),
@@ -194,14 +213,58 @@ class _UserRegistrationPageState extends State<UserRegistrationPage> {
     );
   }
 
-  // Helper function to build password text field
+  Widget _buildEmailField() {
+    return SizedBox(
+      width: 300,
+      child: TextFormField(
+        controller: emailController,
+        style: const TextStyle(color: Colors.white),
+        validator: (value) {
+          if (value == null || value.isEmpty) {
+            return 'Please enter email';
+          }
+          if (!emailRegex.hasMatch(value)) {
+            return 'Please enter a valid email address';
+          }
+          return null;
+        },
+        decoration: InputDecoration(
+          labelText: 'Email',
+          labelStyle: const TextStyle(color: Colors.white),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(50),
+          ),
+          filled: true,
+          fillColor: Colors.black.withOpacity(0.3),
+          focusedBorder: OutlineInputBorder(
+            borderSide: const BorderSide(color: Colors.green, width: 2.0),
+            borderRadius: BorderRadius.circular(50),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderSide: const BorderSide(color: Colors.white),
+            borderRadius: BorderRadius.circular(50),
+          ),
+        ),
+      ),
+    );
+  }
+
   Widget _buildPasswordTextField() {
     return SizedBox(
       width: 300,
-      child: TextField(
+      child: TextFormField(
         controller: passwordController,
         obscureText: !_isPasswordVisible,
         style: const TextStyle(color: Colors.white),
+        validator: (value) {
+          if (value == null || value.isEmpty) {
+            return 'Please enter password';
+          }
+          if (value.length < 6) {
+            return 'Password must be at least 6 characters';
+          }
+          return null;
+        },
         decoration: InputDecoration(
           labelText: 'Password',
           labelStyle: const TextStyle(color: Colors.white),
@@ -234,7 +297,71 @@ class _UserRegistrationPageState extends State<UserRegistrationPage> {
     );
   }
 
-  // Helper function to build ID proof type selection dropdown
+  Widget _buildPhoneField() {
+    return SizedBox(
+      width: 300,
+      child: TextFormField(
+        controller: phoneController,
+        style: const TextStyle(color: Colors.white),
+        keyboardType: TextInputType.phone,
+        validator: (value) {
+          if (value == null || value.isEmpty) {
+            return 'Please enter phone number';
+          }
+          if (!phoneRegex.hasMatch(value)) {
+            return 'Please enter a valid 10-digit phone number';
+          }
+          return null;
+        },
+        decoration: InputDecoration(
+          labelText: 'Phone Number',
+          labelStyle: const TextStyle(color: Colors.white),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(50),
+          ),
+          filled: true,
+          fillColor: Colors.black.withOpacity(0.3),
+          focusedBorder: OutlineInputBorder(
+            borderSide: const BorderSide(color: Colors.green, width: 2.0),
+            borderRadius: BorderRadius.circular(50),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderSide: const BorderSide(color: Colors.white),
+            borderRadius: BorderRadius.circular(50),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildIdProofField() {
+    return SizedBox(
+      width: 300,
+      child: TextFormField(
+        controller: idProofNumberController,
+        style: const TextStyle(color: Colors.white),
+        validator: validateIdProof,
+        decoration: InputDecoration(
+          labelText: 'ID Proof Number',
+          labelStyle: const TextStyle(color: Colors.white),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(50),
+          ),
+          filled: true,
+          fillColor: Colors.black.withOpacity(0.3),
+          focusedBorder: OutlineInputBorder(
+            borderSide: const BorderSide(color: Colors.green, width: 2.0),
+            borderRadius: BorderRadius.circular(50),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderSide: const BorderSide(color: Colors.white),
+            borderRadius: BorderRadius.circular(50),
+          ),
+        ),
+      ),
+    );
+  }
+
   Widget _buildIdProofTypeSelection() {
     return SizedBox(
       width: 300,
@@ -243,7 +370,8 @@ class _UserRegistrationPageState extends State<UserRegistrationPage> {
         onChanged: (String? newValue) {
           setState(() {
             selectedIdProofType = newValue!;
-            print('Selected ID Proof Type: $selectedIdProofType');
+            // Clear the ID proof field when type changes
+            idProofNumberController.clear();
           });
         },
         decoration: InputDecoration(
@@ -263,15 +391,14 @@ class _UserRegistrationPageState extends State<UserRegistrationPage> {
             borderRadius: BorderRadius.circular(50),
           ),
         ),
-        dropdownColor: Colors.black, // Dropdown background color
+        dropdownColor: Colors.black,
         items: ['Aadhar', 'Passport', 'Licence']
             .map<DropdownMenuItem<String>>((String value) {
           return DropdownMenuItem<String>(
             value: value,
             child: Text(
               value,
-              style:
-                  const TextStyle(color: Colors.white), // Dropdown text color
+              style: const TextStyle(color: Colors.white),
             ),
           );
         }).toList(),
@@ -279,7 +406,6 @@ class _UserRegistrationPageState extends State<UserRegistrationPage> {
     );
   }
 
-  // Helper function to build gender selection dropdown
   Widget _buildGenderSelection() {
     return SizedBox(
       width: 300,
@@ -288,7 +414,6 @@ class _UserRegistrationPageState extends State<UserRegistrationPage> {
         onChanged: (String? newValue) {
           setState(() {
             selectedGender = newValue!;
-            print('Selected Gender: $selectedGender');
           });
         },
         decoration: InputDecoration(
@@ -308,15 +433,14 @@ class _UserRegistrationPageState extends State<UserRegistrationPage> {
             borderRadius: BorderRadius.circular(50),
           ),
         ),
-        dropdownColor: Colors.black, // Dropdown background color
+        dropdownColor: Colors.black,
         items: ['Male', 'Female', 'Other']
             .map<DropdownMenuItem<String>>((String value) {
           return DropdownMenuItem<String>(
             value: value,
             child: Text(
               value,
-              style:
-                  const TextStyle(color: Colors.white), // Dropdown text color
+              style: const TextStyle(color: Colors.white),
             ),
           );
         }).toList(),
@@ -324,7 +448,6 @@ class _UserRegistrationPageState extends State<UserRegistrationPage> {
     );
   }
 
-  // Helper function to build image upload button
   Widget _buildImageUploadButton() {
     return SizedBox(
       width: 300,
@@ -351,7 +474,7 @@ class _UserRegistrationPageState extends State<UserRegistrationPage> {
                     right: 0,
                     top: 0,
                     child: IconButton(
-                      icon: Icon(Icons.close, color: Colors.red),
+                      icon: const Icon(Icons.close, color: Colors.red),
                       onPressed: _removeImage,
                     ),
                   ),
@@ -409,6 +532,17 @@ class _UserRegistrationPageState extends State<UserRegistrationPage> {
   }
 
   Future<void> registerHandler() async {
+    if (!_formKey.currentState!.validate()) {
+      return;
+    }
+
+    if (selectedImage == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please upload an ID proof image')),
+      );
+      return;
+    }
+
     setState(() {
       loading = true;
       print('Registration started...');
@@ -420,30 +554,8 @@ class _UserRegistrationPageState extends State<UserRegistrationPage> {
     String idProofNumber = idProofNumberController.text;
     String phone = phoneController.text;
     String address = addressController.text;
-    String gender = selectedGender!; // Get the selected gender value
-    String idProofType = selectedIdProofType!; // Get the selected ID proof type
-
-    // Basic validation
-    if (fullName.isEmpty ||
-        email.isEmpty ||
-        password.isEmpty ||
-        idProofNumber.isEmpty ||
-        phone.isEmpty ||
-        address.isEmpty ||
-        gender.isEmpty ||
-        idProofType.isEmpty ||
-        selectedImage == null) {
-      // Ensure image is selected
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            content: Text('Please fill in all the fields and upload an image')),
-      );
-      setState(() {
-        loading = false;
-        print('Validation failed: Missing fields or image.');
-      });
-      return;
-    }
+    String gender = selectedGender!;
+    String idProofType = selectedIdProofType!;
 
     String imageUrl = '';
     if (selectedImage != null) {
@@ -454,7 +566,7 @@ class _UserRegistrationPageState extends State<UserRegistrationPage> {
         print("Image uploaded: $imageUrl");
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Image upload failed')),
+          const SnackBar(content: Text('Image upload failed')),
         );
         setState(() {
           loading = false;
@@ -469,14 +581,14 @@ class _UserRegistrationPageState extends State<UserRegistrationPage> {
       await FirebaseFirestore.instance.collection('user').add({
         'fullName': fullName,
         'email': email,
-        'password':
-            password, // Consider using a more secure method for storing passwords
+        'password': password,
         'idProofNumber': idProofNumber,
         'phone': phone,
         'address': address,
         'gender': gender,
         'idProofType': idProofType,
         'imageUrl': imageUrl,
+        'createdAt': FieldValue.serverTimestamp(),
       });
 
       ScaffoldMessenger.of(context).showSnackBar(
@@ -484,10 +596,11 @@ class _UserRegistrationPageState extends State<UserRegistrationPage> {
       );
 
       print('Registration successful!');
-      // Navigate to Login Page after successful registration
-      Navigator.push(context, MaterialPageRoute(builder: (context) {
-        return const UserLoginPage();
-      }));
+      
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const UserLoginPage()),
+      );
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Registration failed: $e')),
