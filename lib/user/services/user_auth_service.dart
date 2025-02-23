@@ -29,7 +29,7 @@ class UserAuthService {
       await fireStoreDatabase.collection('user').doc(user.user?.uid).set({
         'name': fullName,
         'email': email,
-        'password': password, // Storing password in Firestore is not recommended for security reasons.
+        // Storing password in Firestore is not recommended for security reasons.
         'aadhar': aadhar,
         'phone': phone,
         'address': address,

@@ -10,18 +10,16 @@ class EditProfilePage extends StatefulWidget {
 }
 
 class _EditProfilePageState extends State<EditProfilePage> {
+  final _formKey = GlobalKey<FormState>(); // Form key for validation
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _addressController = TextEditingController();
   final TextEditingController _phoneController = TextEditingController();
-  String _selectedGender = 'Male'; // Default gender
-  
-  // Firebase Authentication instance to get the current user
-  final FirebaseAuth _auth = FirebaseAuth.instance;
+  String _selectedGender = 'Male';
 
-  // Firestore reference for user collection
+  final FirebaseAuth _auth = FirebaseAuth.instance;
   final CollectionReference _userCollection =
       FirebaseFirestore.instance.collection('user');
-
+  
   late String uid;
 
   @override
@@ -30,74 +28,56 @@ class _EditProfilePageState extends State<EditProfilePage> {
     _getCurrentUserUid();
   }
 
-  // Fetch current user's UID
   Future<void> _getCurrentUserUid() async {
     try {
-      User? user = _auth.currentUser;  // Get the currently logged-in user
+      User? user = _auth.currentUser;
       if (user != null) {
         setState(() {
-          uid = user.uid;  // Get the UID from the current user
+          uid = user.uid;
         });
-        _fetchUserData(uid);  // Fetch user data using the UID
-      } else {
-        print("User not logged in");
+        _fetchUserData(uid);
       }
     } catch (e) {
       print('Error fetching user UID: $e');
     }
   }
 
-  // Fetch user data from Firestore and populate the fields
   Future<void> _fetchUserData(String uid) async {
     try {
-      // Fetch user data from Firestore using the UID
       DocumentSnapshot userDoc = await _userCollection.doc(uid).get();
-
       if (userDoc.exists) {
         var data = userDoc.data() as Map<String, dynamic>;
-
-        // Set the text fields with fetched data
         setState(() {
           _nameController.text = data['name'] ?? '';
           _addressController.text = data['address'] ?? '';
           _phoneController.text = data['phone'] ?? '';
           _selectedGender = data['gender'] ?? 'Male';
         });
-      } else {
-        // Handle case when the document doesn't exist
-        print('User data not found');
       }
     } catch (e) {
       print('Error fetching user data: $e');
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Failed to load user data')),
-      );
     }
   }
 
-  // Update user data in Firestore
   Future<void> _updateUserData() async {
-    try {
-      await _userCollection.doc(uid).update({
-        'name': _nameController.text,
-        'address': _addressController.text,
-        'phone': _phoneController.text,
-        'gender': _selectedGender,
-      });
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Profile updated successfully')),
-      );
-      Navigator.pop(context); // Go back to the previous screen
-    } catch (e) {
-      print('Error updating user data: $e');
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Failed to update profile')),
-      );
+    if (_formKey.currentState!.validate()) {
+      try {
+        await _userCollection.doc(uid).update({
+          'name': _nameController.text.trim(),
+          'address': _addressController.text.trim(),
+          'phone': _phoneController.text.trim(),
+          'gender': _selectedGender,
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Profile updated successfully')),
+        );
+        Navigator.pop(context);
+      } catch (e) {
+        print('Error updating user data: $e');
+      }
     }
   }
 
-  // Reset fields to the original user data
   void _resetFields() {
     _fetchUserData(uid);
   }
@@ -106,116 +86,113 @@ class _EditProfilePageState extends State<EditProfilePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          'Edit Profile',
-          style: TextStyle(
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
-          ),
-        ),
+        title: const Text('Edit Profile'),
         centerTitle: true,
-        backgroundColor: const Color.fromARGB(255, 0, 123, 123), // Teal color
-        elevation: 4,
+        backgroundColor: Colors.teal,
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Name Field
-            _buildTextField(
-              controller: _nameController,
-              label: 'Name',
-              icon: Icons.person,
-            ),
-            const SizedBox(height: 16),
-            
-            // Address Field
-            _buildTextField(
-              controller: _addressController,
-              label: 'Address',
-              icon: Icons.location_on,
-            ),
-            const SizedBox(height: 16),
-            
-            // Phone Field
-            _buildTextField(
-              controller: _phoneController,
-              label: 'Phone',
-              icon: Icons.phone,
-              keyboardType: TextInputType.phone,
-            ),
-            const SizedBox(height: 16),
-            
-            // Gender Dropdown
-            DropdownButtonFormField<String>(
-              value: _selectedGender,
-              items: ['Male', 'Female', 'Other'].map((gender) {
-                return DropdownMenuItem<String>(
-                  value: gender,
-                  child: Text(gender),
-                );
-              }).toList(),
-              onChanged: (value) {
-                setState(() {
-                  _selectedGender = value!;
-                });
-              },
-              decoration: InputDecoration(
-                labelText: 'Gender',
-                prefixIcon: const Icon(Icons.transgender, color: Colors.teal),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildTextField(
+                controller: _nameController,
+                label: 'Name',
+                icon: Icons.person,
+                validator: (value) {
+                  if (value == null || value.trim().isEmpty) {
+                    return 'Name cannot be empty';
+                  }
+                  return null;
+                },
+              ),
+              const SizedBox(height: 16),
+              _buildTextField(
+                controller: _addressController,
+                label: 'Address',
+                icon: Icons.location_on,
+                validator: (value) {
+                  if (value == null || value.trim().isEmpty) {
+                    return 'Address cannot be empty';
+                  }
+                  return null;
+                },
+              ),
+              const SizedBox(height: 16),
+              _buildTextField(
+                controller: _phoneController,
+                label: 'Phone',
+                icon: Icons.phone,
+                keyboardType: TextInputType.phone,
+                validator: (value) {
+                  if (value == null || value.trim().isEmpty) {
+                    return 'Phone number cannot be empty';
+                  }
+                  if (!RegExp(r'^[0-9]{10,15}\$').hasMatch(value)) {
+                    return 'Enter a valid phone number';
+                  }
+                  return null;
+                },
+              ),
+              const SizedBox(height: 16),
+              DropdownButtonFormField<String>(
+                value: _selectedGender,
+                items: ['Male', 'Female', 'Other'].map((gender) {
+                  return DropdownMenuItem<String>(
+                    value: gender,
+                    child: Text(gender),
+                  );
+                }).toList(),
+                onChanged: (value) {
+                  setState(() {
+                    _selectedGender = value!;
+                  });
+                },
+                decoration: InputDecoration(
+                  labelText: 'Gender',
+                  prefixIcon: const Icon(Icons.transgender, color: Colors.teal),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                 ),
               ),
-            ),
-            const SizedBox(height: 20),
-            
-            // Save and Reset Buttons
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                _buildButton(
-                  label: 'Save Changes',
-                  color: const Color.fromARGB(255, 0, 123, 123),
-                  onPressed: _updateUserData,
-                ),
-                const SizedBox(width: 20),
-                _buildButton(
-                  label: 'Reset',
-                  color: Colors.grey,
-                  onPressed: _resetFields,
-                ),
-              ],
-            ),
-          ],
+              const SizedBox(height: 20),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  _buildButton(label: 'Save Changes', color: Colors.teal, onPressed: _updateUserData),
+                  const SizedBox(width: 20),
+                  _buildButton(label: 'Reset', color: Colors.grey, onPressed: _resetFields),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
 
-  // Helper function to build text fields
   Widget _buildTextField({
     required TextEditingController controller,
     required String label,
     required IconData icon,
     TextInputType keyboardType = TextInputType.text,
+    String? Function(String?)? validator,
   }) {
     return TextFormField(
       controller: controller,
       keyboardType: keyboardType,
       decoration: InputDecoration(
         labelText: label,
-        prefixIcon: Icon(icon, color: const Color.fromARGB(255, 0, 123, 123)),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
+        prefixIcon: Icon(icon, color: Colors.teal),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
       ),
+      validator: validator,
     );
   }
 
-  // Helper function to build buttons with correct styling
   Widget _buildButton({
     required String label,
     required Color color,
@@ -227,21 +204,8 @@ class _EditProfilePageState extends State<EditProfilePage> {
         backgroundColor: MaterialStateProperty.all(color),
         padding: MaterialStateProperty.all(const EdgeInsets.symmetric(vertical: 12, horizontal: 30)),
         shape: MaterialStateProperty.all(RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))),
-        elevation: MaterialStateProperty.all(5),
       ),
-      child: Text(
-        label,
-        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-      ),
+      child: Text(label, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
     );
-  }
-
-  @override
-  void dispose() {
-    // Dispose controllers when the page is destroyed
-    _nameController.dispose();
-    _addressController.dispose();
-    _phoneController.dispose();
-    super.dispose();
   }
 }

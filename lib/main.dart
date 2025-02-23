@@ -8,7 +8,7 @@ import 'package:project1/loginpage/login_page.dart';
 
 
 
-const apiKey = 'AIzaSyCD8u6ra1ix2Ttbjsfb6GyCFGYxxWGG48g';
+const apiKey = 'AIzaSyBBuFxwyOb2LIbbl50qc1LXFZQBLO2Wd48';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();

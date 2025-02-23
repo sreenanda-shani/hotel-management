@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:project1/loginpage/login_page.dart';
-import 'package:project1/user/services/user_auth_service.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:crypto/crypto.dart';
 import 'dart:io';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:flutter/foundation.dart';
 
 class UserRegistrationPage extends StatefulWidget {
   const UserRegistrationPage({super.key});
@@ -27,7 +28,46 @@ class _UserRegistrationPageState extends State<UserRegistrationPage> {
   bool _isPasswordVisible = false;
   String? selectedGender = 'Male'; // Default gender is Male
   String? selectedIdProofType = 'Aadhar'; // Default ID proof type
-  PlatformFile? selectedImage; // Variable to hold the selected image file
+  File? selectedImage; // Variable to hold the selected image file
+
+  @override
+  void initState() {
+    super.initState();
+    checkPermissions();
+  }
+
+  Future<void> checkPermissions() async {
+    var status = await Permission.storage.status;
+    if (!status.isGranted) {
+      await Permission.storage.request();
+    }
+    status = await Permission.camera.status;
+    if (!status.isGranted) {
+      await Permission.camera.request();
+    }
+  }
+
+  Future<void> _pickImage() async {
+    FilePickerResult? result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['jpg', 'png', 'heic'],
+    );
+
+    if (result != null) {
+      setState(() {
+        selectedImage = File(result.files.single.path!);
+        print('Selected image: ${selectedImage!.path}');
+      });
+    } else {
+      print('No image selected.');
+    }
+  }
+
+  void _removeImage() {
+    setState(() {
+      selectedImage = null;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -203,6 +243,7 @@ class _UserRegistrationPageState extends State<UserRegistrationPage> {
         onChanged: (String? newValue) {
           setState(() {
             selectedIdProofType = newValue!;
+            print('Selected ID Proof Type: $selectedIdProofType');
           });
         },
         decoration: InputDecoration(
@@ -247,6 +288,7 @@ class _UserRegistrationPageState extends State<UserRegistrationPage> {
         onChanged: (String? newValue) {
           setState(() {
             selectedGender = newValue!;
+            print('Selected Gender: $selectedGender');
           });
         },
         decoration: InputDecoration(
@@ -289,51 +331,39 @@ class _UserRegistrationPageState extends State<UserRegistrationPage> {
       child: Column(
         children: [
           ElevatedButton(
-            onPressed: () async {
-              FilePickerResult? result =
-                  await FilePicker.platform.pickFiles(type: FileType.image);
-              if (result != null) {
-                setState(() {
-                  selectedImage = result.files.first;
-                });
-              }
-            },
-            child: const Text('Upload ID Proof Image'),
+            onPressed: _pickImage,
+            child: Text(selectedImage == null
+                ? 'Upload ID Proof Image'
+                : 'Change Image'),
           ),
           if (selectedImage != null)
-            Stack(
-              children: [
-                Image.memory(
-                  selectedImage!.bytes!,
-                  width: 100,
-                  height: 100,
-                  fit: BoxFit.cover,
-                ),
-                Positioned(
-                  right: 0,
-                  top: 0,
-                  child: GestureDetector(
-                    onTap: () {
-                      setState(() {
-                        selectedImage = null;
-                      });
-                    },
-                    child: const Icon(
-                      Icons.close,
-                      color: Colors.red,
-                      size: 20,
+            Padding(
+              padding: const EdgeInsets.only(top: 16),
+              child: Stack(
+                children: [
+                  Image.file(
+                    selectedImage!,
+                    width: 100,
+                    height: 100,
+                    fit: BoxFit.cover,
+                  ),
+                  Positioned(
+                    right: 0,
+                    top: 0,
+                    child: IconButton(
+                      icon: Icon(Icons.close, color: Colors.red),
+                      onPressed: _removeImage,
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
         ],
       ),
     );
   }
 
-  Future<Map<String, dynamic>?> _uploadToCloudinary(
-      PlatformFile imageFile) async {
+  Future<Map<String, dynamic>?> _uploadToCloudinary(File imageFile) async {
     try {
       const cloudName = 'dsjp0qqgo';
       const uploadPreset = 'credentials';
@@ -357,11 +387,8 @@ class _UserRegistrationPageState extends State<UserRegistrationPage> {
       request.fields['signature'] = signature;
       request.fields['folder'] = folder;
 
-      request.files.add(http.MultipartFile.fromBytes(
-        'file',
-        imageFile.bytes!,
-        filename: imageFile.name,
-      ));
+      request.files
+          .add(await http.MultipartFile.fromPath('file', imageFile.path));
 
       final response = await request.send();
       final responseData = await response.stream.toBytes();
@@ -384,6 +411,7 @@ class _UserRegistrationPageState extends State<UserRegistrationPage> {
   Future<void> registerHandler() async {
     setState(() {
       loading = true;
+      print('Registration started...');
     });
 
     String fullName = fullNameController.text;
@@ -412,12 +440,14 @@ class _UserRegistrationPageState extends State<UserRegistrationPage> {
       );
       setState(() {
         loading = false;
+        print('Validation failed: Missing fields or image.');
       });
       return;
     }
 
     String imageUrl = '';
     if (selectedImage != null) {
+      print('Uploading image: ${selectedImage!.path}');
       final uploadResponse = await _uploadToCloudinary(selectedImage!);
       if (uploadResponse != null) {
         imageUrl = uploadResponse['secure_url'];
@@ -428,6 +458,7 @@ class _UserRegistrationPageState extends State<UserRegistrationPage> {
         );
         setState(() {
           loading = false;
+          print('Image upload failed.');
         });
         return;
       }
@@ -452,6 +483,7 @@ class _UserRegistrationPageState extends State<UserRegistrationPage> {
         const SnackBar(content: Text('Registration Successful!')),
       );
 
+      print('Registration successful!');
       // Navigate to Login Page after successful registration
       Navigator.push(context, MaterialPageRoute(builder: (context) {
         return const UserLoginPage();
@@ -460,6 +492,7 @@ class _UserRegistrationPageState extends State<UserRegistrationPage> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Registration failed: $e')),
       );
+      print('Registration failed: $e');
     } finally {
       setState(() {
         loading = false;

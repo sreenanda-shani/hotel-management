@@ -50,7 +50,7 @@ dependencies:
   flutter_speed_dial: ^7.0.0
   flutter_datetime_picker: ^1.5.1
   shared_preferences: ^2.5.2
-  file_picker: ^4.2.5
+  file_picker: ^6.1.1
   cloudinary: ^1.2.0
   cloudinary_public: ^0.23.1
   image_picker: ^0.8.5+3
