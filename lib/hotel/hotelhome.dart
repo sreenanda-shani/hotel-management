@@ -8,6 +8,7 @@ import 'package:project1/hotel/hotel_profile.dart';
 import 'package:project1/hotel/hotel_rooms.dart';
 import 'package:project1/hotel/hotel_view.dart';
 import 'package:project1/hotel/hotelmanage.dart';
+import 'package:project1/hotel/notification.dart';
 import 'package:project1/hotel/recommentation_screen.dart';
 import 'package:project1/hotel/view_staff.dart';
 import 'package:project1/user/bookinghistory.dart';
@@ -157,6 +158,16 @@ class _HotelHomeState extends State<HotelHome> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(builder: (context) => ViewRoomPage()),
+                );
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.hotel, color: Colors.black),
+              title: const Text('View Room Services'),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => RoomServicesPage(staffHotelId: FirebaseAuth.instance.currentUser!.uid,)),
                 );
               },
             ),
