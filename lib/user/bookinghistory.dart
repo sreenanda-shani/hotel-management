@@ -1,6 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:project1/user/feedback.dart';
+
 class BookingHistoryPage extends StatefulWidget {
   const BookingHistoryPage({super.key});
 
@@ -26,13 +28,21 @@ class _BookingHistoryPageState extends State<BookingHistoryPage> {
 
   Future<void> _fetchUserBookings() async {
     try {
-      QuerySnapshot bookingSnapshot = await _bookingCollection.get();
+      String? userId = FirebaseAuth.instance.currentUser?.uid;
+      if (userId == null) {
+        throw Exception("User not logged in");
+      }
+
+      QuerySnapshot bookingSnapshot =
+          await _bookingCollection.where('userId', isEqualTo: userId).get();
+
       List<Map<String, dynamic>> bookings = [];
       for (var doc in bookingSnapshot.docs) {
         var bookingData = doc.data() as Map<String, dynamic>;
         bookingData['bookingId'] = doc.id;
 
-        var hotelSnapshot = await _hotelCollection.doc(bookingData['hotelId']).get();
+        var hotelSnapshot =
+            await _hotelCollection.doc(bookingData['hotelId']).get();
         if (hotelSnapshot.exists) {
           var hotelData = hotelSnapshot.data() as Map<String, dynamic>;
           bookingData['hotelName'] = hotelData['hotelName'];
@@ -99,7 +109,8 @@ class _BookingHistoryPageState extends State<BookingHistoryPage> {
     var checkIn = (booking['checkIn'] as Timestamp).toDate();
     var checkOut = (booking['checkOut'] as Timestamp).toDate();
     var currentDate = DateTime.now();
-    bool isCurrentBooking = currentDate.isAfter(checkIn) && currentDate.isBefore(checkOut);
+    bool isCurrentBooking =
+        currentDate.isAfter(checkIn) && currentDate.isBefore(checkOut);
 
     return Card(
       margin: const EdgeInsets.symmetric(vertical: 12),
@@ -187,12 +198,11 @@ class _BookingHistoryPageState extends State<BookingHistoryPage> {
                   onPressed: () {
                     // Navigate to detailed booking page
                     Navigator.push(
-  context,
-  MaterialPageRoute(
-    builder: (context) => BookingDetailsPage(bookingId: booking['bookingId']),
-  ),
-);
-
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => BookingDetailsPage(bookingId: booking['bookingId']),
+                      ),
+                    );
                   },
                   child: const Text("View in Detail"),
                 ),

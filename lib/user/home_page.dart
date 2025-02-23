@@ -292,25 +292,35 @@ class _HomePageState extends State<HomePage> {
           return favorites.contains(hotelId);
         }
 
-        Future<void> toggleFavorite() async {
-          final userDocRef = FirebaseFirestore.instance
-              .collection('users')
-              .doc(currentUser?.uid);
+       Future<void> toggleFavorite() async {
+  print("Toggle favourite tapped for hotel: $hotelId");
 
-          final userDoc = await userDocRef.get();
-          final favorites = userDoc.data()?['favourites'] as List<dynamic>? ?? [];
+  final userDocRef = FirebaseFirestore.instance.collection('users').doc(currentUser?.uid);
+  final userDoc = await userDocRef.get();
 
-          if (favorites.contains(hotelId)) {
-            await userDocRef.update({
-              'favourites': FieldValue.arrayRemove([hotelId]),
-            });
-          } else {
-            await userDocRef.update({
-              'favourites': FieldValue.arrayUnion([hotelId]),
-            });
-          }
-          setState(() {});
-        }
+  if (!userDoc.exists) {
+    print("User document does not exist, creating...");
+    await userDocRef.set({'favourites': []});
+  }
+
+  final favorites = List<String>.from(userDoc.data()?['favourites'] ?? []);
+
+  if (favorites.contains(hotelId)) {
+    print("Removing from favourites...");
+    await userDocRef.update({
+      'favourites': FieldValue.arrayRemove([hotelId]),
+    });
+  } else {
+    print("Adding to favourites...");
+    await userDocRef.update({
+      'favourites': FieldValue.arrayUnion([hotelId]),
+    });
+  }
+
+  print("Updated favourites successfully!");
+  setState(() {});
+}
+
 
         return FutureBuilder<bool>( 
           future: isFavorite(),
