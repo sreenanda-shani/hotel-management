@@ -33,7 +33,7 @@ class HotelChatScreenState extends State<HotelChatScreen> {
       });
 
       final documentSnapshot = await FirebaseFirestore.instance
-          .collection("Staff")
+          .collection("staff")
           .doc(currentUserId)
           .get();
 
